@@ -4,10 +4,10 @@ import hxParser.JsonParser;
 using Lambda;
 
 class Printer {
-    public static function print(tree:Tree, tokenPrinter:String->String):String {
+    public static function print(tree:Tree, ?printToken:String->String):String {
         var haxeBuf = new StringBuf();
         inline function add(token:String) {
-            haxeBuf.add(token);
+            haxeBuf.add(if (printToken == null) token else printToken(token));
         }
         function loop(tree:Tree) {
             switch (tree.kind) {
