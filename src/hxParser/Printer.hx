@@ -4,7 +4,7 @@ import hxParser.JsonParser;
 using Lambda;
 
 class Printer {
-    public static function print(tree:Tree):String {
+    public static function print(tree:Tree, tokenPrinter:String->String):String {
         var haxeBuf = new StringBuf();
         inline function add(token:String) {
             haxeBuf.add(token);
