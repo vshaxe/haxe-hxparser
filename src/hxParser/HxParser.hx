@@ -5,7 +5,14 @@ import util.Result;
 
 class HxParser {
     public static function parse(src:String, entryPoint = "file"):Result<JResult> {
-        return try Success(parser("<stdin>", entryPoint, src)) catch (e:Any) Failure(Std.string(e));
+        return try {
+            var result = parser("<stdin>", entryPoint, src);
+            if (result.document == null) {
+                Failure(Std.string(result));
+            } else {
+                Success(result);
+            }
+        } catch (e:Any) Failure(Std.string(e));
     }
 
     static var parser:String->String->String->JResult;
