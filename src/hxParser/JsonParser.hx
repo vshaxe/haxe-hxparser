@@ -17,6 +17,13 @@ typedef JToken = {
     @:optional var trivia:Trivia;
 }
 
+typedef JResult = {
+    document: {
+        tree: JNodeBase,
+        blocks: Array<{start:Int, end:Int}>
+    }
+}
+
 typedef Tree = {
     var kind:TreeKind;
     var start:Int;
@@ -42,7 +49,7 @@ typedef PlacedToken = {
 }
 
 class JsonParser {
-    public static function parse(input:JNodeBase):Tree {
+    public static function parseTree(input:JNodeBase):Tree {
 
         function loop(t:JNodeBase):Tree {
             if (t.name == "token") {
@@ -76,5 +83,9 @@ class JsonParser {
         }
 
         return loop(input);
+    }
+
+    public static function parse(input:JResult) {
+        return parseTree(input.document.tree);
     }
 }
