@@ -4,11 +4,11 @@ import hxParser.JsonParser.JResult;
 import util.Result;
 
 class HxParser {
-    public static function parse(src:String):Result<JResult> {
-        return try Success(parser("<stdin>", src)) catch (e:Any) Failure(Std.string(e));
+    public static function parse(src:String, entryPoint = "file"):Result<JResult> {
+        return try Success(parser("<stdin>", entryPoint, src)) catch (e:Any) Failure(Std.string(e));
     }
 
-    static var parser:String->String->JResult;
+    static var parser:String->String->String->JResult;
 
     static function initParser() {
         untyped __js__("
