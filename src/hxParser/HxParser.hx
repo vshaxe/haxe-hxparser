@@ -3,8 +3,14 @@ package hxParser;
 import hxParser.JsonParser.JResult;
 import util.Result;
 
+@:enum abstract EntryPoint(String) to String {
+    var File = "file";
+    var ClassField = "class_field";
+    var ClassDecl = "class_decl";
+}
+
 class HxParser {
-    public static function parse(src:String, entryPoint = "file"):Result<JResult> {
+    public static function parse(src:String, entryPoint:EntryPoint = File):Result<JResult> {
         return try {
             var result = parser("<stdin>", entryPoint, src);
             if (result.document == null) {
