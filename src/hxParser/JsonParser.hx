@@ -44,6 +44,7 @@ class JsonParser {
                 var children = [];
                 if (tok.sub != null) {
                     for (elem in tok.sub) {
+                        if (elem == null) continue;
                         var t = loop(elem);
                         children.push(t);
                         if (start == -1 || t.start < start)
