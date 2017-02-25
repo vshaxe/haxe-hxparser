@@ -1,30 +1,7 @@
 package hxParser;
 
 import hxParser.Tree;
-
-typedef JNodeBase = {
-    var name:String;
-}
-
-typedef JNode = {
-    >JNodeBase,
-    @:optional var sub:Array<JNodeBase>;
-}
-
-typedef JToken = {
-    >JNodeBase,
-    var token:String;
-    var start:Int;
-    var end:Int;
-    @:optional var trivia:Trivia;
-}
-
-typedef JResult = {
-    document: {
-        tree: JNodeBase,
-        blocks: Array<{start:Int, end:Int}>
-    }
-}
+import hxParser.JResult;
 
 class JsonParser {
     public static function parseTree(input:JNodeBase):Tree {

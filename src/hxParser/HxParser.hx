@@ -1,6 +1,5 @@
 package hxParser;
 
-import hxParser.JsonParser.JResult;
 import util.Result;
 
 @:enum abstract EntryPoint(String) to String {
