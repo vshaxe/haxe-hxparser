@@ -5,7 +5,7 @@ import util.Result;
 
 @:enum abstract EntryPoint(String) to String {
     var File = "file";
-    var ClassField = "class_field";
+    var ClassFields = "class_fields";
     var ClassDecl = "class_decl";
 }
 
