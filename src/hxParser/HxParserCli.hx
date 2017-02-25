@@ -1,6 +1,5 @@
 package hxParser;
 
-import hxParser.JsonParser.JResult;
 import js.node.ChildProcess;
 import js.node.child_process.ChildProcess.ChildProcessEvent;
 import js.node.stream.Readable;
