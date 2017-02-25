@@ -14,7 +14,7 @@ typedef JToken = {
     var token:String;
     var start:Int;
     var end:Int;
-    @:optional var trivia:Trivia;
+    @:optional var trivia:JTrivia;
 }
 
 typedef JResult = {
@@ -24,14 +24,14 @@ typedef JResult = {
     }
 }
 
-typedef Trivia = {
-    @:optional var leading:Array<PlacedToken>;
-    @:optional var trailing:Array<PlacedToken>;
+typedef JTrivia = {
+    @:optional var leading:Array<JPlacedToken>;
+    @:optional var trailing:Array<JPlacedToken>;
     @:optional var implicit:Bool; // Omitted as allowed by the grammar (semicolon after }) (good)
     @:optional var inserted:Bool; // Actually missing (bad)
 }
 
-typedef PlacedToken = {
+typedef JPlacedToken = {
     var token:String;
     var start:Int;
     var end:Int;

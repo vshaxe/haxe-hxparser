@@ -10,5 +10,5 @@ typedef Tree = {
 
 enum TreeKind {
     Node(name:String, children:Array<Tree>);
-    Token(token:String, trivia:Trivia);
+    Token(token:String, trivia:JTrivia);
 }
