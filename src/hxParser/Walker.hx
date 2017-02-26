@@ -182,7 +182,7 @@ class Walker {
 		if (node.args != null) walkCommaSeparated(node.args, function(el) walkNExpr(el));
 		walkToken(node.pclose);
 	}
-	function walkNConstraints_PMultipleConstraints(colon:Token, popen:Token, types:NCommaSeparated<hxParser.ParseTree.NComplexType>, pclose:Token) {
+	function walkNConstraints_PMultipleConstraints(colon:Token, popen:Token, types:NCommaSeparated<NComplexType>, pclose:Token) {
 		walkToken(colon);
 		walkToken(popen);
 		walkCommaSeparated(types, function(el) walkNComplexType(el));
@@ -253,7 +253,7 @@ class Walker {
 		case PFrom(_from, type):walkNAbstractRelation_PFrom(_from, type);
 		case PTo(_to, type):walkNAbstractRelation_PTo(_to, type);
 	};
-	function walkNExpr_PObjectDecl(bropen:Token, fl:NCommaSeparatedAllowTrailing<hxParser.ParseTree.NObjectField>, brclose:Token) {
+	function walkNExpr_PObjectDecl(bropen:Token, fl:NCommaSeparatedAllowTrailing<NObjectField>, brclose:Token) {
 		walkToken(bropen);
 		walkCommaSeparatedTrailing(fl, function(el) walkNObjectField(el));
 		walkToken(brclose);
@@ -303,7 +303,7 @@ class Walker {
 		walkToken(colon);
 		walkArray(el, function(el) walkNBlockElement(el));
 	}
-	function walkNMetadata_PMetadataWithArgs(name:Token, el:NCommaSeparated<hxParser.ParseTree.NExpr>, pclose:Token) {
+	function walkNMetadata_PMetadataWithArgs(name:Token, el:NCommaSeparated<NExpr>, pclose:Token) {
 		walkToken(name);
 		walkCommaSeparated(el, function(el) walkNExpr(el));
 		walkToken(pclose);
@@ -326,7 +326,7 @@ class Walker {
 		walkNExpr(e2);
 		walkToken(bkclose);
 	}
-	function walkNBlockElement_PVar(_var:Token, vl:NCommaSeparated<hxParser.ParseTree.NVarDeclaration>, semicolon:Token) {
+	function walkNBlockElement_PVar(_var:Token, vl:NCommaSeparated<NVarDeclaration>, semicolon:Token) {
 		walkToken(_var);
 		walkCommaSeparated(vl, function(el) walkNVarDeclaration(el));
 		walkToken(semicolon);
@@ -721,7 +721,7 @@ class Walker {
 		walkToken(pclose);
 		walkNExpr(e2);
 	}
-	function walkNCase_PCase(_case:Token, patterns:NCommaSeparated<hxParser.ParseTree.NExpr>, guard:StdTypes.Null<hxParser.ParseTree.NGuard>, colon:Token, el:Array<hxParser.ParseTree.NBlockElement>) {
+	function walkNCase_PCase(_case:Token, patterns:NCommaSeparated<NExpr>, guard:StdTypes.Null<hxParser.ParseTree.NGuard>, colon:Token, el:Array<hxParser.ParseTree.NBlockElement>) {
 		walkToken(_case);
 		walkCommaSeparated(patterns, function(el) walkNExpr(el));
 		if (guard != null) walkNGuard(guard);
@@ -735,7 +735,7 @@ class Walker {
 		walkToken(_return);
 		walkNExpr(e);
 	}
-	function walkNMacroExpr_PVar(_var:Token, v:NCommaSeparated<hxParser.ParseTree.NVarDeclaration>) {
+	function walkNMacroExpr_PVar(_var:Token, v:NCommaSeparated<NVarDeclaration>) {
 		walkToken(_var);
 		walkCommaSeparated(v, function(el) walkNVarDeclaration(el));
 	}

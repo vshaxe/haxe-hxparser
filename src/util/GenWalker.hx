@@ -175,12 +175,19 @@ class GenWalker {
     }
 
     static function extractTypeName(t:Type) {
-        return switch (t.toComplexType()) {
+        function mapParam(t:TypeParam, f):TypeParam return switch (t) {
+            case TPExpr(_): t;
+            case TPType(t): TPType(f(t));
+        }
+
+        function loop(t:ComplexType):ComplexType return switch (t) {
             case TPath({pack: ["hxParser"], name:"ParseTree", sub: sub, params: params}):
-                TPath({pack: [], name: sub, params: params});
+                TPath({pack: [], name: sub, params: [for (p in params) mapParam(p, loop)]});
             case ct:
                 ct;
         }
+
+        return loop(t.toComplexType());
     }
 }
 #end
