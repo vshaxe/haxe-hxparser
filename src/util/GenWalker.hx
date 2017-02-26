@@ -10,7 +10,7 @@ class GenWalker {
     static function gen() {
         var root = Context.getType("hxParser.ParseTree.NFile");
         var fields = new Map();
-        genWalk(null, root, root, fields, null);
+        genWalk(root, root, fields, null);
 
         var walkerTD = macro class Walker {
             function walkToken(token:Token) {}
@@ -53,38 +53,34 @@ class GenWalker {
         sys.io.File.saveContent("src/hxParser/Walker.hx", parts.join("\n\n"));
     }
 
-    static function genWalk(expr:Expr, type:Type, origType, fields:Map<String,Field>, name:Null<String>):Expr {
+    static function genWalk(type:Type, origType, fields:Map<String,Field>, name:Null<String>):Expr {
         switch (type) {
             case TInst(_.get() => {pack: ["hxParser"], name: "Token"}, _):
-                return macro walkToken($expr);
+                return macro walkToken;
 
             case TInst(_.get() => {pack: [], name: "Array"}, [elemT]) if (name != null):
-                var walkExpr = genSequenceWalk(elemT, origType, name, macro walkArray, fields);
-                return macro $walkExpr($expr);
+                return genSequenceWalk(elemT, origType, name, macro walkArray, fields);
 
             case TType(_.get() => dt, params):
                 switch [dt, params] {
                     case [{pack: ["hxParser"], name: "NCommaSeparated"}, [elemT]] if (name != null):
-                        var walkExpr = genSequenceWalk(elemT, origType, name, macro walkCommaSeparated, fields);
-                        return macro $walkExpr($expr);
+                        return genSequenceWalk(elemT, origType, name, macro walkCommaSeparated, fields);
 
                     case [{pack: ["hxParser"], name: "NCommaSeparatedAllowTrailing"}, [elemT]] if (name != null):
-                        var walkExpr = genSequenceWalk(elemT, origType, name, macro walkCommaSeparatedTrailing, fields);
-                        return macro $walkExpr($expr);
+                        return genSequenceWalk(elemT, origType, name, macro walkCommaSeparatedTrailing, fields);
 
-                    case [{pack: [], name: "Null"}, [realType]]:
-                        var walkExpr = genWalk(expr, realType, realType, fields, name);
-                        return macro if ($expr != null) $walkExpr;
+                    case [{pack: [], name: "Null"}, _]:
+                        throw "Null<T> should be handled elsewhere!";
 
                     default:
-                        return genWalk(expr, dt.type.applyTypeParameters(dt.params, params), origType, fields, dt.name);
+                        return genWalk(dt.type.applyTypeParameters(dt.params, params), origType, fields, dt.name);
                 }
 
             case TEnum(_.get() => en, _):
-                return genEnumWalk(expr, en, origType, fields);
+                return genEnumWalk(en, origType, fields);
 
             case TAnonymous(_.get() => anon) if (name != null):
-                return genAnonWalk(expr, anon, origType, fields, name);
+                return genAnonWalk(anon, origType, fields, name);
 
             default:
         }
@@ -96,7 +92,7 @@ class GenWalker {
         if (!fields.exists(name)) {
             fields[name] = null;
 
-            var visExpr = genWalk(macro el, elemT, elemT, fields, name + "_elem");
+            var visExpr = genWalk(elemT, elemT, fields, name + "_elem");
 
             fields.set(name, {
                 pos: null,
@@ -104,7 +100,7 @@ class GenWalker {
                 kind: FFun({
                     args: [{name: "elems", type: extractTypeName(origType)}],
                     ret: null,
-                    expr: macro { $walkFn(elems, function(el) $visExpr); }
+                    expr: macro { $walkFn(elems, $visExpr); }
                 })
             });
 
@@ -112,7 +108,7 @@ class GenWalker {
         return macro $i{walkName};
     }
 
-    static function genEnumWalk(expr:Expr, en:EnumType, origType:Type, fields:Map<String,Field>):Expr {
+    static function genEnumWalk(en:EnumType, origType:Type, fields:Map<String,Field>):Expr {
         var visName = "walk" + en.name;
         if (!fields.exists(en.name)) {
             fields.set(en.name, null); // TODO: this sucks
@@ -126,7 +122,17 @@ class GenWalker {
                         for (arg in args) {
                             var local = macro $i{arg.name};
                             patternArgs.push(local);
-                            exprs.push(genWalk(local, arg.t, arg.t, fields, en.name + "_" + ctor.name + "_" + arg.name));
+
+                            var expr = switch(getNullType(arg.t)) {
+                                case None:
+                                    var walk = genWalk(arg.t, arg.t, fields, en.name + "_" + ctor.name + "_" + arg.name);
+                                    macro $walk($local);
+                                case Some(realT):
+                                    var walk = genWalk(realT, realT, fields, en.name + "_" + ctor.name + "_" + arg.name);
+                                    macro if ($local != null) $walk($local);
+                            }
+
+                            exprs.push(expr);
                         }
 
                         var ctorHandlerName = visName + "_" + ctor.name;
@@ -167,10 +173,10 @@ class GenWalker {
                 })
             });
         }
-        return macro $i{visName}($expr);
+        return macro $i{visName};
     }
 
-    static function genAnonWalk(expr:Expr, anon:AnonType, origType:Type, fields:Map<String,Field>, name:String):Expr {
+    static function genAnonWalk(anon:AnonType, origType:Type, fields:Map<String,Field>, name:String):Expr {
         var visName = 'walk$name';
         if (!fields.exists(name)) {
             fields.set(name, null); // TODO: this sucks
@@ -180,7 +186,17 @@ class GenWalker {
             anon.fields.sort(function(a,b) return Context.getPosInfos(a.pos).min - Context.getPosInfos(b.pos).min);
             for (field in anon.fields) {
                 var fname = field.name;
-                exprs.push(genWalk(macro node.$fname, field.type, field.type, fields, name + "_" + fname));
+
+                var expr = switch(getNullType(field.type)) {
+                    case None:
+                        var walk = genWalk(field.type, field.type, fields, name + "_" + fname);
+                        macro $walk(node.$fname);
+                    case Some(realT):
+                        var walk = genWalk(realT, realT, fields, name + "_" + fname);
+                        macro if (node.$fname != null) $walk(node.$fname);
+                }
+
+                exprs.push(expr);
             }
 
             fields.set(name, {
@@ -193,7 +209,14 @@ class GenWalker {
                 })
             });
         }
-        return macro $i{visName}($expr);
+        return macro $i{visName};
+    }
+
+    static function getNullType(t:Type):haxe.ds.Option<Type> {
+        return switch (t) {
+            case TType(_.get() => {pack: [], name: "Null"}, [realT]): Some(realT);
+            default: None;
+        }
     }
 
     static function extractTypeName(t:Type) {
