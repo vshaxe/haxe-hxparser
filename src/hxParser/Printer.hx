@@ -1,27 +1,28 @@
 package hxParser;
 
-import hxParser.JsonParser;
-using Lambda;
+import hxParser.ParseTree;
 
-class Printer {
-    public static function print(tree:Tree, ?printToken:String->String):String {
-        var haxeBuf = new StringBuf();
-        inline function add(token:String) {
-            haxeBuf.add(if (printToken == null) token else printToken(token));
-        }
-        function loop(tree:Tree) {
-            switch (tree.kind) {
-                case Node(_, children): children.iter(loop);
-                case Token(token, trivia):
-                    if (trivia == null) haxeBuf.add(token)
-                    else {
-                        if (trivia.leading != null) for (trivia in trivia.leading) add(trivia.token);
-                        if (!trivia.implicit && !trivia.inserted && token != "<eof>") add(token);
-                        if (trivia.trailing != null) for (trivia in trivia.trailing) add(trivia.token);
-                    }
-            }
-        }
-        loop(tree);
-        return haxeBuf.toString();
+class Printer extends Walker {
+    var add:String->Void;
+    var buf:StringBuf;
+
+    function new(printToken) {
+        this.add = if (printToken == null) function(s) buf.add(s) else function(s) buf.add(printToken(s));
+    }
+
+    inline function process(file) {
+        buf = new StringBuf();
+        walkNFile(file);
+        return buf.toString();
+    }
+
+    override function walkToken(token:Token) {
+        if (token.leadingTrivia != null) for (trivia in token.leadingTrivia) add(trivia.text);
+        add(token.text);
+        if (token.trailingTrivia != null) for (trivia in token.trailingTrivia) add(trivia.text);
+    }
+
+    public static inline function print(file:NFile, ?printToken:String->String):String {
+        return new Printer(printToken).process(file);
     }
 }
