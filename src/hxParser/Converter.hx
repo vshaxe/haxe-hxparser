@@ -210,10 +210,9 @@ class Converter {
 			case "short_fields":
 				function convertAnonField(node:JNodeBase):NAnonymousTypeField {
 					var node = node.asNode("anonymous_type_field");
-					var result:NAnonymousTypeField = cast {
+					var result:NAnonymousTypeField = {
 						name: convertDollarIdent(node.sub[1]),
-						colon: node.sub[2].toToken(),
-						type: convertComplexType(node.sub[3]),
+						typeHint: convertTypeHint(node.sub[2]),
 					};
 					var questionMark = node.sub[0];
 					if (questionMark != null)

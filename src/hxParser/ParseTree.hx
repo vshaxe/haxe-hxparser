@@ -240,7 +240,7 @@ enum NClassField {
 }
 
 typedef NAnonymousTypeField = {
-	?questionmark:Token, name:Token, colon:Token, type:NComplexType
+	?questionmark:Token, name:Token, typeHint:NTypeHint
 }
 
 enum NAnonymousTypeFields {
