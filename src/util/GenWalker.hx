@@ -107,9 +107,20 @@ class GenWalker {
                             exprs.push(genWalk(local, arg.t, arg.t, fields, en.name + "_" + ctor.name + "_" + arg.name));
                         }
 
+                        var ctorHandlerName = visName + "_" + ctor.name;
+                        fields.set(en.name + "_" + ctor.name, {
+                            pos: en.pos,
+                            name: ctorHandlerName,
+                            kind: FFun({
+                                args: args.map(function(a) return ({name: a.name, type: extractTypeName(a.t)} : FunctionArg)),
+                                ret: null,
+                                expr: macro $b{exprs}
+                            })
+                        });
+
                         cases.push({
                             values: [macro $i{ctor.name}($a{patternArgs})],
-                            expr: macro $b{exprs}
+                            expr: macro $i{ctorHandlerName}($a{patternArgs})
                         });
 
                     case TEnum(_):
