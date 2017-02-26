@@ -263,7 +263,7 @@ typedef NEnumField = {
 enum NComplexType {
 	PParenthesisType(popen:Token, ct:NComplexType, pclose:Token);
 	PStructuralExtension(bropen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token);
-	PAnoymousStructure(bropen:Token, fields:NAnonymousTypeFields, brclose:Token);
+	PAnonymousStructure(bropen:Token, fields:NAnonymousTypeFields, brclose:Token);
 	POptionalType(questionmark:Token, type:NComplexType);
 	PTypePath(path:NTypePath);
 	PFunctionType(type1:NComplexType, arrow:Token, type2:NComplexType);

@@ -5,7 +5,7 @@ package hxParser;
 
 import hxParser.ParseTree;
 
-class Walker /* Texas Ranger */ {
+class Walker {
 	function walkToken(token:Token) { }
 	function walkArray<T>(elems:Array<T>, walk:T -> Void) {
 		for (el in elems) walk(el);
@@ -200,7 +200,7 @@ class Walker /* Texas Ranger */ {
 		case PFunctionType(type1, arrow, type2):walkNComplexType_PFunctionType(type1, arrow, type2);
 		case PStructuralExtension(bropen, types, fields, brclose):walkNComplexType_PStructuralExtension(bropen, types, fields, brclose);
 		case PParenthesisType(popen, ct, pclose):walkNComplexType_PParenthesisType(popen, ct, pclose);
-		case PAnoymousStructure(bropen, fields, brclose):walkNComplexType_PAnoymousStructure(bropen, fields, brclose);
+		case PAnonymousStructure(bropen, fields, brclose):walkNComplexType_PAnonymousStructure(bropen, fields, brclose);
 		case PTypePath(path):walkNComplexType_PTypePath(path);
 		case POptionalType(questionmark, type):walkNComplexType_POptionalType(questionmark, type);
 	};
@@ -248,6 +248,11 @@ class Walker /* Texas Ranger */ {
 	function walkNComplexType_POptionalType(questionmark:Token, type:NComplexType) {
 		walkToken(questionmark);
 		walkNComplexType(type);
+	}
+	function walkNComplexType_PAnonymousStructure(bropen:Token, fields:NAnonymousTypeFields, brclose:Token) {
+		walkToken(bropen);
+		walkNAnonymousTypeFields(fields);
+		walkToken(brclose);
 	}
 	function walkNAbstractRelation(node:NAbstractRelation) switch node {
 		case PFrom(_from, type):walkNAbstractRelation_PFrom(_from, type);
@@ -412,11 +417,6 @@ class Walker /* Texas Ranger */ {
 		walkNComplexType(type1);
 		walkToken(arrow);
 		walkNComplexType(type2);
-	}
-	function walkNComplexType_PAnoymousStructure(bropen:Token, fields:NAnonymousTypeFields, brclose:Token) {
-		walkToken(bropen);
-		walkNAnonymousTypeFields(fields);
-		walkToken(brclose);
 	}
 	function walkNMetadata_PMetadata(name:Token) {
 		walkToken(name);

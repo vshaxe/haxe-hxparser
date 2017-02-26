@@ -232,7 +232,7 @@ class Converter {
 				PTypePath(convertTypePath(node.sub[0]));
 
 			case "anonymous":
-				PAnoymousStructure(node.sub[0].toToken(), convertAnonymousFields(node.sub[1]), node.sub[2].toToken());
+				PAnonymousStructure(node.sub[0].toToken(), convertAnonymousFields(node.sub[1]), node.sub[2].toToken());
 
 			case "function":
 				PFunctionType(convertComplexType(node.sub[0]), node.sub[1].toToken(), convertComplexType(node.sub[2]));
