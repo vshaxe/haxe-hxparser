@@ -30,13 +30,19 @@ class Walker {
 		if (node.path != null) walkNPath(node.path);
 		walkToken(node.semicolon);
 	}
+	function walkNBlockElement_PVar_vl(elems:NCommaSeparated<NVarDeclaration>) {
+		walkCommaSeparated(elems, function(el) walkNVarDeclaration(el));
+	}
 	function walkNObjectFieldName_PString(string:NString) {
 		walkNString(string);
 	}
 	function walkNDecl_PClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, c:NClassDecl) {
 		walkNAnnotations(annotations);
-		walkArray(flags, function(el) walkNCommonFlag(el));
+		walkNDecl_PClassDecl_flags(flags);
 		walkNClassDecl(c);
+	}
+	function walkNExpr_PArrayDecl_el(elems:NCommaSeparatedAllowTrailing<NExpr>) {
+		walkCommaSeparatedTrailing(elems, function(el) walkNExpr(el));
 	}
 	function walkNObjectFieldName(node:NObjectFieldName) switch node {
 		case PString(string):walkNObjectFieldName_PString(string);
@@ -72,12 +78,15 @@ class Walker {
 	function walkNFieldExpr_PBlockFieldExpr(e:NExpr) {
 		walkNExpr(e);
 	}
+	function walkNMacroExpr_PVar_v(elems:NCommaSeparated<NVarDeclaration>) {
+		walkCommaSeparated(elems, function(el) walkNVarDeclaration(el));
+	}
 	function walkNTypePathParameter_PConstantTypePathParameter(constant:NLiteral) {
 		walkNLiteral(constant);
 	}
 	function walkNDecl_PTypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _typedef:Token, name:Token, params:Null<NTypeDeclParameters>, assign:Token, type:NComplexType, semicolon:Null<Token>) {
 		walkNAnnotations(annotations);
-		walkArray(flags, function(el) walkNCommonFlag(el));
+		walkNDecl_PTypedefDecl_flags(flags);
 		walkToken(_typedef);
 		walkToken(name);
 		if (params != null) walkNTypeDeclParameters(params);
@@ -87,15 +96,18 @@ class Walker {
 	}
 	function walkNEnumFieldArgs(node:NEnumFieldArgs) {
 		walkToken(node.popen);
-		if (node.args != null) walkCommaSeparated(node.args, function(el) walkNEnumFieldArg(el));
+		if (node.args != null) walkNEnumFieldArgs_args(node.args);
 		walkToken(node.pclose);
+	}
+	function walkNPath_idents(elems:Array<NDotIdent>) {
+		walkArray(elems, function(el) walkNDotIdent(el));
 	}
 	function walkNMacroExpr_PClass(c:NClassDecl) {
 		walkNClassDecl(c);
 	}
 	function walkNExpr_PBlock(bropen:Token, elems:Array<NBlockElement>, brclose:Token) {
 		walkToken(bropen);
-		walkArray(elems, function(el) walkNBlockElement(el));
+		walkNExpr_PBlock_elems(elems);
 		walkToken(brclose);
 	}
 	function walkNImportMode_PInMode(_in:Token, ident:Token) {
@@ -118,6 +130,9 @@ class Walker {
 		case PConstantTypePathParameter(constant):walkNTypePathParameter_PConstantTypePathParameter(constant);
 		case PTypeTypePathParameter(type):walkNTypePathParameter_PTypeTypePathParameter(type);
 	};
+	function walkNFile_decls(elems:Array<NDecl>) {
+		walkArray(elems, function(el) walkNDecl(el));
+	}
 	function walkNConst_PConstLiteral(literal:NLiteral) {
 		walkNLiteral(literal);
 	}
@@ -125,11 +140,23 @@ class Walker {
 		walkNMetadata(metadata);
 		walkNExpr(e);
 	}
+	function walkNClassDecl_fields(elems:Array<NClassField>) {
+		walkArray(elems, function(el) walkNClassField(el));
+	}
 	function walkNDotIdent_PDot(_dot:Token) {
 		walkToken(_dot);
 	}
+	function walkNMetadata_PMetadataWithArgs_el(elems:NCommaSeparated<NExpr>) {
+		walkCommaSeparated(elems, function(el) walkNExpr(el));
+	}
 	function walkNAnonymousTypeFields_PAnonymousShortFields(fields:Null<NCommaSeparatedAllowTrailing<NAnonymousTypeField>>) {
-		if (fields != null) walkCommaSeparatedTrailing(fields, function(el) walkNAnonymousTypeField(el));
+		if (fields != null) walkNAnonymousTypeFields_PAnonymousShortFields_fields(fields);
+	}
+	function walkNClassField_PPropertyField_modifiers(elems:Array<NModifier>) {
+		walkArray(elems, function(el) walkNModifier(el));
+	}
+	function walkNExpr_PSwitch_cases(elems:Array<NCase>) {
+		walkArray(elems, function(el) walkNCase(el));
 	}
 	function walkNExpr_PSafeCast(_cast:Token, popen:Token, e:NExpr, comma:Token, ct:NComplexType, pclose:Token) {
 		walkToken(_cast);
@@ -179,14 +206,20 @@ class Walker {
 	};
 	function walkNCallArgs(node:NCallArgs) {
 		walkToken(node.popen);
-		if (node.args != null) walkCommaSeparated(node.args, function(el) walkNExpr(el));
+		if (node.args != null) walkNCallArgs_args(node.args);
 		walkToken(node.pclose);
+	}
+	function walkNEnumFieldArgs_args(elems:NCommaSeparated<NEnumFieldArg>) {
+		walkCommaSeparated(elems, function(el) walkNEnumFieldArg(el));
 	}
 	function walkNConstraints_PMultipleConstraints(colon:Token, popen:Token, types:NCommaSeparated<NComplexType>, pclose:Token) {
 		walkToken(colon);
 		walkToken(popen);
-		walkCommaSeparated(types, function(el) walkNComplexType(el));
+		walkNConstraints_PMultipleConstraints_types(types);
 		walkToken(pclose);
+	}
+	function walkNExpr_PObjectDecl_fl(elems:NCommaSeparatedAllowTrailing<NObjectField>) {
+		walkCommaSeparatedTrailing(elems, function(el) walkNObjectField(el));
 	}
 	function walkNExpr_PConst(const:NConst) {
 		walkNConst(const);
@@ -204,15 +237,21 @@ class Walker {
 		case PTypePath(path):walkNComplexType_PTypePath(path);
 		case POptionalType(questionmark, type):walkNComplexType_POptionalType(questionmark, type);
 	};
+	function walkNComplexType_PStructuralExtension_types(elems:Array<NStructuralExtension>) {
+		walkArray(elems, function(el) walkNStructuralExtension(el));
+	}
 	function walkNMacroExpr_PExpr(e:NExpr) {
 		walkNExpr(e);
 	}
 	function walkNExpr_PBreak(_break:Token) {
 		walkToken(_break);
 	}
+	function walkNDecl_PClassDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, function(el) walkNCommonFlag(el));
+	}
 	function walkNFile(node:NFile) {
 		if (node.pack != null) walkNPackage(node.pack);
-		walkArray(node.decls, function(el) walkNDecl(el));
+		walkNFile_decls(node.decls);
 		walkToken(node.eof);
 	}
 	function walkNModifier_PModifierInline(token:Token) {
@@ -220,12 +259,15 @@ class Walker {
 	}
 	function walkNClassField_PVariableField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token) {
 		walkNAnnotations(annotations);
-		walkArray(modifiers, function(el) walkNModifier(el));
+		walkNClassField_PVariableField_modifiers(modifiers);
 		walkToken(_var);
 		walkToken(name);
 		if (typeHint != null) walkNTypeHint(typeHint);
 		if (assignment != null) walkNAssignment(assignment);
 		walkToken(semicolon);
+	}
+	function walkNTypeDeclParameters_params(elems:NCommaSeparated<NTypeDeclParameter>) {
+		walkCommaSeparated(elems, function(el) walkNTypeDeclParameter(el));
 	}
 	function walkNMacroExpr_PTypeHint(type:NTypeHint) {
 		walkNTypeHint(type);
@@ -238,8 +280,11 @@ class Walker {
 	};
 	function walkNExpr_PArrayDecl(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token) {
 		walkToken(bkopen);
-		if (el != null) walkCommaSeparatedTrailing(el, function(el) walkNExpr(el));
+		if (el != null) walkNExpr_PArrayDecl_el(el);
 		walkToken(bkclose);
+	}
+	function walkNDecl_PAbstractDecl_fields(elems:Array<NClassField>) {
+		walkArray(elems, function(el) walkNClassField(el));
 	}
 	function walkNAssignment(node:NAssignment) {
 		walkToken(node.assign);
@@ -254,13 +299,19 @@ class Walker {
 		walkNAnonymousTypeFields(fields);
 		walkToken(brclose);
 	}
+	function walkNCase_PDefault_el(elems:Array<NBlockElement>) {
+		walkArray(elems, function(el) walkNBlockElement(el));
+	}
+	function walkNCallArgs_args(elems:NCommaSeparated<NExpr>) {
+		walkCommaSeparated(elems, function(el) walkNExpr(el));
+	}
 	function walkNAbstractRelation(node:NAbstractRelation) switch node {
 		case PFrom(_from, type):walkNAbstractRelation_PFrom(_from, type);
 		case PTo(_to, type):walkNAbstractRelation_PTo(_to, type);
 	};
 	function walkNExpr_PObjectDecl(bropen:Token, fl:NCommaSeparatedAllowTrailing<NObjectField>, brclose:Token) {
 		walkToken(bropen);
-		walkCommaSeparatedTrailing(fl, function(el) walkNObjectField(el));
+		walkNExpr_PObjectDecl_fl(fl);
 		walkToken(brclose);
 	}
 	function walkNCatch(node:NCatch) {
@@ -306,11 +357,11 @@ class Walker {
 	function walkNCase_PDefault(_default:Token, colon:Token, el:Array<NBlockElement>) {
 		walkToken(_default);
 		walkToken(colon);
-		walkArray(el, function(el) walkNBlockElement(el));
+		walkNCase_PDefault_el(el);
 	}
 	function walkNMetadata_PMetadataWithArgs(name:Token, el:NCommaSeparated<NExpr>, pclose:Token) {
 		walkToken(name);
-		walkCommaSeparated(el, function(el) walkNExpr(el));
+		walkNMetadata_PMetadataWithArgs_el(el);
 		walkToken(pclose);
 	}
 	function walkNCommonFlag(node:NCommonFlag) switch node {
@@ -325,6 +376,9 @@ class Walker {
 	function walkNModifier_PModifierDynamic(token:Token) {
 		walkToken(token);
 	}
+	function walkNClassField_PFunctionField_modifiers(elems:Array<NModifier>) {
+		walkArray(elems, function(el) walkNModifier(el));
+	}
 	function walkNExpr_PArray(e1:NExpr, bkopen:Token, e2:NExpr, bkclose:Token) {
 		walkNExpr(e1);
 		walkToken(bkopen);
@@ -333,17 +387,23 @@ class Walker {
 	}
 	function walkNBlockElement_PVar(_var:Token, vl:NCommaSeparated<NVarDeclaration>, semicolon:Token) {
 		walkToken(_var);
-		walkCommaSeparated(vl, function(el) walkNVarDeclaration(el));
+		walkNBlockElement_PVar_vl(vl);
 		walkToken(semicolon);
 	}
 	function walkNTypePathParameter_PArrayExprTypePathParameter(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token) {
 		walkToken(bkopen);
-		if (el != null) walkCommaSeparatedTrailing(el, function(el) walkNExpr(el));
+		if (el != null) walkNTypePathParameter_PArrayExprTypePathParameter_el(el);
 		walkToken(bkclose);
 	}
 	function walkNPath(node:NPath) {
 		walkToken(node.ident);
-		walkArray(node.idents, function(el) walkNDotIdent(el));
+		walkNPath_idents(node.idents);
+	}
+	function walkNAnonymousTypeFields_PAnonymousClassFields_fields(elems:Array<NClassField>) {
+		walkArray(elems, function(el) walkNClassField(el));
+	}
+	function walkNTypePathParameter_PArrayExprTypePathParameter_el(elems:NCommaSeparatedAllowTrailing<NExpr>) {
+		walkCommaSeparatedTrailing(elems, function(el) walkNExpr(el));
 	}
 	function walkNClassField(node:NClassField) switch node {
 		case PPropertyField(annotations, modifiers, _var, name, popen, get, comma, set, pclose, typeHint, assignment):walkNClassField_PPropertyField(annotations, modifiers, _var, name, popen, get, comma, set, pclose, typeHint, assignment);
@@ -372,12 +432,12 @@ class Walker {
 	}
 	function walkNClassField_PFunctionField(annotations:NAnnotations, modifiers:Array<NModifier>, _function:Token, name:Token, params:Null<NTypeDeclParameters>, popen:Token, args:Null<NCommaSeparated<NFunctionArgument>>, pclose:Token, typeHint:Null<NTypeHint>, e:Null<NFieldExpr>) {
 		walkNAnnotations(annotations);
-		walkArray(modifiers, function(el) walkNModifier(el));
+		walkNClassField_PFunctionField_modifiers(modifiers);
 		walkToken(_function);
 		walkToken(name);
 		if (params != null) walkNTypeDeclParameters(params);
 		walkToken(popen);
-		if (args != null) walkCommaSeparated(args, function(el) walkNFunctionArgument(el));
+		if (args != null) walkNClassField_PFunctionField_args(args);
 		walkToken(pclose);
 		if (typeHint != null) walkNTypeHint(typeHint);
 		if (e != null) walkNFieldExpr(e);
@@ -409,6 +469,9 @@ class Walker {
 		walkNExpr(e);
 		walkToken(semicolon);
 	}
+	function walkNAnnotations_meta(elems:Array<NMetadata>) {
+		walkArray(elems, function(el) walkNMetadata(el));
+	}
 	function walkNImportMode_PAsMode(_as:Token, ident:Token) {
 		walkToken(_as);
 		walkToken(ident);
@@ -429,19 +492,22 @@ class Walker {
 	};
 	function walkNDecl_PAbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _abstract:Token, name:Token, params:Null<NTypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<NAbstractRelation>, bropen:Token, fields:Array<NClassField>, brclose:Token) {
 		walkNAnnotations(annotations);
-		walkArray(flags, function(el) walkNCommonFlag(el));
+		walkNDecl_PAbstractDecl_flags(flags);
 		walkToken(_abstract);
 		walkToken(name);
 		if (params != null) walkNTypeDeclParameters(params);
 		if (underlyingType != null) walkNUnderlyingType(underlyingType);
-		walkArray(relations, function(el) walkNAbstractRelation(el));
+		walkNDecl_PAbstractDecl_relations(relations);
 		walkToken(bropen);
-		walkArray(fields, function(el) walkNClassField(el));
+		walkNDecl_PAbstractDecl_fields(fields);
 		walkToken(brclose);
 	}
 	function walkNExpr_PFunction(_function:Token, f:NFunction) {
 		walkToken(_function);
 		walkNFunction(f);
+	}
+	function walkNCase_PCase_patterns(elems:NCommaSeparated<NExpr>) {
+		walkCommaSeparated(elems, function(el) walkNExpr(el));
 	}
 	function walkNLiteral_PLiteralRegex(token:Token) {
 		walkToken(token);
@@ -459,9 +525,9 @@ class Walker {
 		walkToken(node.kind);
 		walkToken(node.name);
 		if (node.params != null) walkNTypeDeclParameters(node.params);
-		walkArray(node.relations, function(el) walkNClassRelation(el));
+		walkNClassDecl_relations(node.relations);
 		walkToken(node.bropen);
-		walkArray(node.fields, function(el) walkNClassField(el));
+		walkNClassDecl_fields(node.fields);
 		walkToken(node.brclose);
 	}
 	function walkNConst(node:NConst) switch node {
@@ -473,23 +539,26 @@ class Walker {
 	}
 	function walkNDecl_PEnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _enum:Token, name:Token, params:Null<NTypeDeclParameters>, bropen:Token, fields:Array<NEnumField>, brclose:Token) {
 		walkNAnnotations(annotations);
-		walkArray(flags, function(el) walkNCommonFlag(el));
+		walkNDecl_PEnumDecl_flags(flags);
 		walkToken(_enum);
 		walkToken(name);
 		if (params != null) walkNTypeDeclParameters(params);
 		walkToken(bropen);
-		walkArray(fields, function(el) walkNEnumField(el));
+		walkNDecl_PEnumDecl_fields(fields);
 		walkToken(brclose);
 	}
 	function walkNTypePathParameters(node:NTypePathParameters) {
 		walkToken(node.lt);
-		walkCommaSeparated(node.parameters, function(el) walkNTypePathParameter(el));
+		walkNTypePathParameters_parameters(node.parameters);
 		walkToken(node.gt);
+	}
+	function walkNClassField_PVariableField_modifiers(elems:Array<NModifier>) {
+		walkArray(elems, function(el) walkNModifier(el));
 	}
 	function walkNExpr_PTry(_try:Token, e:NExpr, catches:Array<NCatch>) {
 		walkToken(_try);
 		walkNExpr(e);
-		walkArray(catches, function(el) walkNCatch(el));
+		walkNExpr_PTry_catches(catches);
 	}
 	function walkNExpr_PCall(e:NExpr, el:NCallArgs) {
 		walkNExpr(e);
@@ -502,6 +571,9 @@ class Walker {
 		if (node.typeHint != null) walkNTypeHint(node.typeHint);
 		if (node.assignment != null) walkNAssignment(node.assignment);
 	}
+	function walkNDecl_PEnumDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, function(el) walkNCommonFlag(el));
+	}
 	function walkNExpr_PTernary(e1:NExpr, questionmark:Token, e2:NExpr, colon:Token, e3:NExpr) {
 		walkNExpr(e1);
 		walkToken(questionmark);
@@ -511,7 +583,7 @@ class Walker {
 	}
 	function walkNTypeDeclParameters(node:NTypeDeclParameters) {
 		walkToken(node.lt);
-		walkCommaSeparated(node.params, function(el) walkNTypeDeclParameter(el));
+		walkNTypeDeclParameters_params(node.params);
 		walkToken(node.gt);
 	}
 	function walkNConst_PConstIdent(ident:Token) {
@@ -530,6 +602,9 @@ class Walker {
 		case PSingleConstraint(colon, type):walkNConstraints_PSingleConstraint(colon, type);
 		case PNoConstraints:{ };
 	};
+	function walkNClassDecl_relations(elems:Array<NClassRelation>) {
+		walkArray(elems, function(el) walkNClassRelation(el));
+	}
 	function walkNCase(node:NCase) switch node {
 		case PCase(_case, patterns, guard, colon, el):walkNCase_PCase(_case, patterns, guard, colon, el);
 		case PDefault(_default, colon, el):walkNCase_PDefault(_default, colon, el);
@@ -545,17 +620,23 @@ class Walker {
 		walkNExpr(e);
 		walkToken(semicolon);
 	}
+	function walkNDecl_PAbstractDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, function(el) walkNCommonFlag(el));
+	}
 	function walkNString(node:NString) switch node {
 		case PString(s):walkNString_PString(s);
 		case PString2(s):walkNString_PString2(s);
 	};
+	function walkNDecl_PTypedefDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, function(el) walkNCommonFlag(el));
+	}
 	function walkNAbstractRelation_PFrom(_from:Token, type:NComplexType) {
 		walkToken(_from);
 		walkNComplexType(type);
 	}
 	function walkNAnnotations(node:NAnnotations) {
 		if (node.doc != null) walkToken(node.doc);
-		walkArray(node.meta, function(el) walkNMetadata(el));
+		walkNAnnotations_meta(node.meta);
 	}
 	function walkNLiteral_PLiteralFloat(token:Token) {
 		walkToken(token);
@@ -579,6 +660,9 @@ class Walker {
 		walkNComplexType(type);
 		walkToken(pclose);
 	}
+	function walkNDecl_PEnumDecl_fields(elems:Array<NEnumField>) {
+		walkArray(elems, function(el) walkNEnumField(el));
+	}
 	function walkNExpr_PUnaryPostfix(e:NExpr, op:Token) {
 		walkNExpr(e);
 		walkToken(op);
@@ -589,6 +673,9 @@ class Walker {
 	function walkNTypePathParameter_PTypeTypePathParameter(type:NComplexType) {
 		walkNComplexType(type);
 	}
+	function walkNTypePathParameters_parameters(elems:NCommaSeparated<NTypePathParameter>) {
+		walkCommaSeparated(elems, function(el) walkNTypePathParameter(el));
+	}
 	function walkNExpr_PMacro(_macro:Token, e:NMacroExpr) {
 		walkToken(_macro);
 		walkNMacroExpr(e);
@@ -596,8 +683,17 @@ class Walker {
 	function walkNModifier_PModifierPublic(token:Token) {
 		walkToken(token);
 	}
+	function walkNExpr_PBlock_elems(elems:Array<NBlockElement>) {
+		walkArray(elems, function(el) walkNBlockElement(el));
+	}
+	function walkNFunction_args(elems:NCommaSeparated<NFunctionArgument>) {
+		walkCommaSeparated(elems, function(el) walkNFunctionArgument(el));
+	}
 	function walkNModifier_PModifierMacro(token:Token) {
 		walkToken(token);
+	}
+	function walkNConstraints_PMultipleConstraints_types(elems:NCommaSeparated<NComplexType>) {
+		walkCommaSeparated(elems, function(el) walkNComplexType(el));
 	}
 	function walkNLiteral_PLiteralInt(token:Token) {
 		walkToken(token);
@@ -608,6 +704,9 @@ class Walker {
 		walkNFunction(f);
 		walkToken(semicolon);
 	}
+	function walkNCase_PCase_el(elems:Array<NBlockElement>) {
+		walkArray(elems, function(el) walkNBlockElement(el));
+	}
 	function walkNExpr_PIn(e1:NExpr, _in:Token, e2:NExpr) {
 		walkNExpr(e1);
 		walkToken(_in);
@@ -615,7 +714,7 @@ class Walker {
 	}
 	function walkNClassField_PPropertyField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, popen:Token, get:Token, comma:Token, set:Token, pclose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>) {
 		walkNAnnotations(annotations);
-		walkArray(modifiers, function(el) walkNModifier(el));
+		walkNClassField_PPropertyField_modifiers(modifiers);
 		walkToken(_var);
 		walkToken(name);
 		walkToken(popen);
@@ -627,7 +726,7 @@ class Walker {
 		if (assignment != null) walkNAssignment(assignment);
 	}
 	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<NClassField>) {
-		walkArray(fields, function(el) walkNClassField(el));
+		walkNAnonymousTypeFields_PAnonymousClassFields_fields(fields);
 	}
 	function walkNAnonymousTypeField(node:NAnonymousTypeField) {
 		if (node.questionmark != null) walkToken(node.questionmark);
@@ -676,7 +775,7 @@ class Walker {
 		walkToken(_switch);
 		walkNExpr(e);
 		walkToken(bropen);
-		walkArray(cases, function(el) walkNCase(el));
+		walkNExpr_PSwitch_cases(cases);
 		walkToken(brclose);
 	}
 	function walkNExpr_PField(e:NExpr, ident:NDotIdent) {
@@ -723,37 +822,49 @@ class Walker {
 	}
 	function walkNCase_PCase(_case:Token, patterns:NCommaSeparated<NExpr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>) {
 		walkToken(_case);
-		walkCommaSeparated(patterns, function(el) walkNExpr(el));
+		walkNCase_PCase_patterns(patterns);
 		if (guard != null) walkNGuard(guard);
 		walkToken(colon);
-		walkArray(el, function(el) walkNBlockElement(el));
+		walkNCase_PCase_el(el);
 	}
 	function walkNObjectFieldName_PIdent(ident:Token) {
 		walkToken(ident);
+	}
+	function walkNDecl_PAbstractDecl_relations(elems:Array<NAbstractRelation>) {
+		walkArray(elems, function(el) walkNAbstractRelation(el));
 	}
 	function walkNExpr_PReturnExpr(_return:Token, e:NExpr) {
 		walkToken(_return);
 		walkNExpr(e);
 	}
+	function walkNExpr_PTry_catches(elems:Array<NCatch>) {
+		walkArray(elems, function(el) walkNCatch(el));
+	}
 	function walkNMacroExpr_PVar(_var:Token, v:NCommaSeparated<NVarDeclaration>) {
 		walkToken(_var);
-		walkCommaSeparated(v, function(el) walkNVarDeclaration(el));
+		walkNMacroExpr_PVar_v(v);
 	}
 	function walkNAnonymousTypeFields(node:NAnonymousTypeFields) switch node {
 		case PAnonymousClassFields(fields):walkNAnonymousTypeFields_PAnonymousClassFields(fields);
 		case PAnonymousShortFields(fields):walkNAnonymousTypeFields_PAnonymousShortFields(fields);
 	};
+	function walkNAnonymousTypeFields_PAnonymousShortFields_fields(elems:NCommaSeparatedAllowTrailing<NAnonymousTypeField>) {
+		walkCommaSeparatedTrailing(elems, function(el) walkNAnonymousTypeField(el));
+	}
 	function walkNCommonFlag_PPrivate(token:Token) {
 		walkToken(token);
 	}
 	function walkNString_PString(s:Token) {
 		walkToken(s);
 	}
+	function walkNClassField_PFunctionField_args(elems:NCommaSeparated<NFunctionArgument>) {
+		walkCommaSeparated(elems, function(el) walkNFunctionArgument(el));
+	}
 	function walkNFunction(node:NFunction) {
 		if (node.ident != null) walkToken(node.ident);
 		if (node.params != null) walkNTypeDeclParameters(node.params);
 		walkToken(node.popen);
-		if (node.args != null) walkCommaSeparated(node.args, function(el) walkNFunctionArgument(el));
+		if (node.args != null) walkNFunction_args(node.args);
 		walkToken(node.pclose);
 		if (node.type != null) walkNTypeHint(node.type);
 		walkNExpr(node.e);
@@ -769,7 +880,7 @@ class Walker {
 	}
 	function walkNComplexType_PStructuralExtension(bropen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token) {
 		walkToken(bropen);
-		walkArray(types, function(el) walkNStructuralExtension(el));
+		walkNComplexType_PStructuralExtension_types(types);
 		walkNAnonymousTypeFields(fields);
 		walkToken(brclose);
 	}
