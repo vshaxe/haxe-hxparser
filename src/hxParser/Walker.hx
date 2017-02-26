@@ -33,7 +33,7 @@ class Walker {
 	function walkNObjectFieldName_PString(string:NString) {
 		walkNString(string);
 	}
-	function walkNDecl_PClassDecl(annotations:NAnnotations, flags:Array<hxParser.ParseTree.NCommonFlag>, c:NClassDecl) {
+	function walkNDecl_PClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, c:NClassDecl) {
 		walkNAnnotations(annotations);
 		walkArray(flags, function(el) walkNCommonFlag(el));
 		walkNClassDecl(c);
@@ -75,7 +75,7 @@ class Walker {
 	function walkNTypePathParameter_PConstantTypePathParameter(constant:NLiteral) {
 		walkNLiteral(constant);
 	}
-	function walkNDecl_PTypedefDecl(annotations:NAnnotations, flags:Array<hxParser.ParseTree.NCommonFlag>, _typedef:Token, name:Token, params:StdTypes.Null<hxParser.ParseTree.NTypeDeclParameters>, assign:Token, type:NComplexType, semicolon:StdTypes.Null<hxParser.ParseTree.Token>) {
+	function walkNDecl_PTypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _typedef:Token, name:Token, params:Null<NTypeDeclParameters>, assign:Token, type:NComplexType, semicolon:Null<Token>) {
 		walkNAnnotations(annotations);
 		walkArray(flags, function(el) walkNCommonFlag(el));
 		walkToken(_typedef);
@@ -93,7 +93,7 @@ class Walker {
 	function walkNMacroExpr_PClass(c:NClassDecl) {
 		walkNClassDecl(c);
 	}
-	function walkNExpr_PBlock(bropen:Token, elems:Array<hxParser.ParseTree.NBlockElement>, brclose:Token) {
+	function walkNExpr_PBlock(bropen:Token, elems:Array<NBlockElement>, brclose:Token) {
 		walkToken(bropen);
 		walkArray(elems, function(el) walkNBlockElement(el));
 		walkToken(brclose);
@@ -128,7 +128,7 @@ class Walker {
 	function walkNDotIdent_PDot(_dot:Token) {
 		walkToken(_dot);
 	}
-	function walkNAnonymousTypeFields_PAnonymousShortFields(fields:StdTypes.Null<hxParser.ParseTree.NCommaSeparatedAllowTrailing<hxParser.ParseTree.NAnonymousTypeField>>) {
+	function walkNAnonymousTypeFields_PAnonymousShortFields(fields:Null<NCommaSeparatedAllowTrailing<NAnonymousTypeField>>) {
 		if (fields != null) walkCommaSeparatedTrailing(fields, function(el) walkNAnonymousTypeField(el));
 	}
 	function walkNExpr_PSafeCast(_cast:Token, popen:Token, e:NExpr, comma:Token, ct:NComplexType, pclose:Token) {
@@ -218,7 +218,7 @@ class Walker {
 	function walkNModifier_PModifierInline(token:Token) {
 		walkToken(token);
 	}
-	function walkNClassField_PVariableField(annotations:NAnnotations, modifiers:Array<hxParser.ParseTree.NModifier>, _var:Token, name:Token, typeHint:StdTypes.Null<hxParser.ParseTree.NTypeHint>, assignment:StdTypes.Null<hxParser.ParseTree.NAssignment>, semicolon:Token) {
+	function walkNClassField_PVariableField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token) {
 		walkNAnnotations(annotations);
 		walkArray(modifiers, function(el) walkNModifier(el));
 		walkToken(_var);
@@ -236,7 +236,7 @@ class Walker {
 		case PInMode(_in, ident):walkNImportMode_PInMode(_in, ident);
 		case PAllMode(dotstar):walkNImportMode_PAllMode(dotstar);
 	};
-	function walkNExpr_PArrayDecl(bkopen:Token, el:StdTypes.Null<hxParser.ParseTree.NCommaSeparatedAllowTrailing<hxParser.ParseTree.NExpr>>, bkclose:Token) {
+	function walkNExpr_PArrayDecl(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token) {
 		walkToken(bkopen);
 		if (el != null) walkCommaSeparatedTrailing(el, function(el) walkNExpr(el));
 		walkToken(bkclose);
@@ -298,7 +298,7 @@ class Walker {
 		case PBlockFieldExpr(e):walkNFieldExpr_PBlockFieldExpr(e);
 		case PExprFieldExpr(e, semicolon):walkNFieldExpr_PExprFieldExpr(e, semicolon);
 	};
-	function walkNCase_PDefault(_default:Token, colon:Token, el:Array<hxParser.ParseTree.NBlockElement>) {
+	function walkNCase_PDefault(_default:Token, colon:Token, el:Array<NBlockElement>) {
 		walkToken(_default);
 		walkToken(colon);
 		walkArray(el, function(el) walkNBlockElement(el));
@@ -331,7 +331,7 @@ class Walker {
 		walkCommaSeparated(vl, function(el) walkNVarDeclaration(el));
 		walkToken(semicolon);
 	}
-	function walkNTypePathParameter_PArrayExprTypePathParameter(bkopen:Token, el:StdTypes.Null<hxParser.ParseTree.NCommaSeparatedAllowTrailing<hxParser.ParseTree.NExpr>>, bkclose:Token) {
+	function walkNTypePathParameter_PArrayExprTypePathParameter(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token) {
 		walkToken(bkopen);
 		if (el != null) walkCommaSeparatedTrailing(el, function(el) walkNExpr(el));
 		walkToken(bkclose);
@@ -365,7 +365,7 @@ class Walker {
 		if (node.type != null) walkNTypeHint(node.type);
 		if (node.assignment != null) walkNAssignment(node.assignment);
 	}
-	function walkNClassField_PFunctionField(annotations:NAnnotations, modifiers:Array<hxParser.ParseTree.NModifier>, _function:Token, name:Token, params:StdTypes.Null<hxParser.ParseTree.NTypeDeclParameters>, popen:Token, args:StdTypes.Null<hxParser.ParseTree.NCommaSeparated<hxParser.ParseTree.NFunctionArgument>>, pclose:Token, typeHint:StdTypes.Null<hxParser.ParseTree.NTypeHint>, e:StdTypes.Null<hxParser.ParseTree.NFieldExpr>) {
+	function walkNClassField_PFunctionField(annotations:NAnnotations, modifiers:Array<NModifier>, _function:Token, name:Token, params:Null<NTypeDeclParameters>, popen:Token, args:Null<NCommaSeparated<NFunctionArgument>>, pclose:Token, typeHint:Null<NTypeHint>, e:Null<NFieldExpr>) {
 		walkNAnnotations(annotations);
 		walkArray(modifiers, function(el) walkNModifier(el));
 		walkToken(_function);
@@ -427,7 +427,7 @@ class Walker {
 		case PLiteralRegex(token):walkNLiteral_PLiteralRegex(token);
 		case PLiteralInt(token):walkNLiteral_PLiteralInt(token);
 	};
-	function walkNDecl_PAbstractDecl(annotations:NAnnotations, flags:Array<hxParser.ParseTree.NCommonFlag>, _abstract:Token, name:Token, params:StdTypes.Null<hxParser.ParseTree.NTypeDeclParameters>, underlyingType:StdTypes.Null<hxParser.ParseTree.NUnderlyingType>, relations:Array<hxParser.ParseTree.NAbstractRelation>, bropen:Token, fields:Array<hxParser.ParseTree.NClassField>, brclose:Token) {
+	function walkNDecl_PAbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _abstract:Token, name:Token, params:Null<NTypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<NAbstractRelation>, bropen:Token, fields:Array<NClassField>, brclose:Token) {
 		walkNAnnotations(annotations);
 		walkArray(flags, function(el) walkNCommonFlag(el));
 		walkToken(_abstract);
@@ -471,7 +471,7 @@ class Walker {
 	function walkNCommonFlag_PExtern(token:Token) {
 		walkToken(token);
 	}
-	function walkNDecl_PEnumDecl(annotations:NAnnotations, flags:Array<hxParser.ParseTree.NCommonFlag>, _enum:Token, name:Token, params:StdTypes.Null<hxParser.ParseTree.NTypeDeclParameters>, bropen:Token, fields:Array<hxParser.ParseTree.NEnumField>, brclose:Token) {
+	function walkNDecl_PEnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _enum:Token, name:Token, params:Null<NTypeDeclParameters>, bropen:Token, fields:Array<NEnumField>, brclose:Token) {
 		walkNAnnotations(annotations);
 		walkArray(flags, function(el) walkNCommonFlag(el));
 		walkToken(_enum);
@@ -486,7 +486,7 @@ class Walker {
 		walkCommaSeparated(node.parameters, function(el) walkNTypePathParameter(el));
 		walkToken(node.gt);
 	}
-	function walkNExpr_PTry(_try:Token, e:NExpr, catches:Array<hxParser.ParseTree.NCatch>) {
+	function walkNExpr_PTry(_try:Token, e:NExpr, catches:Array<NCatch>) {
 		walkToken(_try);
 		walkNExpr(e);
 		walkArray(catches, function(el) walkNCatch(el));
@@ -560,7 +560,7 @@ class Walker {
 	function walkNLiteral_PLiteralFloat(token:Token) {
 		walkToken(token);
 	}
-	function walkNExpr_PIf(_if:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr, elseExpr:StdTypes.Null<hxParser.ParseTree.NExprElse>) {
+	function walkNExpr_PIf(_if:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr, elseExpr:Null<NExprElse>) {
 		walkToken(_if);
 		walkToken(popen);
 		walkNExpr(e1);
@@ -613,7 +613,7 @@ class Walker {
 		walkToken(_in);
 		walkNExpr(e2);
 	}
-	function walkNClassField_PPropertyField(annotations:NAnnotations, modifiers:Array<hxParser.ParseTree.NModifier>, _var:Token, name:Token, popen:Token, get:Token, comma:Token, set:Token, pclose:Token, typeHint:StdTypes.Null<hxParser.ParseTree.NTypeHint>, assignment:StdTypes.Null<hxParser.ParseTree.NAssignment>) {
+	function walkNClassField_PPropertyField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, popen:Token, get:Token, comma:Token, set:Token, pclose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>) {
 		walkNAnnotations(annotations);
 		walkArray(modifiers, function(el) walkNModifier(el));
 		walkToken(_var);
@@ -626,7 +626,7 @@ class Walker {
 		if (typeHint != null) walkNTypeHint(typeHint);
 		if (assignment != null) walkNAssignment(assignment);
 	}
-	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<hxParser.ParseTree.NClassField>) {
+	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<NClassField>) {
 		walkArray(fields, function(el) walkNClassField(el));
 	}
 	function walkNAnonymousTypeField(node:NAnonymousTypeField) {
@@ -672,7 +672,7 @@ class Walker {
 		case PExpr(e, semicolon):walkNBlockElement_PExpr(e, semicolon);
 		case PInlineFunction(_inline, _function, f, semicolon):walkNBlockElement_PInlineFunction(_inline, _function, f, semicolon);
 	};
-	function walkNExpr_PSwitch(_switch:Token, e:NExpr, bropen:Token, cases:Array<hxParser.ParseTree.NCase>, brclose:Token) {
+	function walkNExpr_PSwitch(_switch:Token, e:NExpr, bropen:Token, cases:Array<NCase>, brclose:Token) {
 		walkToken(_switch);
 		walkNExpr(e);
 		walkToken(bropen);
@@ -721,7 +721,7 @@ class Walker {
 		walkToken(pclose);
 		walkNExpr(e2);
 	}
-	function walkNCase_PCase(_case:Token, patterns:NCommaSeparated<NExpr>, guard:StdTypes.Null<hxParser.ParseTree.NGuard>, colon:Token, el:Array<hxParser.ParseTree.NBlockElement>) {
+	function walkNCase_PCase(_case:Token, patterns:NCommaSeparated<NExpr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>) {
 		walkToken(_case);
 		walkCommaSeparated(patterns, function(el) walkNExpr(el));
 		if (guard != null) walkNGuard(guard);
@@ -767,7 +767,7 @@ class Walker {
 	function walkNExpr_PReturn(_return:Token) {
 		walkToken(_return);
 	}
-	function walkNComplexType_PStructuralExtension(bropen:Token, types:Array<hxParser.ParseTree.NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token) {
+	function walkNComplexType_PStructuralExtension(bropen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token) {
 		walkToken(bropen);
 		walkArray(types, function(el) walkNStructuralExtension(el));
 		walkNAnonymousTypeFields(fields);

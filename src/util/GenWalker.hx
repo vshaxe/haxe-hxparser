@@ -183,6 +183,10 @@ class GenWalker {
         function loop(t:ComplexType):ComplexType return switch (t) {
             case TPath({pack: ["hxParser"], name:"ParseTree", sub: sub, params: params}):
                 TPath({pack: [], name: sub, params: [for (p in params) mapParam(p, loop)]});
+            case TPath({pack: [], name: "StdTypes", sub: "Null", params: [TPType(ct)]}):
+                TPath({pack: [], name: "Null", params: [TPType(loop(ct))]});
+            case TPath({pack: pack, name: name, sub: sub, params: params}):
+                TPath({pack: pack, name: name, sub: sub, params: [for (p in params) mapParam(p, loop)]});
             case ct:
                 ct;
         }
