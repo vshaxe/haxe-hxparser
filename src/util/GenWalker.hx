@@ -91,7 +91,7 @@ class GenWalker {
     }
 
     static function genEnumWalk(expr:Expr, en:EnumType, origType:Type, fields:Map<String,Field>):Expr {
-        var visName = "walk_" + en.name;
+        var visName = "walk" + en.name;
         if (!fields.exists(en.name)) {
             fields.set(en.name, null); // TODO: this sucks
 
@@ -122,13 +122,13 @@ class GenWalker {
                 }
             }
 
-            var expr = {expr: ESwitch(macro __value, cases, null), pos: en.pos};
+            var expr = {expr: ESwitch(macro node, cases, null), pos: en.pos};
 
             fields.set(en.name, {
                 pos: en.pos,
                 name: visName,
                 kind: FFun({
-                    args: [{name: "__value", type: extractTypeName(origType)}],
+                    args: [{name: "node", type: extractTypeName(origType)}],
                     ret: null,
                     expr: expr
                 })
@@ -138,7 +138,7 @@ class GenWalker {
     }
 
     static function genAnonWalk(expr:Expr, anon:AnonType, origType:Type, fields:Map<String,Field>, name:String):Expr {
-        var visName = 'walk_$name';
+        var visName = 'walk$name';
         if (!fields.exists(name)) {
             fields.set(name, null); // TODO: this sucks
 
@@ -147,14 +147,14 @@ class GenWalker {
             anon.fields.sort(function(a,b) return Context.getPosInfos(a.pos).min - Context.getPosInfos(b.pos).min);
             for (field in anon.fields) {
                 var fname = field.name;
-                exprs.push(genWalk(macro __value.$fname, field.type, field.type, fields, name + "_" + fname));
+                exprs.push(genWalk(macro node.$fname, field.type, field.type, fields, name + "_" + fname));
             }
 
             fields.set(name, {
                 pos: Context.currentPos(),
                 name: visName,
                 kind: FFun({
-                    args: [{name: "__value", type: extractTypeName(origType)}],
+                    args: [{name: "node", type: extractTypeName(origType)}],
                     ret: null,
                     expr: macro $b{exprs}
                 })
