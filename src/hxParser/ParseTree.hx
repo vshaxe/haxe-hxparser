@@ -81,8 +81,8 @@ enum NConst {
 	PConstLiteral(literal:NLiteral);
 }
 
-typedef NFunction = {
-	?ident:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:TypeHint, e:Expr
+typedef Function = {
+	?name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, expr:Expr
 }
 
 typedef NVarDeclaration = {
@@ -110,7 +110,7 @@ typedef NGuard = {
 
 enum NBlockElement {
 	PVar(_var:Token, vl:CommaSeparated<NVarDeclaration>, semicolon:Token);
-	PInlineFunction(_inline:Token, _function:Token, f:NFunction, semicolon:Token);
+	PInlineFunction(_inline:Token, _function:Token, f:Function, semicolon:Token);
 	PExpr(e:Expr, semicolon:Token);
 }
 
@@ -140,11 +140,11 @@ enum Expr {
 	EUnsafeCast(castKeyword:Token, expr:Expr);
 	ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token);
 	ENew(newKeyword:Token, path:TypePath, args:CallArgs);
-	EParenthesis(parenOpen:Token, e:Expr, parenClose:Token);
-	ECheckType(parenOpen:Token, e:Expr, colon:Token, type:ComplexType, parenClose:Token);
+	EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token);
+	ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token);
 	EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token);
-	EArrayDecl(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<Expr>, bracketClose:Token);
-	EFunction(functionKeyword:Token, fun:NFunction);
+	EArrayDecl(bracketOpen:Token, ?elems:CommaSeparatedAllowTrailing<Expr>, bracketClose:Token);
+	EFunction(functionKeyword:Token, fun:Function);
 	EUnaryPrefix(op:Token, expr:Expr);
 	EField(expr:Expr, ident:NDotIdent);
 	ECall(expr:Expr, args:CallArgs);
@@ -230,12 +230,12 @@ enum NFieldExpr {
 	PExprFieldExpr(e:Expr, semicolon:Token);
 }
 
-typedef NFunctionArgument = {
+typedef FunctionArgument = {
 	annotations:NAnnotations, ?questionmark:Token, name:Token, ?typeHint:TypeHint, ?assignment:NAssignment
 }
 
 enum ClassField {
-	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:TypeHint, ?expr:NFieldExpr);
+	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, ?expr:NFieldExpr);
 	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:TypeHint, ?assignment:NAssignment, semicolon:Token);
 	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:TypeHint, ?assignment:NAssignment, semicolon:Token);
 }

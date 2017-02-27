@@ -594,16 +594,16 @@ class Converter {
 		}
 	}
 
-	static function convertFunction(node:JNodeBase):NFunction {
+	static function convertFunction(node:JNodeBase):Function {
 		var node = node.asNode("function");
-		var result:NFunction = {
+		var result:Function = {
 			params: convertTypeDeclParameters(node.sub[1]),
 			parenOpen: node.sub[2].toToken(),
 			parenClose: node.sub[4].toToken(),
-			e: convertExpr(node.sub[6])
+			expr: convertExpr(node.sub[6])
 		};
 		if (node.sub[0] != null)
-			result.ident = convertDollarIdent(node.sub[0]);
+			result.name = convertDollarIdent(node.sub[0]);
 		if (node.sub[3] != null)
 			result.args = commaSeparated(node.sub[3].asNode("args").sub, convertFunctionArg);
 		if (node.sub[5] != null)
@@ -651,9 +651,9 @@ class Converter {
 		};
 	}
 
-	static function convertFunctionArg(node:JNodeBase):NFunctionArgument {
+	static function convertFunctionArg(node:JNodeBase):FunctionArgument {
 		var node = node.asNode("function_argument");
-		var result:NFunctionArgument = {
+		var result:FunctionArgument = {
 			annotations: convertAnnotations(node.sub[0]),
 			name: convertDollarIdent(node.sub[2]),
 		};
