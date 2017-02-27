@@ -710,7 +710,8 @@ class Converter {
 			convertPropertyIdent(node.sub[7]),
 			node.sub[8].toToken(),
 			if (node.sub[9] == null) null else convertTypeHint(node.sub[9]),
-			if (node.sub[10] == null) null else convertAssignment(node.sub[10])
+			if (node.sub[10] == null) null else convertAssignment(node.sub[10]),
+			node.sub[11].toToken()
 		);
 	}
 

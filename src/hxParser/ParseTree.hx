@@ -237,7 +237,7 @@ typedef NFunctionArgument = {
 enum ClassField {
 	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?expr:NFieldExpr);
 	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
-	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment);
+	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
 }
 
 typedef NAnonymousTypeField = {

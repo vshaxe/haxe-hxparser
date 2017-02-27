@@ -614,7 +614,7 @@ class Walker {
 		walkNExpr(e);
 		walkToken(op);
 	}
-	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>) {
+	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token) {
 		walkNAnnotations(annotations);
 		walkClassField_Property_modifiers(modifiers);
 		walkToken(varKeyword);
@@ -626,6 +626,7 @@ class Walker {
 		walkToken(parenClose);
 		if (typeHint != null) walkNTypeHint(typeHint);
 		if (assignment != null) walkNAssignment(assignment);
+		walkToken(semicolon);
 	}
 	function walkComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token) {
 		walkToken(parenOpen);
@@ -866,7 +867,7 @@ class Walker {
 		walkToken(dotstar);
 	}
 	function walkClassField(node:ClassField) switch node {
-		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment);
+		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
 		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon);
 		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr);
 	};

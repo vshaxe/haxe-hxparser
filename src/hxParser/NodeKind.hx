@@ -10,7 +10,7 @@ enum NodeKind {
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
 	ClassDecl(node:ClassDecl);
 	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<NFunctionArgument>>, parenClose:Token, typeHint:Null<NTypeHint>, expr:Null<NFieldExpr>);
-	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>);
+	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token);
 	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token);
 	ClassRelation_Extends(extendsKeyword:Token, path:TypePath);
 	ClassRelation_Implements(implementsKeyword:Token, path:TypePath);

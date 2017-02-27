@@ -882,8 +882,8 @@ class StackAwareWalker {
 			walkToken(op, Edge("op", stack));
 		};
 	}
-	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, stack:WalkStack) {
-		stack = Node(ClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment), stack);
+	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token, stack:WalkStack) {
+		stack = Node(ClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon), stack);
 		{
 			walkNAnnotations(annotations, Edge("annotations", stack));
 			walkClassField_Property_modifiers(modifiers, Edge("modifiers", stack));
@@ -896,6 +896,7 @@ class StackAwareWalker {
 			walkToken(parenClose, Edge("parenClose", stack));
 			if (typeHint != null) walkNTypeHint(typeHint, Edge("typeHint", stack));
 			if (assignment != null) walkNAssignment(assignment, Edge("assignment", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
 	function walkComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token, stack:WalkStack) {
@@ -1233,7 +1234,7 @@ class StackAwareWalker {
 		};
 	}
 	function walkClassField(node:ClassField, stack:WalkStack) switch node {
-		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, stack);
+		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon, stack);
 		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon, stack);
 		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr, stack);
 	};
