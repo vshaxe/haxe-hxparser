@@ -94,13 +94,13 @@ class Converter {
 
 	static function convertAnnotations(node:JNodeBase):NAnnotations {
 		if (node == null)
-			return {meta: []};
+			return {metadata: []};
 
 		var node = node.asNode("annotations");
 		var doc = node.sub[0]; // TODO: what next?
 		var meta = node.sub[1].asNode("metadatas").sub.map(convertMeta);
 		var result:NAnnotations = {
-			meta: meta,
+			metadata: meta,
 		};
 		return result;
 	}
@@ -272,7 +272,7 @@ class Converter {
 		};
 	}
 
-	static function convertTypeHint(node:JNodeBase):NTypeHint {
+	static function convertTypeHint(node:JNodeBase):TypeHint {
 		var node = node.asNode("type_hint");
 		return {
 			colon: node.sub[0].toToken(),
@@ -317,18 +317,18 @@ class Converter {
 		return result;
 	}
 
-	static function convertExpr(node:JNodeBase):NExpr {
+	static function convertExpr(node:JNodeBase):Expr {
 		var node:JNode = cast node;
 		return switch (node.name) {
 			case "expr_binop":
 				var a = convertExpr(node.sub[0]);
 				var op = node.sub[1].toToken();
 				var b = convertExpr(node.sub[2]);
-				PBinop(a, op, b);
+				EBinop(a, op, b);
 
 			case "expr_const":
 				var const:JNode = cast node.sub[0];
-				PConst(switch (const.name) {
+				EConst(switch (const.name) {
 					case "ident":
 						PConstIdent(const.sub[0].toToken());
 					case "literal":
@@ -340,35 +340,35 @@ class Converter {
 			case "expr_call":
 				var e = convertExpr(node.sub[0]);
 				var args = convertCallArgs(node.sub[1]);
-				PCall(e, args);
+				ECall(e, args);
 
 			case "expr_unary_prefix":
 				var op = node.sub[0].toToken();
 				var e = convertExpr(node.sub[1]);
-				PUnaryPrefix(op, e);
+				EUnaryPrefix(op, e);
 
 			case "expr_unary_postfix":
 				var e = convertExpr(node.sub[0]);
 				var op = node.sub[1].toToken();
-				PUnaryPostfix(e, op);
+				EUnaryPostfix(e, op);
 
 			case "expr_continue":
-				PContinue(node.sub[0].toToken());
+				EContinue(node.sub[0].toToken());
 
 			case "expr_break":
-				PBreak(node.sub[0].toToken());
+				EBreak(node.sub[0].toToken());
 
 			case "expr_return":
-				PReturn(node.sub[0].toToken());
+				EReturn(node.sub[0].toToken());
 
 			case "expr_return_value":
-				PReturnExpr(node.sub[0].toToken(), convertExpr(node.sub[1]));
+				EReturnExpr(node.sub[0].toToken(), convertExpr(node.sub[1]));
 
 			case "expr_unsafe_cast":
-				PUnsafeCast(node.sub[0].toToken(), convertExpr(node.sub[1]));
+				EUnsafeCast(node.sub[0].toToken(), convertExpr(node.sub[1]));
 
 			case "expr_safe_cast":
-				PSafeCast(
+				ESafeCast(
 					node.sub[0].toToken(), // cast
 					node.sub[1].toToken(), // (
 					convertExpr(node.sub[2]), // expr
@@ -378,28 +378,28 @@ class Converter {
 				);
 
 			case "expr_untyped":
-				PUntyped(node.sub[0].toToken(), convertExpr(node.sub[1]));
+				EUntyped(node.sub[0].toToken(), convertExpr(node.sub[1]));
 
 			case "expr_field":
-				PField(convertExpr(node.sub[0]), convertDotIdent(node.sub[1]));
+				EField(convertExpr(node.sub[0]), convertDotIdent(node.sub[1]));
 
 			case "expr_parenthesis":
-				PParenthesis(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken());
+				EParenthesis(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken());
 
 			case "expr_typecheck":
-				PCheckType(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken(), convertComplexType(node.sub[3]), node.sub[4].toToken());
+				ECheckType(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken(), convertComplexType(node.sub[3]), node.sub[4].toToken());
 
 			case "expr_metadata":
-				PMetadata(convertMeta(node.sub[0]), convertExpr(node.sub[1]));
+				EMetadata(convertMeta(node.sub[0]), convertExpr(node.sub[1]));
 
 			case "expr_in":
-				PIn(convertExpr(node.sub[0]), node.sub[1].toToken(), convertExpr(node.sub[2]));
+				EIn(convertExpr(node.sub[0]), node.sub[1].toToken(), convertExpr(node.sub[2]));
 
 			case "expr_throw":
-				PThrow(node.sub[0].toToken(), convertExpr(node.sub[1]));
+				EThrow(node.sub[0].toToken(), convertExpr(node.sub[1]));
 
 			case "expr_keyword_ident":
-				PConst(PConstIdent(node.sub[0].asNode("keyword_ident").sub[0].toToken()));
+				EConst(PConstIdent(node.sub[0].asNode("keyword_ident").sub[0].toToken()));
 
 			case "expr_if":
 				var ifToken = node.sub[0].toToken();
@@ -411,18 +411,18 @@ class Converter {
 				var els = if (elseNode == null) null else {
 					var node = elseNode.asNode("else_expr");
 					{
-						_else: node.sub[0].toToken(),
-						e: convertExpr(node.sub[1]),
+						elseKeyword: node.sub[0].toToken(),
+						expr: convertExpr(node.sub[1]),
 					}
 				};
-				PIf(ifToken, parenOpen, econd, parenClose, eif, els);
+				EIf(ifToken, parenOpen, econd, parenClose, eif, els);
 
 			case "expr_empty_block":
-				PBlock(node.sub[0].toToken(), [], node.sub[1].toToken());
+				EBlock(node.sub[0].toToken(), [], node.sub[1].toToken());
 
 			case "expr_nonempty_block":
 				var elems = node.sub[1].asNode("elements").sub.map(convertBlockElement);
-				PBlock(node.sub[0].toToken(), elems, node.sub[2].toToken());
+				EBlock(node.sub[0].toToken(), elems, node.sub[2].toToken());
 
 			case "expr_for":
 				var forToken = node.sub[0].toToken();
@@ -430,7 +430,7 @@ class Converter {
 				var e1 = convertExpr(node.sub[2]);
 				var parenClose = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
-				PFor(forToken, parenOpen, e1, parenClose, e2);
+				EFor(forToken, parenOpen, e1, parenClose, e2);
 
 			case "expr_while":
 				var whileToken = node.sub[0].toToken();
@@ -438,7 +438,7 @@ class Converter {
 				var e1 = convertExpr(node.sub[2]);
 				var parenClose = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
-				PWhile(whileToken, parenOpen, e1, parenClose, e2);
+				EWhile(whileToken, parenOpen, e1, parenClose, e2);
 
 			case "expr_do":
 				var doToken = node.sub[0].toToken();
@@ -447,13 +447,13 @@ class Converter {
 				var parenOpen = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
 				var parenClose = node.sub[5].toToken();
-				PDo(doToken, e1, whileToken, parenOpen, e2, parenClose);
+				EDo(doToken, e1, whileToken, parenOpen, e2, parenClose);
 
 			case "expr_array_declaration":
 				var bkopen = node.sub[0].toToken();
 				var elems = if (node.sub[1] == null) null else commaSeparatedTrailing(node.sub[1].asNode("elements").sub, convertExpr);
 				var bkclose = node.sub[2].toToken();
-				PArrayDecl(bkopen, elems, bkclose);
+				EArrayDecl(bkopen, elems, bkclose);
 
 			case "expr_object_declaration":
 				function convertObjectField(node:JNodeBase):NObjectField {
@@ -476,7 +476,7 @@ class Converter {
 					return {name: name, colon: colon, e: expr};
 				}
 
-				PObjectDecl(
+				EObjectDecl(
 					node.sub[0].toToken(),
 					commaSeparatedTrailing(node.sub[1].asNode("object_fields").sub, convertObjectField),
 					node.sub[2].toToken()
@@ -485,34 +485,34 @@ class Converter {
 			case "expr_is":
 				var e = convertExpr(node.sub[1]);
 				var tp = convertTypePath(node.sub[3]);
-				PIs(node.sub[0].toToken(), e, node.sub[2].toToken(), tp, node.sub[4].toToken());
+				EIs(node.sub[0].toToken(), e, node.sub[2].toToken(), tp, node.sub[4].toToken());
 
 			case "expr_new":
-				PNew(node.sub[0].toToken(), convertTypePath(node.sub[1]), convertCallArgs(node.sub[2]));
+				ENew(node.sub[0].toToken(), convertTypePath(node.sub[1]), convertCallArgs(node.sub[2]));
 
 			case "expr_try":
-				var catches = node.sub[2].asNode("catches").sub.map(function(node):NCatch {
+				var catches = node.sub[2].asNode("catches").sub.map(function(node):Catch {
 					var node = node.asNode("catch");
 					return {
-						_catch: node.sub[0].toToken(),
+						catchKeyword: node.sub[0].toToken(),
 						parenOpen: node.sub[1].toToken(),
 						ident: convertDollarIdent(node.sub[2]),
-						type: convertTypeHint(node.sub[3]),
+						typeHint: convertTypeHint(node.sub[3]),
 						parenClose: node.sub[4].toToken(),
-						e: convertExpr(node.sub[5]),
+						expr: convertExpr(node.sub[5]),
 					};
 				});
-				PTry(node.sub[0].toToken(), convertExpr(node.sub[1]), catches);
+				ETry(node.sub[0].toToken(), convertExpr(node.sub[1]), catches);
 
 			case "expr_var":
-				PVar(node.sub[0].toToken(), convertVarDecl(node.sub[1]));
+				EVar(node.sub[0].toToken(), convertVarDecl(node.sub[1]));
 
 			case "expr_function":
 				var funToken = node.sub[0].toToken();
-				PFunction(funToken, convertFunction(node.sub[1]));
+				EFunction(funToken, convertFunction(node.sub[1]));
 
 			case "expr_array_access":
-				PArray(
+				EArrayAccess(
 					convertExpr(node.sub[0]), // expr
 					node.sub[1].toToken(), // [
 					convertExpr(node.sub[2]), // expr
@@ -521,13 +521,13 @@ class Converter {
 
 			case "expr_dotint":
 				// TODO wtf is this?
-				PIntDot(node.sub[0].toToken(), node.sub[1].toToken());
+				EIntDot(node.sub[0].toToken(), node.sub[1].toToken());
 
 			case "expr_macro":
-				PMacro(node.sub[0].toToken(), convertMacroExpr(node.sub[1]));
+				EMacro(node.sub[0].toToken(), convertMacroExpr(node.sub[1]));
 
 			case "expr_macro_escape":
-				PMacroEscape(node.sub[0].toToken(), node.sub[1].toToken(), convertExpr(node.sub[2]), node.sub[3].toToken());
+				EMacroEscape(node.sub[0].toToken(), node.sub[1].toToken(), convertExpr(node.sub[2]), node.sub[3].toToken());
 
 			case "expr_switch":
 				var cases = node.sub[3].asNode("cases").sub.map(function(node):NCase {
@@ -555,7 +555,7 @@ class Converter {
 							throw 'Unknown switch case token: $unknown';
 					}
 				});
-				PSwitch(
+				ESwitch(
 					node.sub[0].toToken(),
 					convertExpr(node.sub[1]),
 					node.sub[2].toToken(),
@@ -567,10 +567,10 @@ class Converter {
 				var econd = convertExpr(node.sub[0]);
 				var ethen = convertExpr(node.sub[2]);
 				var eelse = convertExpr(node.sub[4]);
-				PTernary(econd, node.sub[1].toToken(), ethen, node.sub[3].toToken(), eelse);
+				ETernary(econd, node.sub[1].toToken(), ethen, node.sub[3].toToken(), eelse);
 
 			case "expr_dollarident":
-				PDollarIdent(node.sub[0].toToken());
+				EDollarIdent(node.sub[0].toToken());
 
 			case unknown:
 				throw 'Unknown expression type: $unknown';
@@ -607,7 +607,7 @@ class Converter {
 		if (node.sub[3] != null)
 			result.args = commaSeparated(node.sub[3].asNode("args").sub, convertFunctionArg);
 		if (node.sub[5] != null)
-			result.type = convertTypeHint(node.sub[5]);
+			result.typeHint = convertTypeHint(node.sub[5]);
 		return result;
 	}
 
@@ -616,7 +616,7 @@ class Converter {
 		var result:NVarDeclaration = {name: convertDollarIdent(node.sub[0])};
 		var hintNode = node.sub[1];
 		if (hintNode != null)
-			result.type = convertTypeHint(hintNode);
+			result.typeHint = convertTypeHint(hintNode);
 		var assNode = node.sub[2];
 		if (assNode != null)
 			result.assignment = convertAssignment(assNode);
@@ -905,7 +905,7 @@ class Converter {
 				name: convertDollarIdent(node.sub[1]),
 				params: convertTypeDeclParameters(node.sub[2]),
 				args: convertEnumArgs(node.sub[3]),
-				type: if (node.sub[4] == null) null else convertTypeHint(node.sub[4]),
+				typeHint: if (node.sub[4] == null) null else convertTypeHint(node.sub[4]),
 				semicolon: node.sub[5].toToken(),
 			};
 		});
