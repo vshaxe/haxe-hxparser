@@ -212,7 +212,7 @@ class GenWalker {
         return macro $i{visName};
     }
 
-    static function getNullType(t:Type):haxe.ds.Option<Type> {
+    public static function getNullType(t:Type):haxe.ds.Option<Type> {
         return switch (t) {
             case TType(_.get() => {pack: [], name: "Null"}, [realT]): Some(realT);
             default: None;
