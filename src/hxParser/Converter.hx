@@ -694,7 +694,11 @@ class Converter {
 
 	static function convertProperty(node:JNodeBase):NClassField {
 		var node = node.asNode("property_field");
-		inline function convertPropertyIdent(n:JNodeBase) return convertIdent(n.asNode("property_ident").sub[0]);
+		function convertPropertyIdent(n:JNodeBase) {
+			var node = n.asNode("property_ident").sub[0];
+			if (node.name == "token") return node.toToken()
+			else return convertIdent(node);
+		}
 		return PPropertyField(
 			convertAnnotations(node.sub[0]),
 			convertModifiers(node.sub[1]),
