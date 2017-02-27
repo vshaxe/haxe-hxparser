@@ -22,16 +22,16 @@ enum NodeKind {
 	NAnnotations(node:NAnnotations);
 	NAnonymousTypeField(node:NAnonymousTypeField);
 	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<NClassField>);
-	NAnonymousTypeFields_PAnonymousShortFields(fields:Null<NCommaSeparatedAllowTrailing<NAnonymousTypeField>>);
+	NAnonymousTypeFields_PAnonymousShortFields(fields:Null<CommaSeparatedAllowTrailing<NAnonymousTypeField>>);
 	NAssignment(node:NAssignment);
 	NBlockElement_PExpr(e:NExpr, semicolon:Token);
 	NBlockElement_PInlineFunction(_inline:Token, _function:Token, f:NFunction, semicolon:Token);
-	NBlockElement_PVar(_var:Token, vl:NCommaSeparated<NVarDeclaration>, semicolon:Token);
+	NBlockElement_PVar(_var:Token, vl:CommaSeparated<NVarDeclaration>, semicolon:Token);
 	NCallArgs(node:NCallArgs);
-	NCase_PCase(_case:Token, patterns:NCommaSeparated<NExpr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>);
+	NCase_PCase(_case:Token, patterns:CommaSeparated<NExpr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>);
 	NCase_PDefault(_default:Token, colon:Token, el:Array<NBlockElement>);
 	NCatch(node:NCatch);
-	NClassField_PFunctionField(annotations:NAnnotations, modifiers:Array<NModifier>, _function:Token, name:Token, params:Null<NTypeDeclParameters>, popen:Token, args:Null<NCommaSeparated<NFunctionArgument>>, pclose:Token, typeHint:Null<NTypeHint>, e:Null<NFieldExpr>);
+	NClassField_PFunctionField(annotations:NAnnotations, modifiers:Array<NModifier>, _function:Token, name:Token, params:Null<NTypeDeclParameters>, popen:Token, args:Null<CommaSeparated<NFunctionArgument>>, pclose:Token, typeHint:Null<NTypeHint>, e:Null<NFieldExpr>);
 	NClassField_PPropertyField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, popen:Token, get:Token, comma:Token, set:Token, pclose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>);
 	NClassField_PVariableField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token);
 	NClassRelation_PExtends(_extends:Token, path:NTypePath);
@@ -46,7 +46,7 @@ enum NodeKind {
 	NComplexType_PTypePath(path:NTypePath);
 	NConst_PConstIdent(ident:Token);
 	NConst_PConstLiteral(literal:NLiteral);
-	NConstraints_PMultipleConstraints(colon:Token, popen:Token, types:NCommaSeparated<NComplexType>, pclose:Token);
+	NConstraints_PMultipleConstraints(colon:Token, popen:Token, types:CommaSeparated<NComplexType>, pclose:Token);
 	NConstraints_PSingleConstraint(colon:Token, type:NComplexType);
 	NDotIdent_PDot(_dot:Token);
 	NDotIdent_PDotIdent(name:Token);
@@ -55,7 +55,7 @@ enum NodeKind {
 	NEnumFieldArgs(node:NEnumFieldArgs);
 	NExprElse(node:NExprElse);
 	NExpr_PArray(e1:NExpr, bkopen:Token, e2:NExpr, bkclose:Token);
-	NExpr_PArrayDecl(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token);
+	NExpr_PArrayDecl(bkopen:Token, el:Null<CommaSeparatedAllowTrailing<NExpr>>, bkclose:Token);
 	NExpr_PBinop(e1:NExpr, op:Token, e2:NExpr);
 	NExpr_PBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token);
 	NExpr_PBreak(_break:Token);
@@ -76,7 +76,7 @@ enum NodeKind {
 	NExpr_PMacroEscape(ident:Token, braceOpen:Token, e:NExpr, braceClose:Token);
 	NExpr_PMetadata(metadata:NMetadata, e:NExpr);
 	NExpr_PNew(_new:Token, path:NTypePath, el:NCallArgs);
-	NExpr_PObjectDecl(braceOpen:Token, fl:NCommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
+	NExpr_PObjectDecl(braceOpen:Token, fl:CommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
 	NExpr_PParenthesis(popen:Token, e:NExpr, pclose:Token);
 	NExpr_PReturn(_return:Token);
 	NExpr_PReturnExpr(_return:Token, e:NExpr);
@@ -104,9 +104,9 @@ enum NodeKind {
 	NMacroExpr_PClass(c:ClassDecl);
 	NMacroExpr_PExpr(e:NExpr);
 	NMacroExpr_PTypeHint(type:NTypeHint);
-	NMacroExpr_PVar(_var:Token, v:NCommaSeparated<NVarDeclaration>);
+	NMacroExpr_PVar(_var:Token, v:CommaSeparated<NVarDeclaration>);
 	NMetadata_PMetadata(name:Token);
-	NMetadata_PMetadataWithArgs(name:Token, el:NCommaSeparated<NExpr>, pclose:Token);
+	NMetadata_PMetadataWithArgs(name:Token, el:CommaSeparated<NExpr>, pclose:Token);
 	NModifier_PModifierDynamic(token:Token);
 	NModifier_PModifierInline(token:Token);
 	NModifier_PModifierMacro(token:Token);
@@ -125,7 +125,7 @@ enum NodeKind {
 	NTypeDeclParameters(node:NTypeDeclParameters);
 	NTypeHint(node:NTypeHint);
 	NTypePath(node:NTypePath);
-	NTypePathParameter_PArrayExprTypePathParameter(bkopen:Token, el:Null<NCommaSeparatedAllowTrailing<NExpr>>, bkclose:Token);
+	NTypePathParameter_PArrayExprTypePathParameter(bkopen:Token, el:Null<CommaSeparatedAllowTrailing<NExpr>>, bkclose:Token);
 	NTypePathParameter_PConstantTypePathParameter(constant:NLiteral);
 	NTypePathParameter_PTypeTypePathParameter(type:NComplexType);
 	NTypePathParameters(node:NTypePathParameters);

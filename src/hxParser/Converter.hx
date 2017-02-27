@@ -726,7 +726,7 @@ class Converter {
 		return PVariableField(annotations, modifiers, varToken, name, typeHint, assignment, semicolon);
 	}
 
-	static function commaSeparatedTrailing<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<NCommaSeparatedAllowTrailing<T>> {
+	static function commaSeparatedTrailing<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparatedAllowTrailing<T>> {
 		var elem = convert(nodes[0]);
 		var rest = [];
 		var i = 1;
@@ -743,7 +743,7 @@ class Converter {
 			}
 		}
 
-		var result:NCommaSeparatedAllowTrailing<T> = {
+		var result:CommaSeparatedAllowTrailing<T> = {
 			arg: elem,
 			args: rest,
 		};
@@ -751,7 +751,7 @@ class Converter {
 		return result;
 	}
 
-	static function commaSeparated<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<NCommaSeparated<T>> {
+	static function commaSeparated<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparated<T>> {
 		if (nodes.length == 0)
 			return null;
 

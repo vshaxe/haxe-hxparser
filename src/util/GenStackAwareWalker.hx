@@ -21,7 +21,7 @@ class GenStackAwareWalker {
                     walk(elems[i], Element(i, stack));
             }
 
-            function walkCommaSeparated<T>(elems:NCommaSeparated<T>, stack:WalkStack, walk:T->WalkStack->Void) {
+            function walkCommaSeparated<T>(elems:CommaSeparated<T>, stack:WalkStack, walk:T->WalkStack->Void) {
                 walk(elems.arg, Element(0, stack));
                 var i = 1;
                 for (el in elems.args) {
@@ -31,7 +31,7 @@ class GenStackAwareWalker {
                 }
             }
 
-            function walkCommaSeparatedTrailing<T>(elems:NCommaSeparatedAllowTrailing<T>, stack:WalkStack, walk:T->WalkStack->Void) {
+            function walkCommaSeparatedTrailing<T>(elems:CommaSeparatedAllowTrailing<T>, stack:WalkStack, walk:T->WalkStack->Void) {
                 walk(elems.arg, Element(0, stack));
                 var i = 1;
                 for (el in elems.args) {
@@ -95,10 +95,10 @@ class GenStackAwareWalker {
 
             case TType(_.get() => dt, params):
                 switch [dt, params] {
-                    case [{pack: ["hxParser"], name: "NCommaSeparated"}, [elemT]] if (name != null):
+                    case [{pack: ["hxParser"], name: "CommaSeparated"}, [elemT]] if (name != null):
                         return genSequenceWalk(elemT, origType, name, macro walkCommaSeparated, fields, nodeKinds);
 
-                    case [{pack: ["hxParser"], name: "NCommaSeparatedAllowTrailing"}, [elemT]] if (name != null):
+                    case [{pack: ["hxParser"], name: "CommaSeparatedAllowTrailing"}, [elemT]] if (name != null):
                         return genSequenceWalk(elemT, origType, name, macro walkCommaSeparatedTrailing, fields, nodeKinds);
 
                     case [{pack: [], name: "Null"}, _]:
