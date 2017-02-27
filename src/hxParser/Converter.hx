@@ -26,16 +26,16 @@ class JNodeTools {
 }
 
 class Converter {
-	public static function convertResult(root:JResult):NFile {
+	public static function convertResult(root:JResult):File {
 		return convertFile(root.document.tree.asNode("tree").sub[0].asNode("file"));
 	}
 
-	static function convertFile(node:JNode):NFile {
+	static function convertFile(node:JNode):File {
 		var decls = node.sub[1];
 		var decls = if (decls != null) decls.asNode("decls").sub.map(convertDecl) else [];
 		var eof = node.sub[2].toToken();
 
-		var result:NFile = {
+		var result:File = {
 			decls: decls,
 			eof: eof,
 		};

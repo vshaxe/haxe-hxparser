@@ -326,6 +326,6 @@ typedef NPackage = {
 	_package:Token, ?path:NPath, semicolon:Token
 }
 
-typedef NFile = {
+typedef File = {
 	?pack:NPackage, decls:Array<NDecl>, eof:Token
 }

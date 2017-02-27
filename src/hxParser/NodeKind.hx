@@ -6,6 +6,7 @@ package hxParser;
 import hxParser.ParseTree;
 
 enum NodeKind {
+	File(node:File);
 	NAbstractRelation_PFrom(_from:Token, type:NComplexType);
 	NAbstractRelation_PTo(_to:Token, type:NComplexType);
 	NAnnotations(node:NAnnotations);
@@ -90,7 +91,6 @@ enum NodeKind {
 	NFieldExpr_PBlockFieldExpr(e:NExpr);
 	NFieldExpr_PExprFieldExpr(e:NExpr, semicolon:Token);
 	NFieldExpr_PNoFieldExpr(semicolon:Token);
-	NFile(node:NFile);
 	NFunction(node:NFunction);
 	NFunctionArgument(node:NFunctionArgument);
 	NGuard(node:NGuard);

@@ -130,9 +130,6 @@ class Walker {
 		case PConstantTypePathParameter(constant):walkNTypePathParameter_PConstantTypePathParameter(constant);
 		case PTypeTypePathParameter(type):walkNTypePathParameter_PTypeTypePathParameter(type);
 	};
-	function walkNFile_decls(elems:Array<NDecl>) {
-		walkArray(elems, walkNDecl);
-	}
 	function walkNConst_PConstLiteral(literal:NLiteral) {
 		walkNLiteral(literal);
 	}
@@ -142,6 +139,11 @@ class Walker {
 	}
 	function walkNClassDecl_fields(elems:Array<NClassField>) {
 		walkArray(elems, walkNClassField);
+	}
+	function walkFile(node:File) {
+		if (node.pack != null) walkNPackage(node.pack);
+		walkFile_decls(node.decls);
+		walkToken(node.eof);
 	}
 	function walkNDotIdent_PDot(_dot:Token) {
 		walkToken(_dot);
@@ -249,11 +251,6 @@ class Walker {
 	}
 	function walkNDecl_PClassDecl_flags(elems:Array<NCommonFlag>) {
 		walkArray(elems, walkNCommonFlag);
-	}
-	function walkNFile(node:NFile) {
-		if (node.pack != null) walkNPackage(node.pack);
-		walkNFile_decls(node.decls);
-		walkToken(node.eof);
 	}
 	function walkNModifier_PModifierInline(token:Token) {
 		walkToken(token);
@@ -738,6 +735,9 @@ class Walker {
 		walkToken(node.popen);
 		walkNComplexType(node.type);
 		walkToken(node.pclose);
+	}
+	function walkFile_decls(elems:Array<NDecl>) {
+		walkArray(elems, walkNDecl);
 	}
 	function walkNGuard(node:NGuard) {
 		walkToken(node._if);

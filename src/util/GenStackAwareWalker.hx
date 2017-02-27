@@ -8,7 +8,7 @@ using haxe.macro.Tools;
 
 class GenStackAwareWalker {
     static function gen() {
-        var root = Context.getType("hxParser.ParseTree.NFile");
+        var root = Context.getType("hxParser.ParseTree.File");
         var fields = new Map();
         var nodekinds = new Map();
         genWalk(root, root, fields, nodekinds, null);
