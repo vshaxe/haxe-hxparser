@@ -219,7 +219,7 @@ class GenWalker {
         }
     }
 
-    static function extractTypeName(t:Type) {
+    public static function extractTypeName(t:Type) {
         function mapParam(t:TypeParam, f):TypeParam return switch (t) {
             case TPExpr(_): t;
             case TPType(t): TPType(f(t));
