@@ -82,7 +82,7 @@ enum NConst {
 }
 
 typedef NFunction = {
-	?ident:Token, ?params:NTypeDeclParameters, popen:Token, ?args:CommaSeparated<NFunctionArgument>, pclose:Token, ?type:NTypeHint, e:NExpr
+	?ident:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?type:NTypeHint, e:NExpr
 }
 
 typedef NVarDeclaration = {
@@ -101,11 +101,11 @@ typedef NExprElse = {
 }
 
 typedef NCatch = {
-	_catch:Token, popen:Token, ident:Token, type:NTypeHint, pclose:Token, e:NExpr
+	_catch:Token, parenOpen:Token, ident:Token, type:NTypeHint, parenClose:Token, e:NExpr
 }
 
 typedef NGuard = {
-	_if:Token, popen:Token, e:NExpr, pclose:Token
+	_if:Token, parenOpen:Token, e:NExpr, parenClose:Token
 }
 
 enum NBlockElement {
@@ -124,31 +124,31 @@ enum NExpr {
 	PMetadata(metadata:NMetadata, e:NExpr);
 	PMacro(_macro:Token, e:NMacroExpr);
 	PThrow(_throw:Token, e:NExpr);
-	PIf(_if:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr, ?elseExpr:NExprElse);
+	PIf(_if:Token, parenOpen:Token, e1:NExpr, parenClose:Token, e2:NExpr, ?elseExpr:NExprElse);
 	PReturn(_return:Token);
 	PReturnExpr(_return:Token, e:NExpr);
 	PBreak(_break:Token);
 	PContinue(_continue:Token);
-	PDo(_do:Token, e1:NExpr, _while:Token, popen:Token, e2:NExpr, pclose:Token);
+	PDo(_do:Token, e1:NExpr, _while:Token, parenOpen:Token, e2:NExpr, parenClose:Token);
 	PTry(_try:Token, e:NExpr, catches:Array<NCatch>);
 	PSwitch(_switch:Token, e:NExpr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
-	PFor(_for:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr);
-	PWhile(_while:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr);
+	PFor(_for:Token, parenOpen:Token, e1:NExpr, parenClose:Token, e2:NExpr);
+	PWhile(_while:Token, parenOpen:Token, e1:NExpr, parenClose:Token, e2:NExpr);
 	PUntyped(_untyped:Token, e:NExpr);
 	PObjectDecl(braceOpen:Token, fl:CommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
 	PConst(const:NConst);
 	PUnsafeCast(_cast:Token, e:NExpr);
-	PSafeCast(_cast:Token, popen:Token, e:NExpr, comma:Token, ct:NComplexType, pclose:Token);
-	PNew(_new:Token, path:NTypePath, el:NCallArgs);
-	PParenthesis(popen:Token, e:NExpr, pclose:Token);
-	PCheckType(popen:Token, e:NExpr, colon:Token, type:NComplexType, pclose:Token);
-	PIs(popen:Token, e:NExpr, _is:Token, path:NTypePath, pclose:Token);
-	PArrayDecl(bkopen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bkclose:Token);
+	PSafeCast(_cast:Token, parenOpen:Token, e:NExpr, comma:Token, ct:NComplexType, parenClose:Token);
+	PNew(_new:Token, path:TypePath, el:NCallArgs);
+	PParenthesis(parenOpen:Token, e:NExpr, parenClose:Token);
+	PCheckType(parenOpen:Token, e:NExpr, colon:Token, type:NComplexType, parenClose:Token);
+	PIs(parenOpen:Token, e:NExpr, _is:Token, path:TypePath, parenClose:Token);
+	PArrayDecl(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bracketClose:Token);
 	PFunction(_function:Token, f:NFunction);
 	PUnaryPrefix(op:Token, e:NExpr);
 	PField(e:NExpr, ident:NDotIdent);
 	PCall(e:NExpr, el:NCallArgs);
-	PArray(e1:NExpr, bkopen:Token, e2:NExpr, bkclose:Token);
+	PArray(e1:NExpr, bracketOpen:Token, e2:NExpr, bracketClose:Token);
 	PUnaryPostfix(e:NExpr, op:Token);
 	PBinop(e1:NExpr, op:Token, e2:NExpr);
 	PTernary(e1:NExpr, questionmark:Token, e2:NExpr, colon:Token, e3:NExpr);
@@ -160,12 +160,12 @@ enum NExpr {
 }
 
 typedef NCallArgs = {
-	popen:Token, ?args:CommaSeparated<NExpr>, pclose:Token
+	parenOpen:Token, ?args:CommaSeparated<NExpr>, parenClose:Token
 }
 
 enum NMetadata {
 	PMetadata(name:Token);
-	PMetadataWithArgs(name:Token, el:CommaSeparated<NExpr>, pclose:Token);
+	PMetadataWithArgs(name:Token, el:CommaSeparated<NExpr>, parenClose:Token);
 }
 
 typedef NAnnotations = {
@@ -182,7 +182,7 @@ enum NCommonFlag {
 }
 
 typedef NStructuralExtension = {
-	gt:Token, path:NTypePath, comma:Token
+	gt:Token, path:TypePath, comma:Token
 }
 
 enum NLiteral {
@@ -193,7 +193,7 @@ enum NLiteral {
 }
 
 enum NTypePathParameter {
-	PArrayExprTypePathParameter(bkopen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bkclose:Token);
+	PArrayExprTypePathParameter(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bracketClose:Token);
 	PTypeTypePathParameter(type:NComplexType);
 	PConstantTypePathParameter(constant:NLiteral);
 }
@@ -202,18 +202,18 @@ typedef NTypePathParameters = {
 	lt:Token, parameters:CommaSeparated<NTypePathParameter>, gt:Token
 }
 
-typedef NTypePath = {
+typedef TypePath = {
 	path:NPath, ?params:NTypePathParameters
 }
 
-enum NModifier {
-	PModifierStatic(token:Token);
-	PModifierMacro(token:Token);
-	PModifierPublic(token:Token);
-	PModifierPrivate(token:Token);
-	PModifierOverride(token:Token);
-	PModifierDynamic(token:Token);
-	PModifierInline(token:Token);
+enum FieldModifier {
+	Static(keyword:Token);
+	Macro(keyword:Token);
+	Public(keyword:Token);
+	Private(keyword:Token);
+	Override(keyword:Token);
+	Dynamic(keyword:Token);
+	Inline(keyword:Token);
 }
 
 typedef NTypeHint = {
@@ -235,9 +235,9 @@ typedef NFunctionArgument = {
 }
 
 enum NClassField {
-	PFunctionField(annotations:NAnnotations, modifiers:Array<NModifier>, _function:Token, name:Token, ?params:NTypeDeclParameters, popen:Token, ?args:CommaSeparated<NFunctionArgument>, pclose:Token, ?typeHint:NTypeHint, ?e:NFieldExpr);
-	PVariableField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
-	PPropertyField(annotations:NAnnotations, modifiers:Array<NModifier>, _var:Token, name:Token, popen:Token, get:Token, comma:Token, set:Token, pclose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment);
+	PFunctionField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _function:Token, name:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?e:NFieldExpr);
+	PVariableField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _var:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
+	PPropertyField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _var:Token, name:Token, parenOpen:Token, get:Token, comma:Token, set:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment);
 }
 
 typedef NAnonymousTypeField = {
@@ -254,7 +254,7 @@ typedef NEnumFieldArg = {
 }
 
 typedef NEnumFieldArgs = {
-	popen:Token, ?args:CommaSeparated<NEnumFieldArg>, pclose:Token
+	parenOpen:Token, ?args:CommaSeparated<NEnumFieldArg>, parenClose:Token
 }
 
 typedef NEnumField = {
@@ -262,27 +262,27 @@ typedef NEnumField = {
 }
 
 enum NComplexType {
-	PParenthesisType(popen:Token, ct:NComplexType, pclose:Token);
+	PParenthesisType(parenOpen:Token, ct:NComplexType, parenClose:Token);
 	PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
 	PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
 	POptionalType(questionmark:Token, type:NComplexType);
-	PTypePath(path:NTypePath);
+	PTypePath(path:TypePath);
 	PFunctionType(type1:NComplexType, arrow:Token, type2:NComplexType);
 }
 
 enum NConstraints {
-	PMultipleConstraints(colon:Token, popen:Token, types:CommaSeparated<NComplexType>, pclose:Token);
+	PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<NComplexType>, parenClose:Token);
 	PSingleConstraint(colon:Token, type:NComplexType);
 	PNoConstraints;
 }
 
-enum NClassRelation {
-	PExtends(_extends:Token, path:NTypePath);
-	PImplements(_implements:Token, path:NTypePath);
+enum ClassRelation {
+	Extends(extendsKeyword:Token, path:TypePath);
+	Implements(implementsKeyword:Token, path:TypePath);
 }
 
 typedef NUnderlyingType = {
-	popen:Token, type:NComplexType, pclose:Token
+	parenOpen:Token, type:NComplexType, parenClose:Token
 }
 
 enum NAbstractRelation {
@@ -309,7 +309,7 @@ typedef ClassDecl = {
 	kind:Token,
 	name:Token,
 	?params:NTypeDeclParameters,
-	relations:Array<NClassRelation>,
+	relations:Array<ClassRelation>,
 	braceOpen:Token,
 	fields:Array<NClassField>,
 	braceClose:Token
