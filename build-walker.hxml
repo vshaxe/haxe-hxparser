@@ -1,2 +1,3 @@
 -cp src
 --macro util.GenWalker.gen()
+--macro util.GenStackAwareWalker.gen()
