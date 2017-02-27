@@ -92,7 +92,7 @@ typedef NVarDeclaration = {
 enum NMacroExpr {
 	PTypeHint(type:NTypeHint);
 	PVar(_var:Token, v:NCommaSeparated<NVarDeclaration>);
-	PClass(c:NClassDecl);
+	PClass(c:ClassDecl);
 	PExpr(e:NExpr);
 }
 
@@ -131,11 +131,11 @@ enum NExpr {
 	PContinue(_continue:Token);
 	PDo(_do:Token, e1:NExpr, _while:Token, popen:Token, e2:NExpr, pclose:Token);
 	PTry(_try:Token, e:NExpr, catches:Array<NCatch>);
-	PSwitch(_switch:Token, e:NExpr, bropen:Token, cases:Array<NCase>, brclose:Token);
+	PSwitch(_switch:Token, e:NExpr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
 	PFor(_for:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr);
 	PWhile(_while:Token, popen:Token, e1:NExpr, pclose:Token, e2:NExpr);
 	PUntyped(_untyped:Token, e:NExpr);
-	PObjectDecl(bropen:Token, fl:NCommaSeparatedAllowTrailing<NObjectField>, brclose:Token);
+	PObjectDecl(braceOpen:Token, fl:NCommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
 	PConst(const:NConst);
 	PUnsafeCast(_cast:Token, e:NExpr);
 	PSafeCast(_cast:Token, popen:Token, e:NExpr, comma:Token, ct:NComplexType, pclose:Token);
@@ -155,8 +155,8 @@ enum NExpr {
 	PIn(e1:NExpr, _in:Token, e2:NExpr);
 	PIntDot(int:Token, dot:Token);
 	PDollarIdent(ident:Token);
-	PMacroEscape(ident:Token, bropen:Token, e:NExpr, brclose:Token);
-	PBlock(bropen:Token, elems:Array<NBlockElement>, brclose:Token);
+	PMacroEscape(ident:Token, braceOpen:Token, e:NExpr, braceClose:Token);
+	PBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token);
 }
 
 typedef NCallArgs = {
@@ -263,8 +263,8 @@ typedef NEnumField = {
 
 enum NComplexType {
 	PParenthesisType(popen:Token, ct:NComplexType, pclose:Token);
-	PStructuralExtension(bropen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token);
-	PAnonymousStructure(bropen:Token, fields:NAnonymousTypeFields, brclose:Token);
+	PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
+	PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
 	POptionalType(questionmark:Token, type:NComplexType);
 	PTypePath(path:NTypePath);
 	PFunctionType(type1:NComplexType, arrow:Token, type2:NComplexType);
@@ -298,34 +298,36 @@ typedef NTypeDeclParameters = {
 	lt:Token, params:NCommaSeparated<NTypeDeclParameter>, gt:Token
 }
 
-enum NImportMode {
-	PInMode(_in:Token, ident:Token);
-	PAsMode(_as:Token, ident:Token);
-	PAllMode(dotstar:Token);
-	PNormalMode;
+enum ImportMode {
+	IIn(inKeyword:Token, ident:Token);
+	IAs(asKeyword:Token, ident:Token);
+	IAll(dotstar:Token);
+	INormal;
 }
 
-typedef NImport = {
-	path:NPath, mode:NImportMode
+typedef ClassDecl = {
+	kind:Token,
+	name:Token,
+	?params:NTypeDeclParameters,
+	relations:Array<NClassRelation>,
+	braceOpen:Token,
+	fields:Array<NClassField>,
+	braceClose:Token
 }
 
-typedef NClassDecl = {
-	kind:Token, name:Token, ?params:NTypeDeclParameters, relations:Array<NClassRelation>, bropen:Token, fields:Array<NClassField>, brclose:Token
+enum Decl {
+	ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
+	UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
+	ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
+	EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:NTypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
+	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:NTypeDeclParameters, assign:Token, type:NComplexType, ?semicolon:Token);
+	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:NTypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<NAbstractRelation>, braceOpen:Token, fields:Array<NClassField>, braceClose:Token);
 }
 
-enum NDecl {
-	PImportDecl(_import:Token, importPath:NImport, semicolon:Token);
-	PUsingDecl(_using:Token, path:NPath, semicolon:Token);
-	PClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, c:NClassDecl);
-	PEnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _enum:Token, name:Token, ?params:NTypeDeclParameters, bropen:Token, fields:Array<NEnumField>, brclose:Token);
-	PTypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _typedef:Token, name:Token, ?params:NTypeDeclParameters, assign:Token, type:NComplexType, ?semicolon:Token);
-	PAbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, _abstract:Token, name:Token, ?params:NTypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<NAbstractRelation>, bropen:Token, fields:Array<NClassField>, brclose:Token);
-}
-
-typedef NPackage = {
-	_package:Token, ?path:NPath, semicolon:Token
+typedef Package = {
+	packageKeyword:Token, ?path:NPath, semicolon:Token
 }
 
 typedef File = {
-	?pack:NPackage, decls:Array<NDecl>, eof:Token
+	?pack:Package, decls:Array<Decl>, eof:Token
 }
