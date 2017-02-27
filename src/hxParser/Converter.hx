@@ -46,11 +46,11 @@ class Converter {
 		return result;
 	}
 
-	static function convertPack(node:JNodeBase):NPackage {
+	static function convertPack(node:JNodeBase):Package {
 		var node = node.asNode("package");
 
-		var pack:NPackage = {
-			_package: node.sub[0].toToken(),
+		var pack:Package = {
+			packageKeyword: node.sub[0].toToken(),
 			semicolon: node.sub[2].toToken(),
 		};
 
@@ -105,9 +105,9 @@ class Converter {
 		return switch (node.sub) {
 			case [tok]:
 				PMetadata(tok.toToken());
-			case [tok, exprs, pclose]:
+			case [tok, exprs, parenClose]:
 				var el = commaSeparated(exprs.asNode("exprs").sub, convertExpr);
-				PMetadataWithArgs(tok.toToken(), el, pclose.toToken());
+				PMetadataWithArgs(tok.toToken(), el, parenClose.toToken());
 			case unknown:
 				throw 'Unknown metadata format: ${haxe.Json.stringify(unknown)}';
 		}
@@ -142,9 +142,9 @@ class Converter {
 		}
 	}
 
-	static function convertTypePath(node:JNodeBase):NTypePath {
+	static function convertTypePath(node:JNodeBase):TypePath {
 		var node = node.asNode("type_path");
-		var result:NTypePath = {path: convertPath(node.sub[0])};
+		var result:TypePath = {path: convertPath(node.sub[0])};
 
 		var tparams = node.sub[1];
 		if (tparams != null) {
@@ -159,20 +159,20 @@ class Converter {
 		return result;
 	}
 
-	static function convertClassRelation(node:JNodeBase):NClassRelation {
+	static function convertClassRelation(node:JNodeBase):ClassRelation {
 		var node = node.asNode("class_relations");
 		var token = node.sub[0].asToken();
 		return switch (token.token)  {
 			case "extends":
-				PExtends(token.convertToToken(), convertTypePath(node.sub[1]));
+				Extends(token.convertToToken(), convertTypePath(node.sub[1]));
 			case "implements":
-				PImplements(token.convertToToken(), convertTypePath(node.sub[1]));
+				Implements(token.convertToToken(), convertTypePath(node.sub[1]));
 			case unknown:
 				throw 'Unknown class relation type $unknown';
 		}
 	}
 
-	static function convertClassField(node:JNodeBase):NClassField {
+	static function convertClassField(node:JNodeBase):ClassField {
 		return switch (node.name) {
 			case "variable_field":
 				convertVar(node);
@@ -185,19 +185,19 @@ class Converter {
 		}
 	}
 
-	static function convertModifiers(node:JNodeBase):Array<NModifier> {
+	static function convertModifiers(node:JNodeBase):Array<FieldModifier> {
 		if (node == null)
 			return [];
 		return node.asNode("modifiers").sub.map(function(node) {
 			var token = node.asToken();
 			return switch (token.token) {
-				case "static": PModifierStatic(token.convertToToken());
-				case "macro": PModifierMacro(token.convertToToken());
-				case "public": PModifierPublic(token.convertToToken());
-				case "private": PModifierPrivate(token.convertToToken());
-				case "override": PModifierOverride(token.convertToToken());
-				case "dynamic": PModifierDynamic(token.convertToToken());
-				case "inline": PModifierInline(token.convertToToken());
+				case "static": Static(token.convertToToken());
+				case "macro": Macro(token.convertToToken());
+				case "public": Public(token.convertToToken());
+				case "private": Private(token.convertToToken());
+				case "override": Override(token.convertToToken());
+				case "dynamic": Dynamic(token.convertToToken());
+				case "inline": Inline(token.convertToToken());
 				case unknown: throw 'Unknown modifier token: $unknown';
 			}
 		});
@@ -228,7 +228,7 @@ class Converter {
 		}
 	}
 
-	static function convertComplexType(node:JNodeBase):NComplexType {
+	static function convertComplexType(node:JNodeBase):ComplexType {
 		var node:JNode = cast node.asNode("complex_type").sub[0];
 		return switch (node.name) {
 			case "path":
@@ -304,8 +304,8 @@ class Converter {
 	static function convertCallArgs(node:JNodeBase):NCallArgs {
 		var node = node.asNode("call_args");
 		var result:NCallArgs = {
-			popen: node.sub[0].toToken(),
-			pclose: node.sub[2].toToken(),
+			parenOpen: node.sub[0].toToken(),
+			parenClose: node.sub[2].toToken(),
 		};
 		if (node.sub[1] != null)
 			result.args = commaSeparated(node.sub[1].asNode("exprs").sub, convertExpr);
@@ -398,9 +398,9 @@ class Converter {
 
 			case "expr_if":
 				var ifToken = node.sub[0].toToken();
-				var popen = node.sub[1].toToken();
+				var parenOpen = node.sub[1].toToken();
 				var econd = convertExpr(node.sub[2]);
-				var pclose = node.sub[3].toToken();
+				var parenClose = node.sub[3].toToken();
 				var eif = convertExpr(node.sub[4]);
 				var elseNode = node.sub[5];
 				var els = if (elseNode == null) null else {
@@ -410,7 +410,7 @@ class Converter {
 						e: convertExpr(node.sub[1]),
 					}
 				};
-				PIf(ifToken, popen, econd, pclose, eif, els);
+				PIf(ifToken, parenOpen, econd, parenClose, eif, els);
 
 			case "expr_empty_block":
 				PBlock(node.sub[0].toToken(), [], node.sub[1].toToken());
@@ -421,28 +421,28 @@ class Converter {
 
 			case "expr_for":
 				var forToken = node.sub[0].toToken();
-				var popen = node.sub[1].toToken();
+				var parenOpen = node.sub[1].toToken();
 				var e1 = convertExpr(node.sub[2]);
-				var pclose = node.sub[3].toToken();
+				var parenClose = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
-				PFor(forToken, popen, e1, pclose, e2);
+				PFor(forToken, parenOpen, e1, parenClose, e2);
 
 			case "expr_while":
 				var whileToken = node.sub[0].toToken();
-				var popen = node.sub[1].toToken();
+				var parenOpen = node.sub[1].toToken();
 				var e1 = convertExpr(node.sub[2]);
-				var pclose = node.sub[3].toToken();
+				var parenClose = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
-				PWhile(whileToken, popen, e1, pclose, e2);
+				PWhile(whileToken, parenOpen, e1, parenClose, e2);
 
 			case "expr_do":
 				var doToken = node.sub[0].toToken();
 				var e1 = convertExpr(node.sub[1]);
 				var whileToken = node.sub[2].toToken();
-				var popen = node.sub[3].toToken();
+				var parenOpen = node.sub[3].toToken();
 				var e2 = convertExpr(node.sub[4]);
-				var pclose = node.sub[5].toToken();
-				PDo(doToken, e1, whileToken, popen, e2, pclose);
+				var parenClose = node.sub[5].toToken();
+				PDo(doToken, e1, whileToken, parenOpen, e2, parenClose);
 
 			case "expr_array_declaration":
 				var bkopen = node.sub[0].toToken();
@@ -490,10 +490,10 @@ class Converter {
 					var node = node.asNode("catch");
 					return {
 						_catch: node.sub[0].toToken(),
-						popen: node.sub[1].toToken(),
+						parenOpen: node.sub[1].toToken(),
 						ident: convertDollarIdent(node.sub[2]),
 						type: convertTypeHint(node.sub[3]),
-						pclose: node.sub[4].toToken(),
+						parenClose: node.sub[4].toToken(),
 						e: convertExpr(node.sub[5]),
 					};
 				});
@@ -539,9 +539,9 @@ class Converter {
 								var node = guardNode.asNode("guard");
 								{
 									_if: node.sub[0].toToken(),
-									popen: node.sub[1].toToken(),
+									parenOpen: node.sub[1].toToken(),
 									e: convertExpr(node.sub[2]),
-									pclose: node.sub[3].toToken(),
+									parenClose: node.sub[3].toToken(),
 								}
 							};
 							var elems = if (node.sub[4] == null) [] else node.sub[4].asNode("elements").sub.map(convertBlockElement);
@@ -593,8 +593,8 @@ class Converter {
 		var node = node.asNode("function");
 		var result:NFunction = {
 			params: convertTypeDeclParameters(node.sub[1]),
-			popen: node.sub[2].toToken(),
-			pclose: node.sub[4].toToken(),
+			parenOpen: node.sub[2].toToken(),
+			parenClose: node.sub[4].toToken(),
 			e: convertExpr(node.sub[6])
 		};
 		if (node.sub[0] != null)
@@ -661,7 +661,7 @@ class Converter {
 		return result;
 	}
 
-	static function convertMethod(node:JNodeBase):NClassField {
+	static function convertMethod(node:JNodeBase):ClassField {
 		var node = node.asNode("function_field");
 
 		var annotations = convertAnnotations(node.sub[0]);
@@ -673,13 +673,13 @@ class Converter {
 			else
 				convertDollarIdent(node.sub[3]);
 		var params = convertTypeDeclParameters(node.sub[4]);
-		var popen = node.sub[5].toToken();
+		var parenOpen = node.sub[5].toToken();
 		var args = if (node.sub[6] == null) null else commaSeparated(node.sub[6].asNode("args").sub, convertFunctionArg);
-		var pclose = node.sub[7].toToken();
+		var parenClose = node.sub[7].toToken();
 		var returnTypeHint = if (node.sub[8] == null) null else convertTypeHint(node.sub[8]);
 		var expr = convertFieldExpr(node.sub[9]);
 
-		return PFunctionField(annotations, modifiers, functionToken, name, params, popen, args, pclose, returnTypeHint, expr);
+		return Function(annotations, modifiers, functionToken, name, params, parenOpen, args, parenClose, returnTypeHint, expr);
 	}
 
 	static function convertFieldExpr(node:JNodeBase):NFieldExpr {
@@ -692,14 +692,14 @@ class Converter {
 		}
 	}
 
-	static function convertProperty(node:JNodeBase):NClassField {
+	static function convertProperty(node:JNodeBase):ClassField {
 		var node = node.asNode("property_field");
 		function convertPropertyIdent(n:JNodeBase) {
 			var node = n.asNode("property_ident").sub[0];
 			if (node.name == "token") return node.toToken()
 			else return convertIdent(node);
 		}
-		return PPropertyField(
+		return Property(
 			convertAnnotations(node.sub[0]),
 			convertModifiers(node.sub[1]),
 			node.sub[2].toToken(),
@@ -714,7 +714,7 @@ class Converter {
 		);
 	}
 
-	static function convertVar(node:JNodeBase):NClassField {
+	static function convertVar(node:JNodeBase):ClassField {
 		var node = node.asNode("variable_field");
 		var annotations = convertAnnotations(node.sub[0]);
 		var modifiers = convertModifiers(node.sub[1]);
@@ -723,7 +723,7 @@ class Converter {
 		var typeHint = if (node.sub[4] == null) null else convertTypeHint(node.sub[4]);
 		var assignment = if (node.sub[5] == null) null else convertAssignment(node.sub[5]);
 		var semicolon = node.sub[6].toToken();
-		return PVariableField(annotations, modifiers, varToken, name, typeHint, assignment, semicolon);
+		return Variable(annotations, modifiers, varToken, name, typeHint, assignment, semicolon);
 	}
 
 	static function commaSeparatedTrailing<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparatedAllowTrailing<T>> {
@@ -812,12 +812,12 @@ class Converter {
 		};
 	}
 
-	static function convertUsingDecl(node:JNodeBase):NDecl {
+	static function convertUsingDecl(node:JNodeBase):Decl {
 		var node = node.asNode("using_decl");
-		return PUsingDecl(node.sub[0].toToken(), convertPath(node.sub[1]), node.sub[2].toToken());
+		return UsingDecl(node.sub[0].toToken(), convertPath(node.sub[1]), node.sub[2].toToken());
 	}
 
-	static function convertImportDecl(node:JNodeBase):NDecl {
+	static function convertImportDecl(node:JNodeBase):Decl {
 		var node = node.asNode("import_decl");
 		var importToken = node.sub[0].toToken();
 
@@ -826,7 +826,7 @@ class Converter {
 
 		var mode =
 			if (p.sub[1] == null)
-				PNormalMode
+				INormal
 			else {
 				var node:JNode =  cast p.sub[1];
 				switch (node.name) {
@@ -834,24 +834,24 @@ class Converter {
 						var tok = node.sub[0].asToken();
 						var ident = convertIdent(node.sub[1]);
 						switch (tok.token) {
-							case "as": PAsMode(tok.convertToToken(), ident);
-							case "in": PInMode(tok.convertToToken(), ident);
+							case "as": IAs(tok.convertToToken(), ident);
+							case "in": IIn(tok.convertToToken(), ident);
 							case unknown: throw "Unknown as/in import mode: " + unknown;
 						}
 					case "all":
-						PAllMode(node.sub[0].toToken());
+						IAll(node.sub[0].toToken());
 					case unknown:
 						throw "Unknown import mode: " + unknown;
 				}
 			}
 
 		var semicolonToken = node.sub[2].toToken();
-		return PImportDecl(importToken, {path: path, mode: mode}, semicolonToken);
+		return ImportDecl(importToken, path, mode, semicolonToken);
 	}
 
-	static function convertTypedefDecl(node:JNodeBase):NDecl {
+	static function convertTypedefDecl(node:JNodeBase):Decl {
 		var node = node.asNode("typedef_decl");
-		return PTypedefDecl(
+		return TypedefDecl(
 			convertAnnotations(node.sub[0]),
 			convertFlags(node.sub[1]),
 			node.sub[2].toToken(),
@@ -863,7 +863,7 @@ class Converter {
 		);
 	}
 
-	static function convertEnumDecl(node:JNodeBase):NDecl {
+	static function convertEnumDecl(node:JNodeBase):Decl {
 		var node = node.asNode("enum_decl");
 
 		function convertEnumArgs(node:JNodeBase):NEnumFieldArgs {
@@ -884,9 +884,9 @@ class Converter {
 			}
 
 			return {
-				popen: node.sub[0].toToken(),
+				parenOpen: node.sub[0].toToken(),
 				args: if (node.sub[1] == null) null else commaSeparated(node.sub[1].asNode("args").sub, convertEnumArg),
-				pclose: node.sub[2].toToken(),
+				parenClose: node.sub[2].toToken(),
 			};
 			return null;
 		}
@@ -904,7 +904,7 @@ class Converter {
 			};
 		});
 
-		return PEnumDecl(
+		return EnumDecl(
 			convertAnnotations(node.sub[0]),
 			convertFlags(node.sub[1]),
 			node.sub[2].toToken(),
@@ -916,19 +916,19 @@ class Converter {
 		);
 	}
 
-	static function convertAbstractDecl(node:JNodeBase):NDecl {
+	static function convertAbstractDecl(node:JNodeBase):Decl {
 		var node = node.asNode("abstract_decl");
 
 		function convertUnderlyingType(node:JNodeBase):NUnderlyingType {
 			var node = node.asNode("underlying_type");
 			return {
-				popen: node.sub[0].toToken(),
+				parenOpen: node.sub[0].toToken(),
 				type: convertComplexType(node.sub[1]),
-				pclose: node.sub[2].toToken(),
+				parenClose: node.sub[2].toToken(),
 			};
 		}
 
-		function convertAbstractRelations(node:JNodeBase):Array<NAbstractRelation> {
+		function convertAbstractRelations(node:JNodeBase):Array<AbstractRelation> {
 			if (node == null)
 				return [];
 			var node = node.asNode("relations");
@@ -937,14 +937,14 @@ class Converter {
 				var tok = node.sub[0].asToken();
 				var ct = convertComplexType(node.sub[1]);
 				return switch (tok.token) {
-					case "from": PFrom(tok.convertToToken(), ct);
-					case "to": PTo(tok.convertToToken(), ct);
+					case "from": From(tok.convertToToken(), ct);
+					case "to": To(tok.convertToToken(), ct);
 					case unknown: throw 'Unknown abstract relation type: $unknown';
 				}
 			});
 		}
 
-		return PAbstractDecl(
+		return AbstractDecl(
 			convertAnnotations(node.sub[0]),
 			convertFlags(node.sub[1]),
 			node.sub[2].toToken(),
@@ -958,32 +958,32 @@ class Converter {
 		);
 	}
 
-	static function convertClassDeclInner(node:JNode, offset:Int):NClassDecl {
+	static function convertClassDeclInner(node:JNode, offset:Int):ClassDecl {
 		var kind = node.sub[offset].asNode("class_or_interface").sub[0].toToken();
 		var name = if (node.sub[offset+1] == null) null else convertDollarIdent(node.sub[offset+1]); // name can be null in macro case
 		var relations = if (node.sub[offset+3] == null) [] else node.sub[offset+3].asNode("relations").sub.map(convertClassRelation);
-		var bropen = node.sub[offset+4].toToken();
+		var braceOpen = node.sub[offset+4].toToken();
 		var fields = if (node.sub[offset+5] == null) [] else node.sub[offset+5].asNode("class_fields").sub.map(convertClassField);
-		var brclose = node.sub[offset+6].toToken();
+		var braceClose = node.sub[offset+6].toToken();
 		return {
 			kind: kind,
 			name: name,
 			params: convertTypeDeclParameters(node.sub[offset+2]),
 			relations: relations,
-			bropen: bropen,
-			brclose: brclose,
+			braceOpen: braceOpen,
+			braceClose: braceClose,
 			fields: fields,
 		};
 	}
 
-	static function convertClassDecl(node:JNodeBase):NDecl {
+	static function convertClassDecl(node:JNodeBase):Decl {
 		var node = node.asNode("class_decl");
 		var annotations = convertAnnotations(node.sub[0]);
 		var flags = convertFlags(node.sub[1]);
-		return PClassDecl(annotations, flags, convertClassDeclInner(node, 2));
+		return ClassDecl(annotations, flags, convertClassDeclInner(node, 2));
 	}
 
-	static function convertDecl(node:JNodeBase):NDecl {
+	static function convertDecl(node:JNodeBase):Decl {
 		return switch (node.name) {
 			case "class_decl":
 				convertClassDecl(node);
