@@ -306,9 +306,9 @@ class Converter {
 		};
 	}
 
-	static function convertCallArgs(node:JNodeBase):NCallArgs {
+	static function convertCallArgs(node:JNodeBase):CallArgs {
 		var node = node.asNode("call_args");
-		var result:NCallArgs = {
+		var result:CallArgs = {
 			parenOpen: node.sub[0].toToken(),
 			parenClose: node.sub[2].toToken(),
 		};
@@ -456,16 +456,16 @@ class Converter {
 				EArrayDecl(bkopen, elems, bkclose);
 
 			case "expr_object_declaration":
-				function convertObjectField(node:JNodeBase):NObjectField {
+				function convertObjectField(node:JNodeBase):ObjectField {
 					var node = node.asNode("object_field");
 
-					var name = {
+					var name:ObjectFieldName = {
 						var n:JNode = cast node.sub[0].asNode("object_field_name").sub[0];
 						switch (n.name) {
 							case "dollar_ident":
-								NObjectFieldName.PIdent(convertDollarIdent(n));
+								NIdent(convertDollarIdent(n));
 							case "string":
-								NObjectFieldName.PString(convertString(n));
+								NString(convertString(n));
 							case unknown:
 								throw 'Unknown object field name type: $unknown';
 						}
@@ -473,7 +473,7 @@ class Converter {
 					var colon = node.sub[1].toToken();
 					var expr = convertExpr(node.sub[2]);
 
-					return {name: name, colon: colon, e: expr};
+					return {name: name, colon: colon, expr: expr};
 				}
 
 				EObjectDecl(

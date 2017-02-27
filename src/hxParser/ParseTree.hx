@@ -67,13 +67,13 @@ enum NString {
 	PString2(s:Token);
 }
 
-enum NObjectFieldName {
-	PIdent(ident:Token);
-	PString(string:NString);
+enum ObjectFieldName {
+	NIdent(ident:Token);
+	NString(string:NString);
 }
 
-typedef NObjectField = {
-	name:NObjectFieldName, colon:Token, e:Expr
+typedef ObjectField = {
+	name:ObjectFieldName, colon:Token, expr:Expr
 }
 
 enum NConst {
@@ -131,23 +131,23 @@ enum Expr {
 	EContinue(continueKeyword:Token);
 	EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token);
 	ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>);
-	ESwitch(_switch:Token, e:Expr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
-	EFor(_for:Token, parenOpen:Token, e1:Expr, parenClose:Token, e2:Expr);
-	EWhile(_while:Token, parenOpen:Token, e1:Expr, parenClose:Token, e2:Expr);
-	EUntyped(_untyped:Token, e:Expr);
-	EObjectDecl(braceOpen:Token, fl:CommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
+	ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
+	EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr);
+	EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr);
+	EUntyped(untypedKeyword:Token, expr:Expr);
+	EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token);
 	EConst(const:NConst);
-	EUnsafeCast(_cast:Token, e:Expr);
-	ESafeCast(_cast:Token, parenOpen:Token, e:Expr, comma:Token, ct:ComplexType, parenClose:Token);
-	ENew(_new:Token, path:TypePath, el:NCallArgs);
+	EUnsafeCast(castKeyword:Token, expr:Expr);
+	ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token);
+	ENew(newKeyword:Token, path:TypePath, args:CallArgs);
 	EParenthesis(parenOpen:Token, e:Expr, parenClose:Token);
 	ECheckType(parenOpen:Token, e:Expr, colon:Token, type:ComplexType, parenClose:Token);
-	EIs(parenOpen:Token, e:Expr, _is:Token, path:TypePath, parenClose:Token);
+	EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token);
 	EArrayDecl(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<Expr>, bracketClose:Token);
 	EFunction(functionKeyword:Token, fun:NFunction);
 	EUnaryPrefix(op:Token, expr:Expr);
 	EField(expr:Expr, ident:NDotIdent);
-	ECall(expr:Expr, args:NCallArgs);
+	ECall(expr:Expr, args:CallArgs);
 	EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token);
 	EUnaryPostfix(expr:Expr, op:Token);
 	EBinop(exprLeft:Expr, op:Token, exprRight:Expr);
@@ -159,7 +159,7 @@ enum Expr {
 	EBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token);
 }
 
-typedef NCallArgs = {
+typedef CallArgs = {
 	parenOpen:Token, ?args:CommaSeparated<Expr>, parenClose:Token
 }
 
