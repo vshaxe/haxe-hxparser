@@ -26,8 +26,13 @@ class JNodeTools {
 }
 
 class Converter {
-	public static function convertResult(root:JResult):File {
+	public static function convertResultToFile(root:JResult):File {
 		return convertFile(root.document.tree.asNode("tree").sub[0].asNode("file"));
+	}
+
+	public static function convertResultToClassFields(root:JResult):Array<ClassField> {
+		var classFields = root.document.tree.asNode("tree").sub[0].asNode("class_fields_only").sub[0].asNode("class_fields").sub;
+		return classFields.map(convertClassField);
 	}
 
 	static function convertFile(node:JNode):File {
