@@ -1,7 +1,8 @@
 package hxParser;
 
 enum WalkStack {
-    Item(edge:String, parent:WalkStack);
+    Edge(edge:String, parent:WalkStack);
     Element(index:Int, parent:WalkStack);
+    Node(kind:NodeKind, parent:WalkStack);
     Root;
 }
