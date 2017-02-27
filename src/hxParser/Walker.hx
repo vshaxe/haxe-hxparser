@@ -178,6 +178,7 @@ class Walker {
 		case PSwitch(_switch, e, bropen, cases, brclose):walkNExpr_PSwitch(_switch, e, bropen, cases, brclose);
 		case PReturn(_return):walkNExpr_PReturn(_return);
 		case PArrayDecl(bkopen, el, bkclose):walkNExpr_PArrayDecl(bkopen, el, bkclose);
+		case PDollarIdent(ident):walkNExpr_PDollarIdent(ident);
 		case PIf(_if, popen, e1, pclose, e2, elseExpr):walkNExpr_PIf(_if, popen, e1, pclose, e2, elseExpr);
 		case PReturnExpr(_return, e):walkNExpr_PReturnExpr(_return, e);
 		case PArray(e1, bkopen, e2, bkclose):walkNExpr_PArray(e1, bkopen, e2, bkclose);
@@ -877,6 +878,9 @@ class Walker {
 	}
 	function walkNExpr_PReturn(_return:Token) {
 		walkToken(_return);
+	}
+	function walkNExpr_PDollarIdent(ident:Token) {
+		walkToken(ident);
 	}
 	function walkNComplexType_PStructuralExtension(bropen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, brclose:Token) {
 		walkToken(bropen);

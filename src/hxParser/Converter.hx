@@ -77,7 +77,10 @@ class Converter {
 	}
 
 	static inline function convertDollarIdent(node:JNodeBase):Token {
-		return convertIdent(node.asNode("dollar_ident").sub[0]);
+		var node = node.asNode("dollar_ident").sub[0];
+		// TODO: Maybe this should change in hxparser
+		if (node.name == "token") return node.toToken();
+		else return convertIdent(node);
 	}
 
 	static inline function convertIdent(node:JNodeBase):Token {
@@ -560,6 +563,9 @@ class Converter {
 				var ethen = convertExpr(node.sub[2]);
 				var eelse = convertExpr(node.sub[4]);
 				PTernary(econd, node.sub[1].toToken(), ethen, node.sub[3].toToken(), eelse);
+
+			case "expr_dollarident":
+				PDollarIdent(node.sub[0].toToken());
 
 			case unknown:
 				throw 'Unknown expression type: $unknown';

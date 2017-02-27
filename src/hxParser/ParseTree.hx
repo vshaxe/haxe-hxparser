@@ -154,6 +154,7 @@ enum NExpr {
 	PTernary(e1:NExpr, questionmark:Token, e2:NExpr, colon:Token, e3:NExpr);
 	PIn(e1:NExpr, _in:Token, e2:NExpr);
 	PIntDot(int:Token, dot:Token);
+	PDollarIdent(ident:Token);
 	PMacroEscape(ident:Token, bropen:Token, e:NExpr, brclose:Token);
 	PBlock(bropen:Token, elems:Array<NBlockElement>, brclose:Token);
 }
