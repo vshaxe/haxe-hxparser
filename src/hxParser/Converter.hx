@@ -885,7 +885,7 @@ class Converter {
 
 			return {
 				popen: node.sub[0].toToken(),
-				args: commaSeparated(node.sub[1].asNode("args").sub, convertEnumArg),
+				args: if (node.sub[1] == null) null else commaSeparated(node.sub[1].asNode("args").sub, convertEnumArg),
 				pclose: node.sub[2].toToken(),
 			};
 			return null;
