@@ -138,10 +138,10 @@ enum NExpr {
 	PObjectDecl(braceOpen:Token, fl:CommaSeparatedAllowTrailing<NObjectField>, braceClose:Token);
 	PConst(const:NConst);
 	PUnsafeCast(_cast:Token, e:NExpr);
-	PSafeCast(_cast:Token, parenOpen:Token, e:NExpr, comma:Token, ct:NComplexType, parenClose:Token);
+	PSafeCast(_cast:Token, parenOpen:Token, e:NExpr, comma:Token, ct:ComplexType, parenClose:Token);
 	PNew(_new:Token, path:TypePath, el:NCallArgs);
 	PParenthesis(parenOpen:Token, e:NExpr, parenClose:Token);
-	PCheckType(parenOpen:Token, e:NExpr, colon:Token, type:NComplexType, parenClose:Token);
+	PCheckType(parenOpen:Token, e:NExpr, colon:Token, type:ComplexType, parenClose:Token);
 	PIs(parenOpen:Token, e:NExpr, _is:Token, path:TypePath, parenClose:Token);
 	PArrayDecl(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bracketClose:Token);
 	PFunction(_function:Token, f:NFunction);
@@ -194,7 +194,7 @@ enum NLiteral {
 
 enum NTypePathParameter {
 	PArrayExprTypePathParameter(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<NExpr>, bracketClose:Token);
-	PTypeTypePathParameter(type:NComplexType);
+	PTypeTypePathParameter(type:ComplexType);
 	PConstantTypePathParameter(constant:NLiteral);
 }
 
@@ -217,7 +217,7 @@ enum FieldModifier {
 }
 
 typedef NTypeHint = {
-	colon:Token, type:NComplexType
+	colon:Token, type:ComplexType
 }
 
 typedef NAssignment = {
@@ -234,10 +234,10 @@ typedef NFunctionArgument = {
 	annotations:NAnnotations, ?questionmark:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment
 }
 
-enum NClassField {
-	PFunctionField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _function:Token, name:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?e:NFieldExpr);
-	PVariableField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _var:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
-	PPropertyField(annotations:NAnnotations, modifiers:Array<FieldModifier>, _var:Token, name:Token, parenOpen:Token, get:Token, comma:Token, set:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment);
+enum ClassField {
+	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?expr:NFieldExpr);
+	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
+	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment);
 }
 
 typedef NAnonymousTypeField = {
@@ -245,7 +245,7 @@ typedef NAnonymousTypeField = {
 }
 
 enum NAnonymousTypeFields {
-	PAnonymousClassFields(fields:Array<NClassField>);
+	PAnonymousClassFields(fields:Array<ClassField>);
 	PAnonymousShortFields(?fields:CommaSeparatedAllowTrailing<NAnonymousTypeField>);
 }
 
@@ -261,18 +261,18 @@ typedef NEnumField = {
 	annotations:NAnnotations, name:Token, ?params:NTypeDeclParameters, ?args:NEnumFieldArgs, ?type:NTypeHint, semicolon:Token
 }
 
-enum NComplexType {
-	PParenthesisType(parenOpen:Token, ct:NComplexType, parenClose:Token);
+enum ComplexType {
+	PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token);
 	PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
 	PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
-	POptionalType(questionmark:Token, type:NComplexType);
+	POptionalType(questionmark:Token, type:ComplexType);
 	PTypePath(path:TypePath);
-	PFunctionType(type1:NComplexType, arrow:Token, type2:NComplexType);
+	PFunctionType(type1:ComplexType, arrow:Token, type2:ComplexType);
 }
 
 enum NConstraints {
-	PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<NComplexType>, parenClose:Token);
-	PSingleConstraint(colon:Token, type:NComplexType);
+	PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
+	PSingleConstraint(colon:Token, type:ComplexType);
 	PNoConstraints;
 }
 
@@ -282,12 +282,12 @@ enum ClassRelation {
 }
 
 typedef NUnderlyingType = {
-	parenOpen:Token, type:NComplexType, parenClose:Token
+	parenOpen:Token, type:ComplexType, parenClose:Token
 }
 
-enum NAbstractRelation {
-	PTo(_to:Token, type:NComplexType);
-	PFrom(_from:Token, type:NComplexType);
+enum AbstractRelation {
+	To(toKeyword:Token, type:ComplexType);
+	From(fromKeyword:Token, type:ComplexType);
 }
 
 typedef NTypeDeclParameter = {
@@ -311,7 +311,7 @@ typedef ClassDecl = {
 	?params:NTypeDeclParameters,
 	relations:Array<ClassRelation>,
 	braceOpen:Token,
-	fields:Array<NClassField>,
+	fields:Array<ClassField>,
 	braceClose:Token
 }
 
@@ -320,8 +320,8 @@ enum Decl {
 	UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
 	ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
 	EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:NTypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
-	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:NTypeDeclParameters, assign:Token, type:NComplexType, ?semicolon:Token);
-	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:NTypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<NAbstractRelation>, braceOpen:Token, fields:Array<NClassField>, braceClose:Token);
+	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:NTypeDeclParameters, assign:Token, type:ComplexType, ?semicolon:Token);
+	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:NTypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
 }
 
 typedef Package = {
