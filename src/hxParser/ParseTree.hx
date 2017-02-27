@@ -82,7 +82,7 @@ enum NConst {
 }
 
 typedef NFunction = {
-	?ident:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?type:NTypeHint, e:NExpr
+	?ident:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?type:NTypeHint, e:NExpr
 }
 
 typedef NVarDeclaration = {
@@ -235,7 +235,7 @@ typedef NFunctionArgument = {
 }
 
 enum ClassField {
-	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:NTypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?expr:NFieldExpr);
+	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<NFunctionArgument>, parenClose:Token, ?typeHint:NTypeHint, ?expr:NFieldExpr);
 	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
 	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:NTypeHint, ?assignment:NAssignment, semicolon:Token);
 }
@@ -258,7 +258,7 @@ typedef NEnumFieldArgs = {
 }
 
 typedef NEnumField = {
-	annotations:NAnnotations, name:Token, ?params:NTypeDeclParameters, ?args:NEnumFieldArgs, ?type:NTypeHint, semicolon:Token
+	annotations:NAnnotations, name:Token, ?params:TypeDeclParameters, ?args:NEnumFieldArgs, ?type:NTypeHint, semicolon:Token
 }
 
 enum ComplexType {
@@ -290,12 +290,12 @@ enum AbstractRelation {
 	From(fromKeyword:Token, type:ComplexType);
 }
 
-typedef NTypeDeclParameter = {
+typedef TypeDeclParameter = {
 	annotations:NAnnotations, name:Token, constraints:NConstraints
 }
 
-typedef NTypeDeclParameters = {
-	lt:Token, params:CommaSeparated<NTypeDeclParameter>, gt:Token
+typedef TypeDeclParameters = {
+	lt:Token, params:CommaSeparated<TypeDeclParameter>, gt:Token
 }
 
 enum ImportMode {
@@ -308,7 +308,7 @@ enum ImportMode {
 typedef ClassDecl = {
 	kind:Token,
 	name:Token,
-	?params:NTypeDeclParameters,
+	?params:TypeDeclParameters,
 	relations:Array<ClassRelation>,
 	braceOpen:Token,
 	fields:Array<ClassField>,
@@ -319,9 +319,9 @@ enum Decl {
 	ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
 	UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
 	ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
-	EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:NTypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
-	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:NTypeDeclParameters, assign:Token, type:ComplexType, ?semicolon:Token);
-	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:NTypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
+	EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:TypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
+	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:TypeDeclParameters, assign:Token, type:ComplexType, ?semicolon:Token);
+	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:TypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
 }
 
 typedef Package = {

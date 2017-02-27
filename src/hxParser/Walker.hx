@@ -125,7 +125,7 @@ class Walker {
 	function walkClassDecl(node:ClassDecl) {
 		walkToken(node.kind);
 		walkToken(node.name);
-		if (node.params != null) walkNTypeDeclParameters(node.params);
+		if (node.params != null) walkTypeDeclParameters(node.params);
 		walkClassDecl_relations(node.relations);
 		walkToken(node.braceOpen);
 		walkClassDecl_fields(node.fields);
@@ -224,6 +224,9 @@ class Walker {
 		case PThrow(_throw, e):walkNExpr_PThrow(_throw, e);
 		case PFor(_for, parenOpen, e1, parenClose, e2):walkNExpr_PFor(_for, parenOpen, e1, parenClose, e2);
 	};
+	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>) {
+		walkCommaSeparated(elems, walkTypeDeclParameter);
+	}
 	function walkNCallArgs(node:NCallArgs) {
 		walkToken(node.parenOpen);
 		if (node.args != null) walkNCallArgs_args(node.args);
@@ -232,12 +235,12 @@ class Walker {
 	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>) {
 		walkCommaSeparated(elems, walkNEnumFieldArg);
 	}
-	function walkDecl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token) {
+	function walkDecl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token) {
 		walkNAnnotations(annotations);
 		walkDecl_AbstractDecl_flags(flags);
 		walkToken(abstractKeyword);
 		walkToken(name);
-		if (params != null) walkNTypeDeclParameters(params);
+		if (params != null) walkTypeDeclParameters(params);
 		if (underlyingType != null) walkNUnderlyingType(underlyingType);
 		walkDecl_AbstractDecl_relations(relations);
 		walkToken(braceOpen);
@@ -249,12 +252,12 @@ class Walker {
 		if (node.path != null) walkNPath(node.path);
 		walkToken(node.semicolon);
 	}
-	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<NFunctionArgument>>, parenClose:Token, typeHint:Null<NTypeHint>, expr:Null<NFieldExpr>) {
+	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<NFunctionArgument>>, parenClose:Token, typeHint:Null<NTypeHint>, expr:Null<NFieldExpr>) {
 		walkNAnnotations(annotations);
 		walkClassField_Function_modifiers(modifiers);
 		walkToken(functionKeyword);
 		walkToken(name);
-		if (params != null) walkNTypeDeclParameters(params);
+		if (params != null) walkTypeDeclParameters(params);
 		walkToken(parenOpen);
 		if (args != null) walkClassField_Function_args(args);
 		walkToken(parenClose);
@@ -294,9 +297,6 @@ class Walker {
 	function walkClassField_Property_modifiers(elems:Array<FieldModifier>) {
 		walkArray(elems, walkFieldModifier);
 	}
-	function walkNTypeDeclParameters_params(elems:CommaSeparated<NTypeDeclParameter>) {
-		walkCommaSeparated(elems, walkNTypeDeclParameter);
-	}
 	function walkNMacroExpr_PTypeHint(type:NTypeHint) {
 		walkNTypeHint(type);
 	}
@@ -331,16 +331,16 @@ class Walker {
 		walkToken(node.parenClose);
 		walkNExpr(node.e);
 	}
-	function walkNTypeDeclParameter(node:NTypeDeclParameter) {
-		walkNAnnotations(node.annotations);
-		walkToken(node.name);
-		walkNConstraints(node.constraints);
-	}
 	function walkComplexType_PStructuralExtension_types(elems:Array<NStructuralExtension>) {
 		walkArray(elems, walkNStructuralExtension);
 	}
 	function walkFieldModifier_Inline(keyword:Token) {
 		walkToken(keyword);
+	}
+	function walkTypeDeclParameter(node:TypeDeclParameter) {
+		walkNAnnotations(node.annotations);
+		walkToken(node.name);
+		walkNConstraints(node.constraints);
 	}
 	function walkComplexType_PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token) {
 		walkToken(braceOpen);
@@ -433,6 +433,11 @@ class Walker {
 	}
 	function walkNLiteral_PLiteralString(s:NString) {
 		walkNString(s);
+	}
+	function walkTypeDeclParameters(node:TypeDeclParameters) {
+		walkToken(node.lt);
+		walkTypeDeclParameters_params(node.params);
+		walkToken(node.gt);
 	}
 	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath) {
 		walkToken(implementsKeyword);
@@ -544,11 +549,6 @@ class Walker {
 		walkToken(colon);
 		walkNExpr(e3);
 	}
-	function walkNTypeDeclParameters(node:NTypeDeclParameters) {
-		walkToken(node.lt);
-		walkNTypeDeclParameters_params(node.params);
-		walkToken(node.gt);
-	}
 	function walkNConst_PConstIdent(ident:Token) {
 		walkToken(ident);
 	}
@@ -645,12 +645,12 @@ class Walker {
 	function walkClassField_Function_args(elems:CommaSeparated<NFunctionArgument>) {
 		walkCommaSeparated(elems, walkNFunctionArgument);
 	}
-	function walkDecl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>) {
+	function walkDecl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<TypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>) {
 		walkNAnnotations(annotations);
 		walkDecl_TypedefDecl_flags(flags);
 		walkToken(typedefKeyword);
 		walkToken(name);
-		if (params != null) walkNTypeDeclParameters(params);
+		if (params != null) walkTypeDeclParameters(params);
 		walkToken(assign);
 		walkComplexType(type);
 		if (semicolon != null) walkToken(semicolon);
@@ -759,7 +759,7 @@ class Walker {
 	function walkNEnumField(node:NEnumField) {
 		walkNAnnotations(node.annotations);
 		walkToken(node.name);
-		if (node.params != null) walkNTypeDeclParameters(node.params);
+		if (node.params != null) walkTypeDeclParameters(node.params);
 		if (node.args != null) walkNEnumFieldArgs(node.args);
 		if (node.type != null) walkNTypeHint(node.type);
 		walkToken(node.semicolon);
@@ -787,12 +787,12 @@ class Walker {
 		walkToken(parenClose);
 		walkNExpr(e2);
 	}
-	function walkDecl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token) {
+	function walkDecl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token) {
 		walkNAnnotations(annotations);
 		walkDecl_EnumDecl_flags(flags);
 		walkToken(enumKeyword);
 		walkToken(name);
-		if (params != null) walkNTypeDeclParameters(params);
+		if (params != null) walkTypeDeclParameters(params);
 		walkToken(braceOpen);
 		walkDecl_EnumDecl_fields(fields);
 		walkToken(braceClose);
@@ -856,7 +856,7 @@ class Walker {
 	}
 	function walkNFunction(node:NFunction) {
 		if (node.ident != null) walkToken(node.ident);
-		if (node.params != null) walkNTypeDeclParameters(node.params);
+		if (node.params != null) walkTypeDeclParameters(node.params);
 		walkToken(node.parenOpen);
 		if (node.args != null) walkNFunction_args(node.args);
 		walkToken(node.parenClose);

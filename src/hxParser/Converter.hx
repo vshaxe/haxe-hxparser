@@ -777,7 +777,7 @@ class Converter {
 		};
 	}
 
-	static function convertTypeDeclParameter(node:JNodeBase):NTypeDeclParameter {
+	static function convertTypeDeclParameter(node:JNodeBase):TypeDeclParameter {
 		var node = node.asNode("type_decl_parameter");
 
 		var constraints =
@@ -805,7 +805,7 @@ class Converter {
 		};
 	}
 
-	static function convertTypeDeclParameters(node:JNodeBase):NTypeDeclParameters {
+	static function convertTypeDeclParameters(node:JNodeBase):TypeDeclParameters {
 		if (node == null)
 			return null;
 

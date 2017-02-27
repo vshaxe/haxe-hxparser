@@ -9,7 +9,7 @@ enum NodeKind {
 	AbstractRelation_From(fromKeyword:Token, type:ComplexType);
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
 	ClassDecl(node:ClassDecl);
-	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<NFunctionArgument>>, parenClose:Token, typeHint:Null<NTypeHint>, expr:Null<NFieldExpr>);
+	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<NFunctionArgument>>, parenClose:Token, typeHint:Null<NTypeHint>, expr:Null<NFieldExpr>);
 	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token);
 	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<NTypeHint>, assignment:Null<NAssignment>, semicolon:Token);
 	ClassRelation_Extends(extendsKeyword:Token, path:TypePath);
@@ -20,11 +20,11 @@ enum NodeKind {
 	ComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token);
 	ComplexType_PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
 	ComplexType_PTypePath(path:TypePath);
-	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
+	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
 	Decl_ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
-	Decl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
+	Decl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
 	Decl_ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
-	Decl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<NTypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>);
+	Decl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<TypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>);
 	Decl_UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
 	FieldModifier_Dynamic(keyword:Token);
 	FieldModifier_Inline(keyword:Token);
@@ -121,8 +121,6 @@ enum NodeKind {
 	NString_PString(s:Token);
 	NString_PString2(s:Token);
 	NStructuralExtension(node:NStructuralExtension);
-	NTypeDeclParameter(node:NTypeDeclParameter);
-	NTypeDeclParameters(node:NTypeDeclParameters);
 	NTypeHint(node:NTypeHint);
 	NTypePathParameter_PArrayExprTypePathParameter(bracketOpen:Token, el:Null<CommaSeparatedAllowTrailing<NExpr>>, bracketClose:Token);
 	NTypePathParameter_PConstantTypePathParameter(constant:NLiteral);
@@ -131,5 +129,7 @@ enum NodeKind {
 	NUnderlyingType(node:NUnderlyingType);
 	NVarDeclaration(node:NVarDeclaration);
 	Package(node:Package);
+	TypeDeclParameter(node:TypeDeclParameter);
+	TypeDeclParameters(node:TypeDeclParameters);
 	TypePath(node:TypePath);
 }
