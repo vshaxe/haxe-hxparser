@@ -3,9 +3,9 @@ package hxParser;
 // this is the new parse tree
 
 class Trivia {
-	public var text(default,null):String;
-	public var start(default,null):Int;
-	public var end(default,null):Int;
+	public var text:String;
+	public var start:Int;
+	public var end:Int;
 
 	public function new(text, start, end) {
 		this.text = text;
@@ -22,13 +22,13 @@ class Trivia {
 }
 
 class Token {
-	public var text(default,null):String;
-	public var start(default,null):Int;
-	public var end(default,null):Int;
-	public var leadingTrivia(default,null):Array<Trivia>;
-	public var trailingTrivia(default,null):Array<Trivia>;
-	public var implicit(default,null):Bool;
-	public var inserted(default,null):Bool;
+	public var text:String;
+	public var start:Int;
+	public var end:Int;
+	public var leadingTrivia:Array<Trivia>;
+	public var trailingTrivia:Array<Trivia>;
+	public var implicit:Bool;
+	public var inserted:Bool;
 
 	public function new(text, start, end) {
 		this.text = text;
