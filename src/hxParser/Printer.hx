@@ -19,7 +19,8 @@ class Printer extends Walker {
 
     override function walkToken(token:Token) {
         if (token.leadingTrivia != null) for (trivia in token.leadingTrivia) add(trivia.text);
-        add(token.text);
+        if (token.text != "<eof>")
+            add(token.text);
         if (token.trailingTrivia != null) for (trivia in token.trailingTrivia) add(trivia.text);
     }
 
