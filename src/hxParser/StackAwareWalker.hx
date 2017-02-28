@@ -79,7 +79,7 @@ import hxParser.ParseTree;
 		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose, stack);
 		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose, stack);
 		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose, stack);
-		case Optional(questionmark, type):walkComplexType_Optional(questionmark, type, stack);
+		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type, stack);
 		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight, stack);
 		case TypePath(path):walkComplexType_TypePath(path, stack);
 	};
@@ -93,7 +93,7 @@ import hxParser.ParseTree;
 		stack = Node(FunctionArgument(node), stack);
 		{
 			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
 			walkToken(node.name, Edge("name", stack));
 			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
 			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
@@ -194,7 +194,7 @@ import hxParser.ParseTree;
 	function walkImportMode(node:ImportMode, stack:WalkStack) switch node {
 		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident, stack);
 		case INormal:{ };
-		case IAll(dotstar):walkImportMode_IAll(dotstar, stack);
+		case IAll(dotStar):walkImportMode_IAll(dotStar, stack);
 		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident, stack);
 	};
 	function walkFile(node:File, stack:WalkStack) {
@@ -381,11 +381,11 @@ import hxParser.ParseTree;
 	function walkClassField_Property_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
 		walkArray(elems, stack, walkFieldModifier);
 	}
-	function walkExpr_ETernary(exprCond:Expr, questionmark:Token, exprThen:Expr, colon:Token, exprElse:Expr, stack:WalkStack) {
-		stack = Node(Expr_ETernary(exprCond, questionmark, exprThen, colon, exprElse), stack);
+	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr, stack:WalkStack) {
+		stack = Node(Expr_ETernary(exprCond, questionMark, exprThen, colon, exprElse), stack);
 		{
 			walkExpr(exprCond, Edge("exprCond", stack));
-			walkToken(questionmark, Edge("questionmark", stack));
+			walkToken(questionMark, Edge("questionMark", stack));
 			walkExpr(exprThen, Edge("exprThen", stack));
 			walkToken(colon, Edge("colon", stack));
 			walkExpr(exprElse, Edge("exprElse", stack));
@@ -503,7 +503,7 @@ import hxParser.ParseTree;
 	function walkAnonymousStructureField(node:AnonymousStructureField, stack:WalkStack) {
 		stack = Node(AnonymousStructureField(node), stack);
 		{
-			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
 			walkToken(node.name, Edge("name", stack));
 			walkTypeHint(node.typeHint, Edge("typeHint", stack));
 		};
@@ -595,7 +595,7 @@ import hxParser.ParseTree;
 		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword, stack);
 		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op, stack);
 		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose, stack);
-		case ETernary(exprCond, questionmark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionmark, exprThen, colon, exprElse, stack);
+		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse, stack);
 		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose, stack);
 		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose, stack);
 		case EConst(const):walkExpr_EConst(const, stack);
@@ -1153,7 +1153,7 @@ import hxParser.ParseTree;
 	function walkNEnumFieldArg(node:NEnumFieldArg, stack:WalkStack) {
 		stack = Node(NEnumFieldArg(node), stack);
 		{
-			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
 			walkToken(node.name, Edge("name", stack));
 			walkTypeHint(node.typeHint, Edge("typeHint", stack));
 		};
@@ -1235,10 +1235,10 @@ import hxParser.ParseTree;
 		case NString(string):walkObjectFieldName_NString(string, stack);
 		case NIdent(ident):walkObjectFieldName_NIdent(ident, stack);
 	};
-	function walkImportMode_IAll(dotstar:Token, stack:WalkStack) {
-		stack = Node(ImportMode_IAll(dotstar), stack);
+	function walkImportMode_IAll(dotStar:Token, stack:WalkStack) {
+		stack = Node(ImportMode_IAll(dotStar), stack);
 		{
-			walkToken(dotstar, Edge("dotstar", stack));
+			walkToken(dotStar, Edge("dotStar", stack));
 		};
 	}
 	function walkClassField(node:ClassField, stack:WalkStack) switch node {
@@ -1262,10 +1262,10 @@ import hxParser.ParseTree;
 			walkToken(ident, Edge("ident", stack));
 		};
 	}
-	function walkComplexType_Optional(questionmark:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(ComplexType_Optional(questionmark, type), stack);
+	function walkComplexType_Optional(questionMark:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(ComplexType_Optional(questionMark, type), stack);
 		{
-			walkToken(questionmark, Edge("questionmark", stack));
+			walkToken(questionMark, Edge("questionMark", stack));
 			walkComplexType(type, Edge("type", stack));
 		};
 	}

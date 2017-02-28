@@ -224,7 +224,7 @@ class Converter {
 					};
 					var questionMark = node.sub[0];
 					if (questionMark != null)
-						result.questionmark = questionMark.toToken();
+						result.questionMark = questionMark.toToken();
 					return result;
 				}
 				ShortNotation(commaSeparatedTrailing(node.sub, convertAnonField));
@@ -658,7 +658,7 @@ class Converter {
 			name: convertDollarIdent(node.sub[2]),
 		};
 		if (node.sub[1] != null)
-			result.questionmark = node.sub[1].toToken();
+			result.questionMark = node.sub[1].toToken();
 		if (node.sub[3] != null)
 			result.typeHint = convertTypeHint(node.sub[3]);
 		if (node.sub[4] != null)
@@ -885,7 +885,7 @@ class Converter {
 					typeHint: convertTypeHint(node.sub[2]),
 				}
 				if (node.sub[0] != null)
-					result.questionmark = node.sub[0].toToken();
+					result.questionMark = node.sub[0].toToken();
 				return result;
 			}
 

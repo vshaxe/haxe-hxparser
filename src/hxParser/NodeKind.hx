@@ -27,7 +27,7 @@ enum NodeKind {
 	ClassRelation_Implements(implementsKeyword:Token, path:TypePath);
 	ComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token);
 	ComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType);
-	ComplexType_Optional(questionmark:Token, type:ComplexType);
+	ComplexType_Optional(questionMark:Token, type:ComplexType);
 	ComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
 	ComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
 	ComplexType_TypePath(path:TypePath);
@@ -68,7 +68,7 @@ enum NodeKind {
 	Expr_EReturnExpr(returnKeyword:Token, expr:Expr);
 	Expr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token);
 	Expr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token);
-	Expr_ETernary(exprCond:Expr, questionmark:Token, exprThen:Expr, colon:Token, exprElse:Expr);
+	Expr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr);
 	Expr_EThrow(throwKeyword:Token, expr:Expr);
 	Expr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>);
 	Expr_EUnaryPostfix(expr:Expr, op:Token);
@@ -88,7 +88,7 @@ enum NodeKind {
 	Function(node:Function);
 	FunctionArgument(node:FunctionArgument);
 	Guard(node:Guard);
-	ImportMode_IAll(dotstar:Token);
+	ImportMode_IAll(dotStar:Token);
 	ImportMode_IAs(asKeyword:Token, ident:Token);
 	ImportMode_IIn(inKeyword:Token, ident:Token);
 	Literal_PLiteralFloat(token:Token);

@@ -60,7 +60,7 @@ import hxParser.ParseTree;
 		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose);
 		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose);
 		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose);
-		case Optional(questionmark, type):walkComplexType_Optional(questionmark, type);
+		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type);
 		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight);
 		case TypePath(path):walkComplexType_TypePath(path);
 	};
@@ -72,7 +72,7 @@ import hxParser.ParseTree;
 	};
 	function walkFunctionArgument(node:FunctionArgument) {
 		walkNAnnotations(node.annotations);
-		if (node.questionmark != null) walkToken(node.questionmark);
+		if (node.questionMark != null) walkToken(node.questionMark);
 		walkToken(node.name);
 		if (node.typeHint != null) walkTypeHint(node.typeHint);
 		if (node.assignment != null) walkAssignment(node.assignment);
@@ -139,7 +139,7 @@ import hxParser.ParseTree;
 	function walkImportMode(node:ImportMode) switch node {
 		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident);
 		case INormal:{ };
-		case IAll(dotstar):walkImportMode_IAll(dotstar);
+		case IAll(dotStar):walkImportMode_IAll(dotStar);
 		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident);
 	};
 	function walkFile(node:File) {
@@ -269,9 +269,9 @@ import hxParser.ParseTree;
 	function walkClassField_Property_modifiers(elems:Array<FieldModifier>) {
 		walkArray(elems, walkFieldModifier);
 	}
-	function walkExpr_ETernary(exprCond:Expr, questionmark:Token, exprThen:Expr, colon:Token, exprElse:Expr) {
+	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr) {
 		walkExpr(exprCond);
-		walkToken(questionmark);
+		walkToken(questionMark);
 		walkExpr(exprThen);
 		walkToken(colon);
 		walkExpr(exprElse);
@@ -350,7 +350,7 @@ import hxParser.ParseTree;
 		case PPrivate(token):walkNCommonFlag_PPrivate(token);
 	};
 	function walkAnonymousStructureField(node:AnonymousStructureField) {
-		if (node.questionmark != null) walkToken(node.questionmark);
+		if (node.questionMark != null) walkToken(node.questionMark);
 		walkToken(node.name);
 		walkTypeHint(node.typeHint);
 	}
@@ -423,7 +423,7 @@ import hxParser.ParseTree;
 		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword);
 		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op);
 		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose);
-		case ETernary(exprCond, questionmark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionmark, exprThen, colon, exprElse);
+		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse);
 		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose);
 		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose);
 		case EConst(const):walkExpr_EConst(const);
@@ -814,7 +814,7 @@ import hxParser.ParseTree;
 		walkMacroExpr(expr);
 	}
 	function walkNEnumFieldArg(node:NEnumFieldArg) {
-		if (node.questionmark != null) walkToken(node.questionmark);
+		if (node.questionMark != null) walkToken(node.questionMark);
 		walkToken(node.name);
 		walkTypeHint(node.typeHint);
 	}
@@ -865,8 +865,8 @@ import hxParser.ParseTree;
 		case NString(string):walkObjectFieldName_NString(string);
 		case NIdent(ident):walkObjectFieldName_NIdent(ident);
 	};
-	function walkImportMode_IAll(dotstar:Token) {
-		walkToken(dotstar);
+	function walkImportMode_IAll(dotStar:Token) {
+		walkToken(dotStar);
 	}
 	function walkClassField(node:ClassField) switch node {
 		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
@@ -883,8 +883,8 @@ import hxParser.ParseTree;
 	function walkObjectFieldName_NIdent(ident:Token) {
 		walkToken(ident);
 	}
-	function walkComplexType_Optional(questionmark:Token, type:ComplexType) {
-		walkToken(questionmark);
+	function walkComplexType_Optional(questionMark:Token, type:ComplexType) {
+		walkToken(questionMark);
 		walkComplexType(type);
 	}
 	function walkFunction_args(elems:CommaSeparated<FunctionArgument>) {

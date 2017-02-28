@@ -149,7 +149,7 @@ enum Expr {
 	EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token);
 	EUnaryPostfix(expr:Expr, op:Token);
 	EBinop(exprLeft:Expr, op:Token, exprRight:Expr);
-	ETernary(exprCond:Expr, questionmark:Token, exprThen:Expr, colon:Token, exprElse:Expr);
+	ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr);
 	EIn(exprLeft:Expr, inKeyword:Token, exprRight:Expr);
 	EIntDot(int:Token, dot:Token);
 	EDollarIdent(ident:Token);
@@ -229,7 +229,7 @@ enum MethodExpr {
 }
 
 typedef FunctionArgument = {
-	annotations:NAnnotations, ?questionmark:Token, name:Token, ?typeHint:TypeHint, ?assignment:Assignment
+	annotations:NAnnotations, ?questionMark:Token, name:Token, ?typeHint:TypeHint, ?assignment:Assignment
 }
 
 enum ClassField {
@@ -239,7 +239,7 @@ enum ClassField {
 }
 
 typedef AnonymousStructureField = {
-	?questionmark:Token, name:Token, typeHint:TypeHint
+	?questionMark:Token, name:Token, typeHint:TypeHint
 }
 
 enum AnonymousStructureFields {
@@ -248,7 +248,7 @@ enum AnonymousStructureFields {
 }
 
 typedef NEnumFieldArg = {
-	?questionmark:Token, name:Token, typeHint:TypeHint
+	?questionMark:Token, name:Token, typeHint:TypeHint
 }
 
 typedef NEnumFieldArgs = {
@@ -263,7 +263,7 @@ enum ComplexType {
 	Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
 	StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
 	AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token);
-	Optional(questionmark:Token, type:ComplexType);
+	Optional(questionMark:Token, type:ComplexType);
 	TypePath(path:TypePath);
 	Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType);
 }
@@ -299,7 +299,7 @@ typedef TypeDeclParameters = {
 enum ImportMode {
 	IIn(inKeyword:Token, ident:Token);
 	IAs(asKeyword:Token, ident:Token);
-	IAll(dotstar:Token);
+	IAll(dotStar:Token);
 	INormal;
 }
 
