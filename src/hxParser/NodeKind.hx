@@ -9,7 +9,12 @@ enum NodeKind {
 	AbstractRelation_From(fromKeyword:Token, type:ComplexType);
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
 	Assignment(node:Assignment);
+	BlockElement_Expr(expr:Expr, semicolon:Token);
+	BlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token);
+	BlockElement_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token);
 	CallArgs(node:CallArgs);
+	Case_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>);
+	Case_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>);
 	Catch(node:Catch);
 	ClassDecl(node:ClassDecl);
 	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:Null<NFieldExpr>);
@@ -35,7 +40,7 @@ enum NodeKind {
 	Expr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token);
 	Expr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token);
 	Expr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr);
-	Expr_EBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token);
+	Expr_EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token);
 	Expr_EBreak(breakKeyword:Token);
 	Expr_ECall(expr:Expr, args:CallArgs);
 	Expr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token);
@@ -59,7 +64,7 @@ enum NodeKind {
 	Expr_EReturn(returnKeyword:Token);
 	Expr_EReturnExpr(returnKeyword:Token, expr:Expr);
 	Expr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token);
-	Expr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
+	Expr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token);
 	Expr_ETernary(exprCond:Expr, questionmark:Token, exprThen:Expr, colon:Token, exprElse:Expr);
 	Expr_EThrow(throwKeyword:Token, expr:Expr);
 	Expr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>);
@@ -79,6 +84,7 @@ enum NodeKind {
 	File(node:File);
 	Function(node:Function);
 	FunctionArgument(node:FunctionArgument);
+	Guard(node:Guard);
 	ImportMode_IAll(dotstar:Token);
 	ImportMode_IAs(asKeyword:Token, ident:Token);
 	ImportMode_IIn(inKeyword:Token, ident:Token);
@@ -90,11 +96,6 @@ enum NodeKind {
 	NAnonymousTypeField(node:NAnonymousTypeField);
 	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>);
 	NAnonymousTypeFields_PAnonymousShortFields(fields:Null<CommaSeparatedAllowTrailing<NAnonymousTypeField>>);
-	NBlockElement_PExpr(e:Expr, semicolon:Token);
-	NBlockElement_PInlineFunction(_inline:Token, _function:Token, f:Function, semicolon:Token);
-	NBlockElement_PVar(_var:Token, vl:CommaSeparated<VarDecl>, semicolon:Token);
-	NCase_PCase(_case:Token, patterns:CommaSeparated<Expr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>);
-	NCase_PDefault(_default:Token, colon:Token, el:Array<NBlockElement>);
 	NCommonFlag_PExtern(token:Token);
 	NCommonFlag_PPrivate(token:Token);
 	NConst_PConstIdent(ident:Token);
@@ -107,7 +108,6 @@ enum NodeKind {
 	NFieldExpr_PBlockFieldExpr(e:Expr);
 	NFieldExpr_PExprFieldExpr(e:Expr, semicolon:Token);
 	NFieldExpr_PNoFieldExpr(semicolon:Token);
-	NGuard(node:NGuard);
 	NMacroExpr_PClass(c:ClassDecl);
 	NMacroExpr_PExpr(e:Expr);
 	NMacroExpr_PTypeHint(typeHint:TypeHint);

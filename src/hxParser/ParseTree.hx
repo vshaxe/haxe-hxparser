@@ -102,19 +102,19 @@ typedef Catch = {
 	catchKeyword:Token, parenOpen:Token, ident:Token, typeHint:TypeHint, parenClose:Token, expr:Expr
 }
 
-typedef NGuard = {
-	_if:Token, parenOpen:Token, e:Expr, parenClose:Token
+typedef Guard = {
+	ifKeyword:Token, parenOpen:Token, expr:Expr, parenClose:Token
 }
 
-enum NBlockElement {
-	PVar(_var:Token, vl:CommaSeparated<VarDecl>, semicolon:Token);
-	PInlineFunction(_inline:Token, _function:Token, f:Function, semicolon:Token);
-	PExpr(e:Expr, semicolon:Token);
+enum BlockElement {
+	Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token);
+	InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token);
+	Expr(expr:Expr, semicolon:Token);
 }
 
-enum NCase {
-	PCase(_case:Token, patterns:CommaSeparated<Expr>, ?guard:NGuard, colon:Token, el:Array<NBlockElement>);
-	PDefault(_default:Token, colon:Token, el:Array<NBlockElement>);
+enum Case {
+	Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, ?guard:Guard, colon:Token, body:Array<BlockElement>);
+	Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>);
 }
 
 enum Expr {
@@ -129,7 +129,7 @@ enum Expr {
 	EContinue(continueKeyword:Token);
 	EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token);
 	ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>);
-	ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<NCase>, braceClose:Token);
+	ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token);
 	EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr);
 	EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr);
 	EUntyped(untypedKeyword:Token, expr:Expr);
@@ -154,7 +154,7 @@ enum Expr {
 	EIntDot(int:Token, dot:Token);
 	EDollarIdent(ident:Token);
 	EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token);
-	EBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token);
+	EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token);
 }
 
 typedef CallArgs = {

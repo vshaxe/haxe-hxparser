@@ -530,27 +530,27 @@ class Converter {
 				EMacroEscape(node.sub[0].toToken(), node.sub[1].toToken(), convertExpr(node.sub[2]), node.sub[3].toToken());
 
 			case "expr_switch":
-				var cases = node.sub[3].asNode("cases").sub.map(function(node):NCase {
+				var cases = node.sub[3].asNode("cases").sub.map(function(node):Case {
 					var node = node.asNode("case");
 					var token = node.sub[0].asToken();
 					return switch (token.token) {
 						case "default":
 							var elems = if (node.sub[2] == null) [] else node.sub[2].asNode("elements").sub.map(convertBlockElement);
-							PDefault(token.convertToToken(), node.sub[1].toToken(), elems);
+							Default(token.convertToToken(), node.sub[1].toToken(), elems);
 						case "case":
 							var patterns = commaSeparated(node.sub[1].asNode("exprs").sub, convertExpr);
 							var guardNode = node.sub[2];
-							var guard:NGuard = if (guardNode == null) null else {
+							var guard:Guard = if (guardNode == null) null else {
 								var node = guardNode.asNode("guard");
 								{
-									_if: node.sub[0].toToken(),
+									ifKeyword: node.sub[0].toToken(),
 									parenOpen: node.sub[1].toToken(),
-									e: convertExpr(node.sub[2]),
+									expr: convertExpr(node.sub[2]),
 									parenClose: node.sub[3].toToken(),
 								}
 							};
 							var elems = if (node.sub[4] == null) [] else node.sub[4].asNode("elements").sub.map(convertBlockElement);
-							PCase(token.convertToToken(), patterns, guard, node.sub[3].toToken(), elems);
+							Case(token.convertToToken(), patterns, guard, node.sub[3].toToken(), elems);
 						case unknown:
 							throw 'Unknown switch case token: $unknown';
 					}
@@ -623,13 +623,13 @@ class Converter {
 		return result;
 	}
 
-	static function convertBlockElement(node:JNodeBase):NBlockElement {
+	static function convertBlockElement(node:JNodeBase):BlockElement {
 		var node:JNode = cast node;
 		return switch (node.name) {
 			case "block_element_expr":
-				PExpr(convertExpr(node.sub[0]), node.sub[1].toToken());
+				Expr(convertExpr(node.sub[0]), node.sub[1].toToken());
 			case "block_element_inline_function":
-				PInlineFunction(
+				InlineFunction(
 					node.sub[0].toToken(),
 					node.sub[1].toToken(),
 					convertFunction(node.sub[2]),
@@ -637,7 +637,7 @@ class Converter {
 				);
 			case "block_element_var":
 				var decls = commaSeparated(node.sub[1].asNode("vars").sub, convertVarDecl);
-				return PVar(node.sub[0].toToken(), decls, node.sub[2].toToken());
+				return Var(node.sub[0].toToken(), decls, node.sub[2].toToken());
 			case unknown:
 				throw 'Unknown block element type: $unknown';
 		}
