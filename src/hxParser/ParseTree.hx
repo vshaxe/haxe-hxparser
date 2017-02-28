@@ -76,7 +76,7 @@ typedef ObjectField = {
 
 enum NConst {
 	PConstIdent(ident:Token);
-	PConstLiteral(literal:NLiteral);
+	PConstLiteral(literal:Literal);
 }
 
 typedef Function = {
@@ -183,25 +183,25 @@ typedef NStructuralExtension = {
 	gt:Token, path:TypePath, comma:Token
 }
 
-enum NLiteral {
+enum Literal {
 	PLiteralString(s:NString);
 	PLiteralInt(token:Token);
 	PLiteralFloat(token:Token);
 	PLiteralRegex(token:Token);
 }
 
-enum NTypePathParameter {
-	PArrayExprTypePathParameter(bracketOpen:Token, ?el:CommaSeparatedAllowTrailing<Expr>, bracketClose:Token);
-	PTypeTypePathParameter(type:ComplexType);
-	PConstantTypePathParameter(constant:NLiteral);
+enum TypePathParameter {
+	ArrayExpr(bracketOpen:Token, ?elems:CommaSeparatedAllowTrailing<Expr>, bracketClose:Token);
+	Type(type:ComplexType);
+	Literal(literal:Literal);
 }
 
-typedef NTypePathParameters = {
-	lt:Token, parameters:CommaSeparated<NTypePathParameter>, gt:Token
+typedef TypePathParameters = {
+	lt:Token, params:CommaSeparated<TypePathParameter>, gt:Token
 }
 
 typedef TypePath = {
-	path:NPath, ?params:NTypePathParameters
+	path:NPath, ?params:TypePathParameters
 }
 
 enum FieldModifier {

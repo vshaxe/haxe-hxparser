@@ -32,6 +32,9 @@ import hxParser.ParseTree;
 	function walkNBlockElement_PVar_vl(elems:CommaSeparated<NVarDeclaration>) {
 		walkCommaSeparated(elems, walkNVarDeclaration);
 	}
+	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>) {
+		walkCommaSeparated(elems, walkTypePathParameter);
+	}
 	function walkCatch(node:Catch) {
 		walkToken(node.catchKeyword);
 		walkToken(node.parenOpen);
@@ -99,9 +102,6 @@ import hxParser.ParseTree;
 	function walkExpr_EReturn(returnKeyword:Token) {
 		walkToken(returnKeyword);
 	}
-	function walkNTypePathParameter_PConstantTypePathParameter(constant:NLiteral) {
-		walkNLiteral(constant);
-	}
 	function walkNEnumFieldArgs(node:NEnumFieldArgs) {
 		walkToken(node.parenOpen);
 		if (node.args != null) walkNEnumFieldArgs_args(node.args);
@@ -120,11 +120,6 @@ import hxParser.ParseTree;
 		walkComplexType(type);
 		walkToken(parenClose);
 	}
-	function walkNTypePathParameter(node:NTypePathParameter) switch node {
-		case PArrayExprTypePathParameter(bracketOpen, el, bracketClose):walkNTypePathParameter_PArrayExprTypePathParameter(bracketOpen, el, bracketClose);
-		case PConstantTypePathParameter(constant):walkNTypePathParameter_PConstantTypePathParameter(constant);
-		case PTypeTypePathParameter(type):walkNTypePathParameter_PTypeTypePathParameter(type);
-	};
 	function walkClassDecl(node:ClassDecl) {
 		walkToken(node.kind);
 		walkToken(node.name);
@@ -134,8 +129,8 @@ import hxParser.ParseTree;
 		walkClassDecl_fields(node.fields);
 		walkToken(node.braceClose);
 	}
-	function walkNConst_PConstLiteral(literal:NLiteral) {
-		walkNLiteral(literal);
+	function walkNConst_PConstLiteral(literal:Literal) {
+		walkLiteral(literal);
 	}
 	function walkImportMode(node:ImportMode) switch node {
 		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident);
@@ -234,7 +229,7 @@ import hxParser.ParseTree;
 	}
 	function walkTypePath(node:TypePath) {
 		walkNPath(node.path);
-		if (node.params != null) walkNTypePathParameters(node.params);
+		if (node.params != null) walkTypePathParameters(node.params);
 	}
 	function walkFieldModifier_Override(keyword:Token) {
 		walkToken(keyword);
@@ -290,6 +285,12 @@ import hxParser.ParseTree;
 		walkNAnonymousTypeFields(fields);
 		walkToken(braceClose);
 	}
+	function walkLiteral(node:Literal) switch node {
+		case PLiteralString(s):walkLiteral_PLiteralString(s);
+		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token);
+		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token);
+		case PLiteralInt(token):walkLiteral_PLiteralInt(token);
+	};
 	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token) {
 		walkToken(doKeyword);
 		walkExpr(exprBody);
@@ -338,11 +339,6 @@ import hxParser.ParseTree;
 		walkToken(op);
 		walkExpr(exprRight);
 	}
-	function walkNTypePathParameter_PArrayExprTypePathParameter(bracketOpen:Token, el:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
-		walkToken(bracketOpen);
-		if (el != null) walkNTypePathParameter_PArrayExprTypePathParameter_el(el);
-		walkToken(bracketClose);
-	}
 	function walkFieldModifier_Dynamic(keyword:Token) {
 		walkToken(keyword);
 	}
@@ -355,9 +351,6 @@ import hxParser.ParseTree;
 	}
 	function walkNAnonymousTypeFields_PAnonymousClassFields_fields(elems:Array<ClassField>) {
 		walkArray(elems, walkClassField);
-	}
-	function walkNTypePathParameter_PArrayExprTypePathParameter_el(elems:CommaSeparatedAllowTrailing<Expr>) {
-		walkCommaSeparatedTrailing(elems, walkExpr);
 	}
 	function walkNStructuralExtension(node:NStructuralExtension) {
 		walkToken(node.gt);
@@ -432,14 +425,16 @@ import hxParser.ParseTree;
 	function walkExpr_EObjectDecl_fields(elems:CommaSeparatedAllowTrailing<ObjectField>) {
 		walkCommaSeparatedTrailing(elems, walkObjectField);
 	}
-	function walkNLiteral_PLiteralString(s:NString) {
-		walkNString(s);
-	}
 	function walkTypeDeclParameters(node:TypeDeclParameters) {
 		walkToken(node.lt);
 		walkTypeDeclParameters_params(node.params);
 		walkToken(node.gt);
 	}
+	function walkTypePathParameter(node:TypePathParameter) switch node {
+		case Type(type):walkTypePathParameter_Type(type);
+		case Literal(literal):walkTypePathParameter_Literal(literal);
+		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose);
+	};
 	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath) {
 		walkToken(implementsKeyword);
 		walkTypePath(path);
@@ -451,20 +446,11 @@ import hxParser.ParseTree;
 	function walkNMetadata_PMetadata(name:Token) {
 		walkToken(name);
 	}
-	function walkNLiteral(node:NLiteral) switch node {
-		case PLiteralString(s):walkNLiteral_PLiteralString(s);
-		case PLiteralFloat(token):walkNLiteral_PLiteralFloat(token);
-		case PLiteralRegex(token):walkNLiteral_PLiteralRegex(token);
-		case PLiteralInt(token):walkNLiteral_PLiteralInt(token);
-	};
 	function walkFieldModifier_Macro(keyword:Token) {
 		walkToken(keyword);
 	}
 	function walkNCase_PCase_patterns(elems:CommaSeparated<Expr>) {
 		walkCommaSeparated(elems, walkExpr);
-	}
-	function walkNLiteral_PLiteralRegex(token:Token) {
-		walkToken(token);
 	}
 	function walkExpr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr) {
 		walkToken(whileKeyword);
@@ -477,6 +463,9 @@ import hxParser.ParseTree;
 		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type);
 		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type);
 	};
+	function walkTypePathParameter_ArrayExpr_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
+		walkCommaSeparatedTrailing(elems, walkExpr);
+	}
 	function walkExpr_EBreak(breakKeyword:Token) {
 		walkToken(breakKeyword);
 	}
@@ -515,11 +504,6 @@ import hxParser.ParseTree;
 		walkExpr_EObjectDecl_fields(fields);
 		walkToken(braceClose);
 	}
-	function walkNTypePathParameters(node:NTypePathParameters) {
-		walkToken(node.lt);
-		walkNTypePathParameters_parameters(node.parameters);
-		walkToken(node.gt);
-	}
 	function walkComplexType_PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token) {
 		walkToken(braceOpen);
 		walkComplexType_PStructuralExtension_types(types);
@@ -551,6 +535,11 @@ import hxParser.ParseTree;
 	}
 	function walkNConst_PConstIdent(ident:Token) {
 		walkToken(ident);
+	}
+	function walkTypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
+		walkToken(bracketOpen);
+		if (elems != null) walkTypePathParameter_ArrayExpr_elems(elems);
+		walkToken(bracketClose);
 	}
 	function walkNCase(node:NCase) switch node {
 		case PCase(_case, patterns, guard, colon, el):walkNCase_PCase(_case, patterns, guard, colon, el);
@@ -589,9 +578,6 @@ import hxParser.ParseTree;
 	function walkNAnnotations(node:NAnnotations) {
 		if (node.doc != null) walkToken(node.doc);
 		walkNAnnotations_metadata(node.metadata);
-	}
-	function walkNLiteral_PLiteralFloat(token:Token) {
-		walkToken(token);
 	}
 	function walkExpr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>) {
 		walkToken(tryKeyword);
@@ -637,9 +623,6 @@ import hxParser.ParseTree;
 	function walkClassField_Function_args(elems:CommaSeparated<FunctionArgument>) {
 		walkCommaSeparated(elems, walkFunctionArgument);
 	}
-	function walkNTypePathParameter_PTypeTypePathParameter(type:ComplexType) {
-		walkComplexType(type);
-	}
 	function walkExpr_EConst(const:NConst) {
 		walkNConst(const);
 	}
@@ -662,15 +645,18 @@ import hxParser.ParseTree;
 		if (assignment != null) walkNAssignment(assignment);
 		walkToken(semicolon);
 	}
+	function walkLiteral_PLiteralFloat(token:Token) {
+		walkToken(token);
+	}
 	function walkExpr_EUnaryPostfix(expr:Expr, op:Token) {
 		walkExpr(expr);
 		walkToken(op);
 	}
-	function walkNTypePathParameters_parameters(elems:CommaSeparated<NTypePathParameter>) {
-		walkCommaSeparated(elems, walkNTypePathParameter);
-	}
 	function walkDecl_TypedefDecl_flags(elems:Array<NCommonFlag>) {
 		walkArray(elems, walkNCommonFlag);
+	}
+	function walkLiteral_PLiteralInt(token:Token) {
+		walkToken(token);
 	}
 	function walkCallArgs(node:CallArgs) {
 		walkToken(node.parenOpen);
@@ -699,6 +685,9 @@ import hxParser.ParseTree;
 	function walkExpr_EContinue(continueKeyword:Token) {
 		walkToken(continueKeyword);
 	}
+	function walkTypePathParameter_Type(type:ComplexType) {
+		walkComplexType(type);
+	}
 	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token) {
 		walkToken(ident);
 		walkToken(braceOpen);
@@ -707,9 +696,6 @@ import hxParser.ParseTree;
 	}
 	function walkExpr_EArrayDecl_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
 		walkCommaSeparatedTrailing(elems, walkExpr);
-	}
-	function walkNLiteral_PLiteralInt(token:Token) {
-		walkToken(token);
 	}
 	function walkTypeHint(node:TypeHint) {
 		walkToken(node.colon);
@@ -740,6 +726,14 @@ import hxParser.ParseTree;
 		walkObjectFieldName(node.name);
 		walkToken(node.colon);
 		walkExpr(node.expr);
+	}
+	function walkTypePathParameters(node:TypePathParameters) {
+		walkToken(node.lt);
+		walkTypePathParameters_params(node.params);
+		walkToken(node.gt);
+	}
+	function walkLiteral_PLiteralString(s:NString) {
+		walkNString(s);
 	}
 	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>) {
 		walkNAnonymousTypeFields_PAnonymousClassFields_fields(fields);
@@ -822,6 +816,12 @@ import hxParser.ParseTree;
 		case PMetadata(name):walkNMetadata_PMetadata(name);
 		case PMetadataWithArgs(name, el, parenClose):walkNMetadata_PMetadataWithArgs(name, el, parenClose);
 	};
+	function walkLiteral_PLiteralRegex(token:Token) {
+		walkToken(token);
+	}
+	function walkTypePathParameter_Literal(literal:Literal) {
+		walkLiteral(literal);
+	}
 	function walkNCase_PCase(_case:Token, patterns:CommaSeparated<Expr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>) {
 		walkToken(_case);
 		walkNCase_PCase_patterns(patterns);

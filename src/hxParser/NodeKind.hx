@@ -81,6 +81,10 @@ enum NodeKind {
 	ImportMode_IAll(dotstar:Token);
 	ImportMode_IAs(asKeyword:Token, ident:Token);
 	ImportMode_IIn(inKeyword:Token, ident:Token);
+	Literal_PLiteralFloat(token:Token);
+	Literal_PLiteralInt(token:Token);
+	Literal_PLiteralRegex(token:Token);
+	Literal_PLiteralString(s:NString);
 	NAnnotations(node:NAnnotations);
 	NAnonymousTypeField(node:NAnonymousTypeField);
 	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>);
@@ -94,7 +98,7 @@ enum NodeKind {
 	NCommonFlag_PExtern(token:Token);
 	NCommonFlag_PPrivate(token:Token);
 	NConst_PConstIdent(ident:Token);
-	NConst_PConstLiteral(literal:NLiteral);
+	NConst_PConstLiteral(literal:Literal);
 	NDotIdent_PDot(_dot:Token);
 	NDotIdent_PDotIdent(name:Token);
 	NEnumField(node:NEnumField);
@@ -104,10 +108,6 @@ enum NodeKind {
 	NFieldExpr_PExprFieldExpr(e:Expr, semicolon:Token);
 	NFieldExpr_PNoFieldExpr(semicolon:Token);
 	NGuard(node:NGuard);
-	NLiteral_PLiteralFloat(token:Token);
-	NLiteral_PLiteralInt(token:Token);
-	NLiteral_PLiteralRegex(token:Token);
-	NLiteral_PLiteralString(s:NString);
 	NMacroExpr_PClass(c:ClassDecl);
 	NMacroExpr_PExpr(e:Expr);
 	NMacroExpr_PTypeHint(typeHint:TypeHint);
@@ -118,10 +118,6 @@ enum NodeKind {
 	NString_PString(s:Token);
 	NString_PString2(s:Token);
 	NStructuralExtension(node:NStructuralExtension);
-	NTypePathParameter_PArrayExprTypePathParameter(bracketOpen:Token, el:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token);
-	NTypePathParameter_PConstantTypePathParameter(constant:NLiteral);
-	NTypePathParameter_PTypeTypePathParameter(type:ComplexType);
-	NTypePathParameters(node:NTypePathParameters);
 	NVarDeclaration(node:NVarDeclaration);
 	ObjectField(node:ObjectField);
 	ObjectFieldName_NIdent(ident:Token);
@@ -131,5 +127,9 @@ enum NodeKind {
 	TypeDeclParameters(node:TypeDeclParameters);
 	TypeHint(node:TypeHint);
 	TypePath(node:TypePath);
+	TypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token);
+	TypePathParameter_Literal(literal:Literal);
+	TypePathParameter_Type(type:ComplexType);
+	TypePathParameters(node:TypePathParameters);
 	UnderlyingType(node:UnderlyingType);
 }

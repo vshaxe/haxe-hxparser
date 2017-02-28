@@ -132,16 +132,16 @@ class Converter {
 		});
 	}
 
-	static function convertTypeParameter(node:JNodeBase):NTypePathParameter {
+	static function convertTypeParameter(node:JNodeBase):TypePathParameter {
 		var node:JNode = cast node;
 		return switch (node.name) {
 			case "complex_type":
-				PTypeTypePathParameter(convertComplexType(node));
+				Type(convertComplexType(node));
 			case "literal":
-				PConstantTypePathParameter(convertLiteral(node.sub[0]));
+				Literal(convertLiteral(node.sub[0]));
 			case "bracket":
 				var elems = commaSeparatedTrailing(node.sub[1].asNode("elements").sub, convertExpr);
-				PArrayExprTypePathParameter(node.sub[0].toToken(), elems, node.sub[2].toToken());
+				ArrayExpr(node.sub[0].toToken(), elems, node.sub[2].toToken());
 			case unknown:
 				throw 'Unknown type parameter type: $unknown';
 		}
@@ -156,7 +156,7 @@ class Converter {
 			var tparams = tparams.asNode("type_path_parameters");
 			result.params = {
 				lt: tparams.sub[0].toToken(),
-				parameters: commaSeparated(tparams.sub[1].asNode("params").sub, convertTypeParameter),
+				params: commaSeparated(tparams.sub[1].asNode("params").sub, convertTypeParameter),
 				gt: tparams.sub[2].toToken(),
 			};
 		}
@@ -280,7 +280,7 @@ class Converter {
 		};
 	}
 
-	static function convertLiteral(node:JNodeBase):NLiteral {
+	static function convertLiteral(node:JNodeBase):Literal {
 		var node:JNode = cast node;
 		return switch (node.name) {
 			case "literal_int":
