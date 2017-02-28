@@ -57,7 +57,7 @@ enum NodeKind {
 	Expr_EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token);
 	Expr_EMacro(macroKeyword:Token, expr:MacroExpr);
 	Expr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token);
-	Expr_EMetadata(metadata:NMetadata, expr:Expr);
+	Expr_EMetadata(metadata:Metadata, expr:Expr);
 	Expr_ENew(newKeyword:Token, path:TypePath, args:CallArgs);
 	Expr_EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token);
 	Expr_EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token);
@@ -96,6 +96,8 @@ enum NodeKind {
 	MacroExpr_Expr(expr:Expr);
 	MacroExpr_TypeHint(typeHint:TypeHint);
 	MacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>);
+	Metadata_Simple(name:Token);
+	Metadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token);
 	MethodExpr_Block(expr:Expr);
 	MethodExpr_Expr(expr:Expr, semicolon:Token);
 	MethodExpr_None(semicolon:Token);
@@ -112,8 +114,6 @@ enum NodeKind {
 	NEnumField(node:NEnumField);
 	NEnumFieldArg(node:NEnumFieldArg);
 	NEnumFieldArgs(node:NEnumFieldArgs);
-	NMetadata_PMetadata(name:Token);
-	NMetadata_PMetadataWithArgs(name:Token, el:CommaSeparated<Expr>, parenClose:Token);
 	NPath(node:NPath);
 	NStructuralExtension(node:NStructuralExtension);
 	ObjectField(node:ObjectField);

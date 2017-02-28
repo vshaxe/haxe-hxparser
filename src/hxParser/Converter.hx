@@ -105,14 +105,14 @@ class Converter {
 		return result;
 	}
 
-	static function convertMeta(node:JNodeBase):NMetadata {
+	static function convertMeta(node:JNodeBase):Metadata {
 		var node = node.asNode("metadata");
 		return switch (node.sub) {
 			case [tok]:
-				PMetadata(tok.toToken());
+				Simple(tok.toToken());
 			case [tok, exprs, parenClose]:
 				var el = commaSeparated(exprs.asNode("exprs").sub, convertExpr);
-				PMetadataWithArgs(tok.toToken(), el, parenClose.toToken());
+				WithArgs(tok.toToken(), el, parenClose.toToken());
 			case unknown:
 				throw 'Unknown metadata format: ${haxe.Json.stringify(unknown)}';
 		}

@@ -119,7 +119,7 @@ enum Case {
 
 enum Expr {
 	EVar(varKeyword:Token, decl:VarDecl);
-	EMetadata(metadata:NMetadata, expr:Expr);
+	EMetadata(metadata:Metadata, expr:Expr);
 	EMacro(macroKeyword:Token, expr:MacroExpr);
 	EThrow(throwKeyword:Token, expr:Expr);
 	EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, ?exprElse:ExprElse);
@@ -161,13 +161,13 @@ typedef CallArgs = {
 	parenOpen:Token, ?args:CommaSeparated<Expr>, parenClose:Token
 }
 
-enum NMetadata {
-	PMetadata(name:Token);
-	PMetadataWithArgs(name:Token, el:CommaSeparated<Expr>, parenClose:Token);
+enum Metadata {
+	Simple(name:Token);
+	WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token);
 }
 
 typedef NAnnotations = {
-	?doc:Token, metadata:Array<NMetadata>
+	?doc:Token, metadata:Array<Metadata>
 }
 
 typedef NPath = {
