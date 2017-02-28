@@ -1,7 +1,5 @@
 package hxParser;
 
-// this is the new parse tree
-
 class Trivia {
 	public var text:String;
 	public var start:Int;
