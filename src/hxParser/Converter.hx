@@ -252,7 +252,7 @@ class Converter {
 				Optional(node.sub[0].toToken(), convertComplexType(node.sub[1]));
 
 			case "extension":
-				var extensions = node.sub[1].asNode("extensions").sub.map(function(node):NStructuralExtension {
+				var extensions = node.sub[1].asNode("extensions").sub.map(function(node):StructuralExtension {
 					var node = node.asNode("structural_extension");
 					return {
 						gt: node.sub[0].toToken(),

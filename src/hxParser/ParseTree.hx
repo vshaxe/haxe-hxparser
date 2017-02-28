@@ -179,7 +179,7 @@ enum NCommonFlag {
 	PExtern(token:Token);
 }
 
-typedef NStructuralExtension = {
+typedef StructuralExtension = {
 	gt:Token, path:TypePath, comma:Token
 }
 
@@ -261,7 +261,7 @@ typedef NEnumField = {
 
 enum ComplexType {
 	Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
-	StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
+	StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
 	AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token);
 	Optional(questionmark:Token, type:ComplexType);
 	TypePath(path:TypePath);

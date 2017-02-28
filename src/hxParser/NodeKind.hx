@@ -29,7 +29,7 @@ enum NodeKind {
 	ComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType);
 	ComplexType_Optional(questionmark:Token, type:ComplexType);
 	ComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
-	ComplexType_StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
+	ComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
 	ComplexType_TypePath(path:TypePath);
 	Constraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
 	Constraints_Single(colon:Token, type:ComplexType);
@@ -115,13 +115,13 @@ enum NodeKind {
 	NEnumFieldArg(node:NEnumFieldArg);
 	NEnumFieldArgs(node:NEnumFieldArgs);
 	NPath(node:NPath);
-	NStructuralExtension(node:NStructuralExtension);
 	ObjectField(node:ObjectField);
 	ObjectFieldName_NIdent(ident:Token);
 	ObjectFieldName_NString(string:StringToken);
 	Package(node:Package);
 	StringToken_DoubleQuote(token:Token);
 	StringToken_SingleQuote(token:Token);
+	StructuralExtension(node:StructuralExtension);
 	TypeDeclParameter(node:TypeDeclParameter);
 	TypeDeclParameters(node:TypeDeclParameters);
 	TypeHint(node:TypeHint);

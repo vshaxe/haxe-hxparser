@@ -444,7 +444,7 @@ import hxParser.ParseTree;
 			walkConstraints(node.constraints, Edge("constraints", stack));
 		};
 	}
-	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
+	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
 		stack = Node(ComplexType_StructuralExtension(braceOpen, types, fields, braceClose), stack);
 		{
 			walkToken(braceOpen, Edge("braceOpen", stack));
@@ -537,14 +537,6 @@ import hxParser.ParseTree;
 	}
 	function walkMetadata_WithArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkExpr);
-	}
-	function walkNStructuralExtension(node:NStructuralExtension, stack:WalkStack) {
-		stack = Node(NStructuralExtension(node), stack);
-		{
-			walkToken(node.gt, Edge("gt", stack));
-			walkTypePath(node.path, Edge("path", stack));
-			walkToken(node.comma, Edge("comma", stack));
-		};
 	}
 	function walkClassRelation(node:ClassRelation, stack:WalkStack) switch node {
 		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path, stack);
@@ -1135,8 +1127,8 @@ import hxParser.ParseTree;
 			walkToken(node.semicolon, Edge("semicolon", stack));
 		};
 	}
-	function walkComplexType_StructuralExtension_types(elems:Array<NStructuralExtension>, stack:WalkStack) {
-		walkArray(elems, stack, walkNStructuralExtension);
+	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>, stack:WalkStack) {
+		walkArray(elems, stack, walkStructuralExtension);
 	}
 	function walkDecl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token, stack:WalkStack) {
 		stack = Node(Decl_EnumDecl(annotations, flags, enumKeyword, name, params, braceOpen, fields, braceClose), stack);
@@ -1194,6 +1186,14 @@ import hxParser.ParseTree;
 		stack = Node(MacroExpr_Class(classDecl), stack);
 		{
 			walkClassDecl(classDecl, Edge("classDecl", stack));
+		};
+	}
+	function walkStructuralExtension(node:StructuralExtension, stack:WalkStack) {
+		stack = Node(StructuralExtension(node), stack);
+		{
+			walkToken(node.gt, Edge("gt", stack));
+			walkTypePath(node.path, Edge("path", stack));
+			walkToken(node.comma, Edge("comma", stack));
 		};
 	}
 	function walkExpr_EReturnExpr(returnKeyword:Token, expr:Expr, stack:WalkStack) {
