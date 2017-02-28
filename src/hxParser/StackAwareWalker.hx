@@ -36,8 +36,8 @@ import hxParser.ParseTree;
 			walkTypePath(path, Edge("path", stack));
 		};
 	}
-	function walkNBlockElement_PVar_vl(elems:CommaSeparated<NVarDeclaration>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkNVarDeclaration);
+	function walkNBlockElement_PVar_vl(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkVarDecl);
 	}
 	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkTypePathParameter);
@@ -91,7 +91,7 @@ import hxParser.ParseTree;
 			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
 			walkToken(node.name, Edge("name", stack));
 			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			if (node.assignment != null) walkNAssignment(node.assignment, Edge("assignment", stack));
+			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
 		};
 	}
 	function walkExpr_EDollarIdent(ident:Token, stack:WalkStack) {
@@ -129,8 +129,8 @@ import hxParser.ParseTree;
 			walkExpr(e, Edge("e", stack));
 		};
 	}
-	function walkNMacroExpr_PVar_v(elems:CommaSeparated<NVarDeclaration>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkNVarDeclaration);
+	function walkNMacroExpr_PVar_v(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkVarDecl);
 	}
 	function walkExprElse(node:ExprElse, stack:WalkStack) {
 		stack = Node(ExprElse(node), stack);
@@ -264,11 +264,11 @@ import hxParser.ParseTree;
 	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkTypeDeclParameter);
 	}
-	function walkExpr_EVar(varKeyword:Token, decl:NVarDeclaration, stack:WalkStack) {
+	function walkExpr_EVar(varKeyword:Token, decl:VarDecl, stack:WalkStack) {
 		stack = Node(Expr_EVar(varKeyword, decl), stack);
 		{
 			walkToken(varKeyword, Edge("varKeyword", stack));
-			walkNVarDeclaration(decl, Edge("decl", stack));
+			walkVarDecl(decl, Edge("decl", stack));
 		};
 	}
 	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>, stack:WalkStack) {
@@ -375,13 +375,6 @@ import hxParser.ParseTree;
 			walkToken(keyword, Edge("keyword", stack));
 		};
 	}
-	function walkNAssignment(node:NAssignment, stack:WalkStack) {
-		stack = Node(NAssignment(node), stack);
-		{
-			walkToken(node.assign, Edge("assign", stack));
-			walkExpr(node.e, Edge("e", stack));
-		};
-	}
 	function walkExpr_ENew(newKeyword:Token, path:TypePath, args:CallArgs, stack:WalkStack) {
 		stack = Node(Expr_ENew(newKeyword, path, args), stack);
 		{
@@ -477,7 +470,7 @@ import hxParser.ParseTree;
 		case PExtern(token):walkNCommonFlag_PExtern(token, stack);
 		case PPrivate(token):walkNCommonFlag_PPrivate(token, stack);
 	};
-	function walkNBlockElement_PVar(_var:Token, vl:CommaSeparated<NVarDeclaration>, semicolon:Token, stack:WalkStack) {
+	function walkNBlockElement_PVar(_var:Token, vl:CommaSeparated<VarDecl>, semicolon:Token, stack:WalkStack) {
 		stack = Node(NBlockElement_PVar(_var, vl, semicolon), stack);
 		{
 			walkToken(_var, Edge("_var", stack));
@@ -524,12 +517,12 @@ import hxParser.ParseTree;
 		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path, stack);
 		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path, stack);
 	};
-	function walkNVarDeclaration(node:NVarDeclaration, stack:WalkStack) {
-		stack = Node(NVarDeclaration(node), stack);
+	function walkVarDecl(node:VarDecl, stack:WalkStack) {
+		stack = Node(VarDecl(node), stack);
 		{
 			walkToken(node.name, Edge("name", stack));
 			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			if (node.assignment != null) walkNAssignment(node.assignment, Edge("assignment", stack));
+			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
 		};
 	}
 	function walkExpr_EBlock(braceOpen:Token, elems:Array<NBlockElement>, braceClose:Token, stack:WalkStack) {
@@ -838,7 +831,7 @@ import hxParser.ParseTree;
 		case PDotIdent(name):walkNDotIdent_PDotIdent(name, stack);
 		case PDot(_dot):walkNDotIdent_PDot(_dot, stack);
 	};
-	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<NAssignment>, semicolon:Token, stack:WalkStack) {
+	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token, stack:WalkStack) {
 		stack = Node(ClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon), stack);
 		{
 			walkNAnnotations(annotations, Edge("annotations", stack));
@@ -851,7 +844,7 @@ import hxParser.ParseTree;
 			walkToken(write, Edge("write", stack));
 			walkToken(parenClose, Edge("parenClose", stack));
 			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
-			if (assignment != null) walkNAssignment(assignment, Edge("assignment", stack));
+			if (assignment != null) walkAssignment(assignment, Edge("assignment", stack));
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
@@ -907,7 +900,7 @@ import hxParser.ParseTree;
 			if (semicolon != null) walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
-	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<NAssignment>, semicolon:Token, stack:WalkStack) {
+	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token, stack:WalkStack) {
 		stack = Node(ClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon), stack);
 		{
 			walkNAnnotations(annotations, Edge("annotations", stack));
@@ -915,7 +908,7 @@ import hxParser.ParseTree;
 			walkToken(varKeyword, Edge("varKeyword", stack));
 			walkToken(name, Edge("name", stack));
 			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
-			if (assignment != null) walkNAssignment(assignment, Edge("assignment", stack));
+			if (assignment != null) walkAssignment(assignment, Edge("assignment", stack));
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
@@ -1023,6 +1016,13 @@ import hxParser.ParseTree;
 	}
 	function walkNCase_PCase_el(elems:Array<NBlockElement>, stack:WalkStack) {
 		walkArray(elems, stack, walkNBlockElement);
+	}
+	function walkAssignment(node:Assignment, stack:WalkStack) {
+		stack = Node(Assignment(node), stack);
+		{
+			walkToken(node.assign, Edge("assign", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+		};
 	}
 	function walkClassField_Variable_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
 		walkArray(elems, stack, walkFieldModifier);
@@ -1188,7 +1188,7 @@ import hxParser.ParseTree;
 			walkExpr(expr, Edge("expr", stack));
 		};
 	}
-	function walkNMacroExpr_PVar(_var:Token, v:CommaSeparated<NVarDeclaration>, stack:WalkStack) {
+	function walkNMacroExpr_PVar(_var:Token, v:CommaSeparated<VarDecl>, stack:WalkStack) {
 		stack = Node(NMacroExpr_PVar(_var, v), stack);
 		{
 			walkToken(_var, Edge("_var", stack));

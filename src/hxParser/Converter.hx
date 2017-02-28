@@ -611,9 +611,9 @@ class Converter {
 		return result;
 	}
 
-	static function convertVarDecl(node:JNodeBase):NVarDeclaration {
+	static function convertVarDecl(node:JNodeBase):VarDecl {
 		var node = node.asNode("var_declaration");
-		var result:NVarDeclaration = {name: convertDollarIdent(node.sub[0])};
+		var result:VarDecl = {name: convertDollarIdent(node.sub[0])};
 		var hintNode = node.sub[1];
 		if (hintNode != null)
 			result.typeHint = convertTypeHint(hintNode);
@@ -643,11 +643,11 @@ class Converter {
 		}
 	}
 
-	static function convertAssignment(node:JNodeBase):NAssignment {
+	static function convertAssignment(node:JNodeBase):Assignment {
 		var node = node.asNode("assignment");
 		return {
 			assign: node.sub[0].toToken(),
-			e: convertExpr(node.sub[1]),
+			expr: convertExpr(node.sub[1]),
 		};
 	}
 

@@ -83,13 +83,13 @@ typedef Function = {
 	?name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, expr:Expr
 }
 
-typedef NVarDeclaration = {
-	name:Token, ?typeHint:TypeHint, ?assignment:NAssignment
+typedef VarDecl = {
+	name:Token, ?typeHint:TypeHint, ?assignment:Assignment
 }
 
 enum NMacroExpr {
 	PTypeHint(typeHint:TypeHint);
-	PVar(_var:Token, v:CommaSeparated<NVarDeclaration>);
+	PVar(_var:Token, v:CommaSeparated<VarDecl>);
 	PClass(c:ClassDecl);
 	PExpr(e:Expr);
 }
@@ -107,7 +107,7 @@ typedef NGuard = {
 }
 
 enum NBlockElement {
-	PVar(_var:Token, vl:CommaSeparated<NVarDeclaration>, semicolon:Token);
+	PVar(_var:Token, vl:CommaSeparated<VarDecl>, semicolon:Token);
 	PInlineFunction(_inline:Token, _function:Token, f:Function, semicolon:Token);
 	PExpr(e:Expr, semicolon:Token);
 }
@@ -118,7 +118,7 @@ enum NCase {
 }
 
 enum Expr {
-	EVar(varKeyword:Token, decl:NVarDeclaration);
+	EVar(varKeyword:Token, decl:VarDecl);
 	EMetadata(metadata:NMetadata, expr:Expr);
 	EMacro(macroKeyword:Token, expr:NMacroExpr);
 	EThrow(throwKeyword:Token, expr:Expr);
@@ -218,8 +218,8 @@ typedef TypeHint = {
 	colon:Token, type:ComplexType
 }
 
-typedef NAssignment = {
-	assign:Token, e:Expr
+typedef Assignment = {
+	assign:Token, expr:Expr
 }
 
 enum NFieldExpr {
@@ -229,13 +229,13 @@ enum NFieldExpr {
 }
 
 typedef FunctionArgument = {
-	annotations:NAnnotations, ?questionmark:Token, name:Token, ?typeHint:TypeHint, ?assignment:NAssignment
+	annotations:NAnnotations, ?questionmark:Token, name:Token, ?typeHint:TypeHint, ?assignment:Assignment
 }
 
 enum ClassField {
 	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, ?expr:NFieldExpr);
-	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:TypeHint, ?assignment:NAssignment, semicolon:Token);
-	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:TypeHint, ?assignment:NAssignment, semicolon:Token);
+	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:TypeHint, ?assignment:Assignment, semicolon:Token);
+	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:TypeHint, ?assignment:Assignment, semicolon:Token);
 }
 
 typedef NAnonymousTypeField = {

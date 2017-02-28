@@ -8,12 +8,13 @@ import hxParser.ParseTree;
 enum NodeKind {
 	AbstractRelation_From(fromKeyword:Token, type:ComplexType);
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
+	Assignment(node:Assignment);
 	CallArgs(node:CallArgs);
 	Catch(node:Catch);
 	ClassDecl(node:ClassDecl);
 	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:Null<NFieldExpr>);
-	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<NAssignment>, semicolon:Token);
-	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<NAssignment>, semicolon:Token);
+	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token);
+	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token);
 	ClassRelation_Extends(extendsKeyword:Token, path:TypePath);
 	ClassRelation_Implements(implementsKeyword:Token, path:TypePath);
 	ComplexType_PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
@@ -66,7 +67,7 @@ enum NodeKind {
 	Expr_EUnaryPrefix(op:Token, expr:Expr);
 	Expr_EUnsafeCast(castKeyword:Token, expr:Expr);
 	Expr_EUntyped(untypedKeyword:Token, expr:Expr);
-	Expr_EVar(varKeyword:Token, decl:NVarDeclaration);
+	Expr_EVar(varKeyword:Token, decl:VarDecl);
 	Expr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr);
 	FieldModifier_Dynamic(keyword:Token);
 	FieldModifier_Inline(keyword:Token);
@@ -89,10 +90,9 @@ enum NodeKind {
 	NAnonymousTypeField(node:NAnonymousTypeField);
 	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>);
 	NAnonymousTypeFields_PAnonymousShortFields(fields:Null<CommaSeparatedAllowTrailing<NAnonymousTypeField>>);
-	NAssignment(node:NAssignment);
 	NBlockElement_PExpr(e:Expr, semicolon:Token);
 	NBlockElement_PInlineFunction(_inline:Token, _function:Token, f:Function, semicolon:Token);
-	NBlockElement_PVar(_var:Token, vl:CommaSeparated<NVarDeclaration>, semicolon:Token);
+	NBlockElement_PVar(_var:Token, vl:CommaSeparated<VarDecl>, semicolon:Token);
 	NCase_PCase(_case:Token, patterns:CommaSeparated<Expr>, guard:Null<NGuard>, colon:Token, el:Array<NBlockElement>);
 	NCase_PDefault(_default:Token, colon:Token, el:Array<NBlockElement>);
 	NCommonFlag_PExtern(token:Token);
@@ -111,14 +111,13 @@ enum NodeKind {
 	NMacroExpr_PClass(c:ClassDecl);
 	NMacroExpr_PExpr(e:Expr);
 	NMacroExpr_PTypeHint(typeHint:TypeHint);
-	NMacroExpr_PVar(_var:Token, v:CommaSeparated<NVarDeclaration>);
+	NMacroExpr_PVar(_var:Token, v:CommaSeparated<VarDecl>);
 	NMetadata_PMetadata(name:Token);
 	NMetadata_PMetadataWithArgs(name:Token, el:CommaSeparated<Expr>, parenClose:Token);
 	NPath(node:NPath);
 	NString_PString(s:Token);
 	NString_PString2(s:Token);
 	NStructuralExtension(node:NStructuralExtension);
-	NVarDeclaration(node:NVarDeclaration);
 	ObjectField(node:ObjectField);
 	ObjectFieldName_NIdent(ident:Token);
 	ObjectFieldName_NString(string:NString);
@@ -132,4 +131,5 @@ enum NodeKind {
 	TypePathParameter_Type(type:ComplexType);
 	TypePathParameters(node:TypePathParameters);
 	UnderlyingType(node:UnderlyingType);
+	VarDecl(node:VarDecl);
 }
