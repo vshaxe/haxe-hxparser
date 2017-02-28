@@ -43,9 +43,9 @@ class ParsingPointManager extends hxParser.StackAwareWalker {
 
     override function walkClassField(node:ClassField, stack:WalkStack) {
         var callback = switch (stack) {
-            case Element(id, Edge("fields", Node(ClassDecl(c), _))):
+            case Element(id, Edge("fields", Node(ClassDecl({fields: fields}) | AnonymousStructureFields_ClassNotation(fields), _))):
                 function(newTree:JResult) {
-                    c.fields[id] = hxParser.Converter.convertResultToClassFields(newTree)[0];
+                    fields[id] = hxParser.Converter.convertResultToClassFields(newTree)[0];
                 }
             case _: throw "Errrr...";
         }
