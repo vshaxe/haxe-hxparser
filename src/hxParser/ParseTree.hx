@@ -39,6 +39,10 @@ class Token {
         return token;
     }
 
+    public function appearsInSource() {
+        return !implicit && !inserted && text != "<eof>";
+    }
+
     @:keep
     public function toString() return '$text';
 }
