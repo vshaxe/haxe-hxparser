@@ -60,14 +60,14 @@ enum NDotIdent {
 	PDot(_dot:Token);
 }
 
-enum NString {
-	PString(s:Token);
-	PString2(s:Token);
+enum StringToken {
+	DoubleQuote(token:Token);
+	SingleQuote(token:Token);
 }
 
 enum ObjectFieldName {
 	NIdent(ident:Token);
-	NString(string:NString);
+	NString(string:StringToken);
 }
 
 typedef ObjectField = {
@@ -184,7 +184,7 @@ typedef NStructuralExtension = {
 }
 
 enum Literal {
-	PLiteralString(s:NString);
+	PLiteralString(s:StringToken);
 	PLiteralInt(token:Token);
 	PLiteralFloat(token:Token);
 	PLiteralRegex(token:Token);

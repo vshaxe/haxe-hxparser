@@ -296,12 +296,12 @@ class Converter {
 		}
 	}
 
-	static function convertString(node:JNodeBase):NString {
+	static function convertString(node:JNodeBase):StringToken {
 		var node = node.asNode("string");
 		var token = node.sub[0].asToken();
 		return switch (token.token.fastCodeAt(0)) {
-			case '"'.code: PString(token.convertToToken());
-			case "'".code: PString2(token.convertToToken());
+			case '"'.code: DoubleQuote(token.convertToToken());
+			case "'".code: SingleQuote(token.convertToToken());
 			case unknown: throw 'Unknown string quote: ${String.fromCharCode(unknown)}';
 		};
 	}

@@ -51,9 +51,6 @@ import hxParser.ParseTree;
 	function walkDecl_AbstractDecl_relations(elems:Array<AbstractRelation>) {
 		walkArray(elems, walkAbstractRelation);
 	}
-	function walkNString_PString2(s:Token) {
-		walkToken(s);
-	}
 	function walkNDotIdent_PDotIdent(name:Token) {
 		walkToken(name);
 	}
@@ -80,8 +77,8 @@ import hxParser.ParseTree;
 		walkToken(arrow);
 		walkComplexType(type2);
 	}
-	function walkObjectFieldName_NString(string:NString) {
-		walkNString(string);
+	function walkObjectFieldName_NString(string:StringToken) {
+		walkStringToken(string);
 	}
 	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token) {
 		walkToken(colon);
@@ -218,6 +215,9 @@ import hxParser.ParseTree;
 		if (typeHint != null) walkTypeHint(typeHint);
 		if (expr != null) walkNFieldExpr(expr);
 	}
+	function walkStringToken_DoubleQuote(token:Token) {
+		walkToken(token);
+	}
 	function walkFunction(node:Function) {
 		if (node.name != null) walkToken(node.name);
 		if (node.params != null) walkTypeDeclParameters(node.params);
@@ -233,6 +233,9 @@ import hxParser.ParseTree;
 	}
 	function walkFieldModifier_Override(keyword:Token) {
 		walkToken(keyword);
+	}
+	function walkStringToken_SingleQuote(token:Token) {
+		walkToken(token);
 	}
 	function walkExpr_EIntDot(int:Token, dot:Token) {
 		walkToken(int);
@@ -551,6 +554,10 @@ import hxParser.ParseTree;
 		walkExpr(e);
 		walkToken(semicolon);
 	}
+	function walkStringToken(node:StringToken) switch node {
+		case SingleQuote(token):walkStringToken_SingleQuote(token);
+		case DoubleQuote(token):walkStringToken_DoubleQuote(token);
+	};
 	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr) {
 		walkToken(castKeyword);
 		walkExpr(expr);
@@ -562,10 +569,6 @@ import hxParser.ParseTree;
 	function walkDecl_ClassDecl_flags(elems:Array<NCommonFlag>) {
 		walkArray(elems, walkNCommonFlag);
 	}
-	function walkNString(node:NString) switch node {
-		case PString(s):walkNString_PString(s);
-		case PString2(s):walkNString_PString2(s);
-	};
 	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
 		walkToken(bracketOpen);
 		if (elems != null) walkExpr_EArrayDecl_elems(elems);
@@ -732,8 +735,8 @@ import hxParser.ParseTree;
 		walkTypePathParameters_params(node.params);
 		walkToken(node.gt);
 	}
-	function walkLiteral_PLiteralString(s:NString) {
-		walkNString(s);
+	function walkLiteral_PLiteralString(s:StringToken) {
+		walkStringToken(s);
 	}
 	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>) {
 		walkNAnonymousTypeFields_PAnonymousClassFields_fields(fields);
@@ -858,9 +861,6 @@ import hxParser.ParseTree;
 	}
 	function walkNCommonFlag_PPrivate(token:Token) {
 		walkToken(token);
-	}
-	function walkNString_PString(s:Token) {
-		walkToken(s);
 	}
 	function walkObjectFieldName(node:ObjectFieldName) switch node {
 		case NString(string):walkObjectFieldName_NString(string);

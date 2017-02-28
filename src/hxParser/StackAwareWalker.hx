@@ -64,12 +64,6 @@ import hxParser.ParseTree;
 	function walkDecl_AbstractDecl_relations(elems:Array<AbstractRelation>, stack:WalkStack) {
 		walkArray(elems, stack, walkAbstractRelation);
 	}
-	function walkNString_PString2(s:Token, stack:WalkStack) {
-		stack = Node(NString_PString2(s), stack);
-		{
-			walkToken(s, Edge("s", stack));
-		};
-	}
 	function walkNDotIdent_PDotIdent(name:Token, stack:WalkStack) {
 		stack = Node(NDotIdent_PDotIdent(name), stack);
 		{
@@ -108,10 +102,10 @@ import hxParser.ParseTree;
 			walkComplexType(type2, Edge("type2", stack));
 		};
 	}
-	function walkObjectFieldName_NString(string:NString, stack:WalkStack) {
+	function walkObjectFieldName_NString(string:StringToken, stack:WalkStack) {
 		stack = Node(ObjectFieldName_NString(string), stack);
 		{
-			walkNString(string, Edge("string", stack));
+			walkStringToken(string, Edge("string", stack));
 		};
 	}
 	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token, stack:WalkStack) {
@@ -312,6 +306,12 @@ import hxParser.ParseTree;
 			if (expr != null) walkNFieldExpr(expr, Edge("expr", stack));
 		};
 	}
+	function walkStringToken_DoubleQuote(token:Token, stack:WalkStack) {
+		stack = Node(StringToken_DoubleQuote(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
 	function walkFunction(node:Function, stack:WalkStack) {
 		stack = Node(Function(node), stack);
 		{
@@ -335,6 +335,12 @@ import hxParser.ParseTree;
 		stack = Node(FieldModifier_Override(keyword), stack);
 		{
 			walkToken(keyword, Edge("keyword", stack));
+		};
+	}
+	function walkStringToken_SingleQuote(token:Token, stack:WalkStack) {
+		stack = Node(StringToken_SingleQuote(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
 		};
 	}
 	function walkExpr_EIntDot(int:Token, dot:Token, stack:WalkStack) {
@@ -783,6 +789,10 @@ import hxParser.ParseTree;
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
+	function walkStringToken(node:StringToken, stack:WalkStack) switch node {
+		case SingleQuote(token):walkStringToken_SingleQuote(token, stack);
+		case DoubleQuote(token):walkStringToken_DoubleQuote(token, stack);
+	};
 	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr, stack:WalkStack) {
 		stack = Node(Expr_EUnsafeCast(castKeyword, expr), stack);
 		{
@@ -800,10 +810,6 @@ import hxParser.ParseTree;
 	function walkDecl_ClassDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
 		walkArray(elems, stack, walkNCommonFlag);
 	}
-	function walkNString(node:NString, stack:WalkStack) switch node {
-		case PString(s):walkNString_PString(s, stack);
-		case PString2(s):walkNString_PString2(s, stack);
-	};
 	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token, stack:WalkStack) {
 		stack = Node(Expr_EArrayDecl(bracketOpen, elems, bracketClose), stack);
 		{
@@ -1048,10 +1054,10 @@ import hxParser.ParseTree;
 			walkToken(node.gt, Edge("gt", stack));
 		};
 	}
-	function walkLiteral_PLiteralString(s:NString, stack:WalkStack) {
+	function walkLiteral_PLiteralString(s:StringToken, stack:WalkStack) {
 		stack = Node(Literal_PLiteralString(s), stack);
 		{
-			walkNString(s, Edge("s", stack));
+			walkStringToken(s, Edge("s", stack));
 		};
 	}
 	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>, stack:WalkStack) {
@@ -1224,12 +1230,6 @@ import hxParser.ParseTree;
 		stack = Node(NCommonFlag_PPrivate(token), stack);
 		{
 			walkToken(token, Edge("token", stack));
-		};
-	}
-	function walkNString_PString(s:Token, stack:WalkStack) {
-		stack = Node(NString_PString(s), stack);
-		{
-			walkToken(s, Edge("s", stack));
 		};
 	}
 	function walkObjectFieldName(node:ObjectFieldName, stack:WalkStack) switch node {

@@ -85,7 +85,7 @@ enum NodeKind {
 	Literal_PLiteralFloat(token:Token);
 	Literal_PLiteralInt(token:Token);
 	Literal_PLiteralRegex(token:Token);
-	Literal_PLiteralString(s:NString);
+	Literal_PLiteralString(s:StringToken);
 	NAnnotations(node:NAnnotations);
 	NAnonymousTypeField(node:NAnonymousTypeField);
 	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>);
@@ -115,13 +115,13 @@ enum NodeKind {
 	NMetadata_PMetadata(name:Token);
 	NMetadata_PMetadataWithArgs(name:Token, el:CommaSeparated<Expr>, parenClose:Token);
 	NPath(node:NPath);
-	NString_PString(s:Token);
-	NString_PString2(s:Token);
 	NStructuralExtension(node:NStructuralExtension);
 	ObjectField(node:ObjectField);
 	ObjectFieldName_NIdent(ident:Token);
-	ObjectFieldName_NString(string:NString);
+	ObjectFieldName_NString(string:StringToken);
 	Package(node:Package);
+	StringToken_DoubleQuote(token:Token);
+	StringToken_SingleQuote(token:Token);
 	TypeDeclParameter(node:TypeDeclParameter);
 	TypeDeclParameters(node:TypeDeclParameters);
 	TypeHint(node:TypeHint);
