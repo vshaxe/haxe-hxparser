@@ -5,7 +5,7 @@ package hxParser;
 
 import hxParser.ParseTree;
 
-class StackAwareWalker {
+@:publicFields class StackAwareWalker {
 	function walkToken(token:Token, stack:WalkStack) { }
 	function walkArray<T>(elems:Array<T>, stack:WalkStack, walk:T -> WalkStack -> Void) {
 		for (i in 0 ... elems.length) walk(elems[i], Element(i, stack));

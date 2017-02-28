@@ -5,7 +5,7 @@ package hxParser;
 
 import hxParser.ParseTree;
 
-class Walker {
+@:publicFields class Walker {
 	function walkToken(token:Token) { }
 	function walkArray<T>(elems:Array<T>, walk:T -> Void) {
 		for (el in elems) walk(el);

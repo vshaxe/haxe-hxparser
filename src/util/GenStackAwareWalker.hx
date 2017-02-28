@@ -44,6 +44,7 @@ class GenStackAwareWalker {
             }
         };
 
+        walkerTD.meta.push({ name: ":publicFields", pos: (macro null).pos });
         for (field in fields) {
             walkerTD.fields.push(field);
         }
