@@ -268,10 +268,10 @@ enum ComplexType {
 	PFunctionType(type1:ComplexType, arrow:Token, type2:ComplexType);
 }
 
-enum NConstraints {
-	PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
-	PSingleConstraint(colon:Token, type:ComplexType);
-	PNoConstraints;
+enum Constraints {
+	Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
+	Single(colon:Token, type:ComplexType);
+	None;
 }
 
 enum ClassRelation {
@@ -279,7 +279,7 @@ enum ClassRelation {
 	Implements(implementsKeyword:Token, path:TypePath);
 }
 
-typedef NUnderlyingType = {
+typedef UnderlyingType = {
 	parenOpen:Token, type:ComplexType, parenClose:Token
 }
 
@@ -289,7 +289,7 @@ enum AbstractRelation {
 }
 
 typedef TypeDeclParameter = {
-	annotations:NAnnotations, name:Token, constraints:NConstraints
+	annotations:NAnnotations, name:Token, constraints:Constraints
 }
 
 typedef TypeDeclParameters = {
@@ -319,7 +319,7 @@ enum Decl {
 	ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
 	EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:TypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
 	TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:TypeDeclParameters, assign:Token, type:ComplexType, ?semicolon:Token);
-	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:TypeDeclParameters, ?underlyingType:NUnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
+	AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:TypeDeclParameters, ?underlyingType:UnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
 }
 
 typedef Package = {

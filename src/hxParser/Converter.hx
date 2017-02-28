@@ -780,19 +780,19 @@ class Converter {
 	static function convertTypeDeclParameter(node:JNodeBase):TypeDeclParameter {
 		var node = node.asNode("type_decl_parameter");
 
-		var constraints =
+		var constraints:Constraints =
 			if (node.sub[2] == null)
-				PNoConstraints;
+				None;
 			else {
 				var node:JNode = cast node.sub[2];
 				switch (node.name) {
 					case "single":
-						PSingleConstraint(node.sub[0].toToken(), convertComplexType(node.sub[1]));
+						Single(node.sub[0].toToken(), convertComplexType(node.sub[1]));
 					case "multiple":
 						var typeNodes = node.sub.slice(2,4);
 						typeNodes = typeNodes.concat(node.sub[4].asNode("types").sub);
 						var types = commaSeparated(typeNodes, convertComplexType);
-						PMultipleConstraints(node.sub[0].toToken(), node.sub[1].toToken(), types, node.sub[5].toToken());
+						Multiple(node.sub[0].toToken(), node.sub[1].toToken(), types, node.sub[5].toToken());
 					case unknown:
 						throw 'Unknown type constraint node: $unknown';
 				}
@@ -925,7 +925,7 @@ class Converter {
 	static function convertAbstractDecl(node:JNodeBase):Decl {
 		var node = node.asNode("abstract_decl");
 
-		function convertUnderlyingType(node:JNodeBase):NUnderlyingType {
+		function convertUnderlyingType(node:JNodeBase):UnderlyingType {
 			var node = node.asNode("underlying_type");
 			return {
 				parenOpen: node.sub[0].toToken(),

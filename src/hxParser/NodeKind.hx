@@ -22,7 +22,9 @@ enum NodeKind {
 	ComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token);
 	ComplexType_PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
 	ComplexType_PTypePath(path:TypePath);
-	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
+	Constraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
+	Constraints_Single(colon:Token, type:ComplexType);
+	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<UnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
 	Decl_ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
 	Decl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
 	Decl_ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
@@ -93,8 +95,6 @@ enum NodeKind {
 	NCommonFlag_PPrivate(token:Token);
 	NConst_PConstIdent(ident:Token);
 	NConst_PConstLiteral(literal:NLiteral);
-	NConstraints_PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
-	NConstraints_PSingleConstraint(colon:Token, type:ComplexType);
 	NDotIdent_PDot(_dot:Token);
 	NDotIdent_PDotIdent(name:Token);
 	NEnumField(node:NEnumField);
@@ -122,7 +122,6 @@ enum NodeKind {
 	NTypePathParameter_PConstantTypePathParameter(constant:NLiteral);
 	NTypePathParameter_PTypeTypePathParameter(type:ComplexType);
 	NTypePathParameters(node:NTypePathParameters);
-	NUnderlyingType(node:NUnderlyingType);
 	NVarDeclaration(node:NVarDeclaration);
 	ObjectField(node:ObjectField);
 	ObjectFieldName_NIdent(ident:Token);
@@ -132,4 +131,5 @@ enum NodeKind {
 	TypeDeclParameters(node:TypeDeclParameters);
 	TypeHint(node:TypeHint);
 	TypePath(node:TypePath);
+	UnderlyingType(node:UnderlyingType);
 }

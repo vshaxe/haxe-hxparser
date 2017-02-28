@@ -111,6 +111,15 @@ import hxParser.ParseTree;
 			walkNString(string, Edge("string", stack));
 		};
 	}
+	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token, stack:WalkStack) {
+		stack = Node(Constraints_Multiple(colon, parenOpen, types, parenClose), stack);
+		{
+			walkToken(colon, Edge("colon", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkConstraints_Multiple_types(types, Edge("types", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
 	function walkNFieldExpr_PBlockFieldExpr(e:Expr, stack:WalkStack) {
 		stack = Node(NFieldExpr_PBlockFieldExpr(e), stack);
 		{
@@ -273,7 +282,7 @@ import hxParser.ParseTree;
 	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkNEnumFieldArg);
 	}
-	function walkDecl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<NUnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token, stack:WalkStack) {
+	function walkDecl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<UnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token, stack:WalkStack) {
 		stack = Node(Decl_AbstractDecl(annotations, flags, abstractKeyword, name, params, underlyingType, relations, braceOpen, fields, braceClose), stack);
 		{
 			walkNAnnotations(annotations, Edge("annotations", stack));
@@ -281,7 +290,7 @@ import hxParser.ParseTree;
 			walkToken(abstractKeyword, Edge("abstractKeyword", stack));
 			walkToken(name, Edge("name", stack));
 			if (params != null) walkTypeDeclParameters(params, Edge("params", stack));
-			if (underlyingType != null) walkNUnderlyingType(underlyingType, Edge("underlyingType", stack));
+			if (underlyingType != null) walkUnderlyingType(underlyingType, Edge("underlyingType", stack));
 			walkDecl_AbstractDecl_relations(relations, Edge("relations", stack));
 			walkToken(braceOpen, Edge("braceOpen", stack));
 			walkDecl_AbstractDecl_fields(fields, Edge("fields", stack));
@@ -328,15 +337,6 @@ import hxParser.ParseTree;
 		{
 			walkNPath(node.path, Edge("path", stack));
 			if (node.params != null) walkNTypePathParameters(node.params, Edge("params", stack));
-		};
-	}
-	function walkNConstraints_PMultipleConstraints(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token, stack:WalkStack) {
-		stack = Node(NConstraints_PMultipleConstraints(colon, parenOpen, types, parenClose), stack);
-		{
-			walkToken(colon, Edge("colon", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkNConstraints_PMultipleConstraints_types(types, Edge("types", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
 		};
 	}
 	function walkFieldModifier_Override(keyword:Token, stack:WalkStack) {
@@ -415,7 +415,7 @@ import hxParser.ParseTree;
 		{
 			walkNAnnotations(node.annotations, Edge("annotations", stack));
 			walkToken(node.name, Edge("name", stack));
-			walkNConstraints(node.constraints, Edge("constraints", stack));
+			walkConstraints(node.constraints, Edge("constraints", stack));
 		};
 	}
 	function walkComplexType_PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token, stack:WalkStack) {
@@ -796,11 +796,6 @@ import hxParser.ParseTree;
 			walkToken(ident, Edge("ident", stack));
 		};
 	}
-	function walkNConstraints(node:NConstraints, stack:WalkStack) switch node {
-		case PMultipleConstraints(colon, parenOpen, types, parenClose):walkNConstraints_PMultipleConstraints(colon, parenOpen, types, parenClose, stack);
-		case PSingleConstraint(colon, type):walkNConstraints_PSingleConstraint(colon, type, stack);
-		case PNoConstraints:{ };
-	};
 	function walkNCase(node:NCase, stack:WalkStack) switch node {
 		case PCase(_case, patterns, guard, colon, el):walkNCase_PCase(_case, patterns, guard, colon, el, stack);
 		case PDefault(_default, colon, el):walkNCase_PDefault(_default, colon, el, stack);
@@ -810,13 +805,6 @@ import hxParser.ParseTree;
 	}
 	function walkNAnnotations_metadata(elems:Array<NMetadata>, stack:WalkStack) {
 		walkArray(elems, stack, walkNMetadata);
-	}
-	function walkNConstraints_PSingleConstraint(colon:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(NConstraints_PSingleConstraint(colon, type), stack);
-		{
-			walkToken(colon, Edge("colon", stack));
-			walkComplexType(type, Edge("type", stack));
-		};
 	}
 	function walkNFieldExpr_PExprFieldExpr(e:Expr, semicolon:Token, stack:WalkStack) {
 		stack = Node(NFieldExpr_PExprFieldExpr(e, semicolon), stack);
@@ -894,6 +882,13 @@ import hxParser.ParseTree;
 			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
 			if (assignment != null) walkNAssignment(assignment, Edge("assignment", stack));
 			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkConstraints_Single(colon:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(Constraints_Single(colon, type), stack);
+		{
+			walkToken(colon, Edge("colon", stack));
+			walkComplexType(type, Edge("type", stack));
 		};
 	}
 	function walkComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token, stack:WalkStack) {
@@ -1011,9 +1006,6 @@ import hxParser.ParseTree;
 			walkToken(continueKeyword, Edge("continueKeyword", stack));
 		};
 	}
-	function walkNConstraints_PMultipleConstraints_types(elems:CommaSeparated<ComplexType>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkComplexType);
-	}
 	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token, stack:WalkStack) {
 		stack = Node(Expr_EMacroEscape(ident, braceOpen, expr, braceClose), stack);
 		{
@@ -1061,6 +1053,11 @@ import hxParser.ParseTree;
 	function walkClassField_Variable_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
 		walkArray(elems, stack, walkFieldModifier);
 	}
+	function walkConstraints(node:Constraints, stack:WalkStack) switch node {
+		case None:{ };
+		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose, stack);
+		case Single(colon, type):walkConstraints_Single(colon, type, stack);
+	};
 	function walkObjectField(node:ObjectField, stack:WalkStack) {
 		stack = Node(ObjectField(node), stack);
 		{
@@ -1094,14 +1091,6 @@ import hxParser.ParseTree;
 			walkTypeHint(node.typeHint, Edge("typeHint", stack));
 		};
 	}
-	function walkNUnderlyingType(node:NUnderlyingType, stack:WalkStack) {
-		stack = Node(NUnderlyingType(node), stack);
-		{
-			walkToken(node.parenOpen, Edge("parenOpen", stack));
-			walkComplexType(node.type, Edge("type", stack));
-			walkToken(node.parenClose, Edge("parenClose", stack));
-		};
-	}
 	function walkFile_decls(elems:Array<Decl>, stack:WalkStack) {
 		walkArray(elems, stack, walkDecl);
 	}
@@ -1124,6 +1113,9 @@ import hxParser.ParseTree;
 	}
 	function walkCallArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkExpr);
+	}
+	function walkConstraints_Multiple_types(elems:CommaSeparated<ComplexType>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkComplexType);
 	}
 	function walkNMacroExpr(node:NMacroExpr, stack:WalkStack) switch node {
 		case PVar(_var, v):walkNMacroExpr_PVar(_var, v, stack);
@@ -1201,6 +1193,14 @@ import hxParser.ParseTree;
 		{
 			walkToken(_var, Edge("_var", stack));
 			walkNMacroExpr_PVar_v(v, Edge("v", stack));
+		};
+	}
+	function walkUnderlyingType(node:UnderlyingType, stack:WalkStack) {
+		stack = Node(UnderlyingType(node), stack);
+		{
+			walkToken(node.parenOpen, Edge("parenOpen", stack));
+			walkComplexType(node.type, Edge("type", stack));
+			walkToken(node.parenClose, Edge("parenClose", stack));
 		};
 	}
 	function walkNAnonymousTypeFields(node:NAnonymousTypeFields, stack:WalkStack) switch node {
