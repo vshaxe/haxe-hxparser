@@ -577,18 +577,18 @@ class Converter {
 		}
 	}
 
-	static function convertMacroExpr(node:JNodeBase):NMacroExpr {
+	static function convertMacroExpr(node:JNodeBase):MacroExpr {
 		var node:JNode = cast node.asNode("macro_expr").sub[0];
 		return switch (node.name) {
 			case "macro_type_hint":
-				PTypeHint(convertTypeHint(node.sub[0]));
+				TypeHint(convertTypeHint(node.sub[0]));
 			case "macro_expr_expr":
-				PExpr(convertExpr(node.sub[0]));
+				Expr(convertExpr(node.sub[0]));
 			case "macro_var":
 				var decls = commaSeparated(node.sub[1].asNode("vars").sub, convertVarDecl);
-				PVar(node.sub[0].toToken(), decls);
+				Var(node.sub[0].toToken(), decls);
 			case "macro_class_decl":
-				PClass(convertClassDeclInner(node, 0));
+				Class(convertClassDeclInner(node, 0));
 			case unknown:
 				throw 'Unknown macro expr type: $unknown';
 		}
@@ -682,17 +682,17 @@ class Converter {
 		var args = if (node.sub[6] == null) null else commaSeparated(node.sub[6].asNode("args").sub, convertFunctionArg);
 		var parenClose = node.sub[7].toToken();
 		var returnTypeHint = if (node.sub[8] == null) null else convertTypeHint(node.sub[8]);
-		var expr = convertFieldExpr(node.sub[9]);
+		var expr = convertMethodExpr(node.sub[9]);
 
 		return Function(annotations, modifiers, functionToken, name, params, parenOpen, args, parenClose, returnTypeHint, expr);
 	}
 
-	static function convertFieldExpr(node:JNodeBase):NFieldExpr {
+	static function convertMethodExpr(node:JNodeBase):MethodExpr {
 		var node:JNode = cast node;
 		return switch (node.name) {
-			case "field_expr_none": PNoFieldExpr(node.sub[0].toToken());
-			case "field_expr_expr": PExprFieldExpr(convertExpr(node.sub[0]), node.sub[1].toToken());
-			case "field_expr_block": PBlockFieldExpr(convertExpr(node.sub[0]));
+			case "field_expr_none": None(node.sub[0].toToken());
+			case "field_expr_expr": Expr(convertExpr(node.sub[0]), node.sub[1].toToken());
+			case "field_expr_block": Block(convertExpr(node.sub[0]));
 			case unknown: throw 'Unknown field expr type: $unknown';
 		}
 	}

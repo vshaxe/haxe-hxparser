@@ -57,7 +57,7 @@ typedef CommaSeparatedAllowTrailing<T> = { args:Array<{arg:T, comma:Token}>, arg
 
 enum NDotIdent {
 	PDotIdent(name:Token);
-	PDot(_dot:Token);
+	PDot(dot:Token);
 }
 
 enum StringToken {
@@ -87,11 +87,11 @@ typedef VarDecl = {
 	name:Token, ?typeHint:TypeHint, ?assignment:Assignment
 }
 
-enum NMacroExpr {
-	PTypeHint(typeHint:TypeHint);
-	PVar(_var:Token, v:CommaSeparated<VarDecl>);
-	PClass(c:ClassDecl);
-	PExpr(e:Expr);
+enum MacroExpr {
+	TypeHint(typeHint:TypeHint);
+	Var(varKeyword:Token, decls:CommaSeparated<VarDecl>);
+	Class(classDecl:ClassDecl);
+	Expr(expr:Expr);
 }
 
 typedef ExprElse = {
@@ -120,7 +120,7 @@ enum Case {
 enum Expr {
 	EVar(varKeyword:Token, decl:VarDecl);
 	EMetadata(metadata:NMetadata, expr:Expr);
-	EMacro(macroKeyword:Token, expr:NMacroExpr);
+	EMacro(macroKeyword:Token, expr:MacroExpr);
 	EThrow(throwKeyword:Token, expr:Expr);
 	EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, ?exprElse:ExprElse);
 	EReturn(returnKeyword:Token);
@@ -222,10 +222,10 @@ typedef Assignment = {
 	assign:Token, expr:Expr
 }
 
-enum NFieldExpr {
-	PNoFieldExpr(semicolon:Token);
-	PBlockFieldExpr(e:Expr);
-	PExprFieldExpr(e:Expr, semicolon:Token);
+enum MethodExpr {
+	None(semicolon:Token);
+	Block(expr:Expr);
+	Expr(expr:Expr, semicolon:Token);
 }
 
 typedef FunctionArgument = {
@@ -233,7 +233,7 @@ typedef FunctionArgument = {
 }
 
 enum ClassField {
-	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, ?expr:NFieldExpr);
+	Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, ?params:TypeDeclParameters, parenOpen:Token, ?args:CommaSeparated<FunctionArgument>, parenClose:Token, ?typeHint:TypeHint, expr:MethodExpr);
 	Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, ?typeHint:TypeHint, ?assignment:Assignment, semicolon:Token);
 	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:TypeHint, ?assignment:Assignment, semicolon:Token);
 }
