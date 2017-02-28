@@ -30,9 +30,9 @@ class ParsingPointManager extends hxParser.StackAwareWalker {
             offset += trivia.text.length;
         }
         if (token.leadingTrivia != null) for (trivia in token.leadingTrivia) updateTrivia(trivia);
-        offset += !token.appearsInSource() ? 0 : token.text.length;
+        if (token.appearsInSource()) offset += token.text.length;
         if (token.trailingTrivia != null) for (trivia in token.trailingTrivia) updateTrivia(trivia);
-         var end = offset;
+        var end = offset;
         if (currentPoint != null) {
             currentPoint.end = end;
             if (currentPoint.start == -1 || start < currentPoint.start) {
