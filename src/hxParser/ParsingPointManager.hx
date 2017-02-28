@@ -13,16 +13,30 @@ private typedef ParsingPoint = {
 class ParsingPointManager extends hxParser.StackAwareWalker {
     var parsingPoints:Array<ParsingPoint>;
     var currentPoint:Null<ParsingPoint>;
+    var offset:Int;
 
     public override function new() {
+        reset();
+    }
+
+    public function reset() {
         parsingPoints = [];
+        offset = 0;
     }
 
     override function walkToken(token:Token, stack:WalkStack) {
+        inline function updateTrivia(trivia:Trivia) {
+            offset += trivia.text.length;
+        }
+        if (token.leadingTrivia != null) for (trivia in token.leadingTrivia) updateTrivia(trivia);
+        var start = offset;
+        offset += token.text.length;
+        var end = offset;
+        if (token.trailingTrivia != null) for (trivia in token.trailingTrivia) updateTrivia(trivia);
         if (currentPoint != null) {
-            currentPoint.end = token.end;
-            if (currentPoint.start == -1 || token.start < currentPoint.start) {
-                currentPoint.start = token.start;
+            currentPoint.end = end;
+            if (currentPoint.start == -1 || start < currentPoint.start) {
+                currentPoint.start = start;
             }
         }
     }

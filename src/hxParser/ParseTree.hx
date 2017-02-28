@@ -2,42 +2,34 @@ package hxParser;
 
 class Trivia {
     public var text:String;
-    public var start:Int;
-    public var end:Int;
 
-    public function new(text, start, end) {
+    public function new(text) {
         this.text = text;
-        this.start = start;
-        this.end = end;
     }
 
     public static function fromJTrivia(jtrivia:hxParser.JResult.JPlacedToken):Trivia {
-        return new Trivia(jtrivia.token, jtrivia.start, jtrivia.end);
+        return new Trivia(jtrivia.token);
     }
 
     @:keep
-    public function toString() return '${haxe.Json.stringify(text)} [$start..$end)';
+    public function toString() return '${haxe.Json.stringify(text)}';
 }
 
 class Token {
     public var text:String;
-    public var start:Int;
-    public var end:Int;
     public var leadingTrivia:Array<Trivia>;
     public var trailingTrivia:Array<Trivia>;
     public var implicit:Bool;
     public var inserted:Bool;
 
-    public function new(text, start, end) {
+    public function new(text) {
         this.text = text;
-        this.start = start;
-        this.end = end;
         implicit = false;
         inserted = false;
     }
 
     public static function fromJToken(jtoken:hxParser.JResult.JToken):Token {
-        var token = new Token(jtoken.token, jtoken.start, jtoken.end);
+        var token = new Token(jtoken.token);
         if (jtoken.trivia != null) {
             if (jtoken.trivia.implicit != null) token.implicit = jtoken.trivia.implicit;
             if (jtoken.trivia.inserted != null) token.inserted = jtoken.trivia.inserted;
@@ -48,7 +40,7 @@ class Token {
     }
 
     @:keep
-    public function toString() return '$text [$start..$end)';
+    public function toString() return '$text';
 }
 
 typedef CommaSeparated<T> = { args:Array<{arg:T, comma:Token}>, arg:T }
