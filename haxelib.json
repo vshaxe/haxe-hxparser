@@ -1,0 +1,10 @@
+{
+    "name": "haxe-hxparser",
+    "url" : "https://github.com/vshaxe/haxe-hxparser/",
+    "license": "MIT",
+    "tags": ["cross", "parser"],
+    "description": "Haxe API for hxparser.",
+    "version": "0.0.1",
+    "releasenote": "Initial release.",
+    "contributors": ["vshaxe"]
+}
