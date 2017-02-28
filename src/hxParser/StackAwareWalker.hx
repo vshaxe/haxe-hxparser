@@ -39,6 +39,14 @@ import hxParser.ParseTree;
 	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkTypePathParameter);
 	}
+	function walkComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_Parenthesis(parenOpen, type, parenClose), stack);
+		{
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkComplexType(type, Edge("type", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
 	function walkCatch(node:Catch, stack:WalkStack) {
 		stack = Node(Catch(node), stack);
 		{
@@ -68,12 +76,12 @@ import hxParser.ParseTree;
 		};
 	}
 	function walkComplexType(node:ComplexType, stack:WalkStack) switch node {
-		case PFunctionType(type1, arrow, type2):walkComplexType_PFunctionType(type1, arrow, type2, stack);
-		case PStructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_PStructuralExtension(braceOpen, types, fields, braceClose, stack);
-		case PParenthesisType(parenOpen, ct, parenClose):walkComplexType_PParenthesisType(parenOpen, ct, parenClose, stack);
-		case PAnonymousStructure(braceOpen, fields, braceClose):walkComplexType_PAnonymousStructure(braceOpen, fields, braceClose, stack);
-		case PTypePath(path):walkComplexType_PTypePath(path, stack);
-		case POptionalType(questionmark, type):walkComplexType_POptionalType(questionmark, type, stack);
+		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose, stack);
+		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose, stack);
+		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose, stack);
+		case Optional(questionmark, type):walkComplexType_Optional(questionmark, type, stack);
+		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight, stack);
+		case TypePath(path):walkComplexType_TypePath(path, stack);
 	};
 	function walkMacroExpr(node:MacroExpr, stack:WalkStack) switch node {
 		case Class(classDecl):walkMacroExpr_Class(classDecl, stack);
@@ -95,14 +103,6 @@ import hxParser.ParseTree;
 		stack = Node(Expr_EDollarIdent(ident), stack);
 		{
 			walkToken(ident, Edge("ident", stack));
-		};
-	}
-	function walkComplexType_PFunctionType(type1:ComplexType, arrow:Token, type2:ComplexType, stack:WalkStack) {
-		stack = Node(ComplexType_PFunctionType(type1, arrow, type2), stack);
-		{
-			walkComplexType(type1, Edge("type1", stack));
-			walkToken(arrow, Edge("arrow", stack));
-			walkComplexType(type2, Edge("type2", stack));
 		};
 	}
 	function walkObjectFieldName_NString(string:StringToken, stack:WalkStack) {
@@ -143,6 +143,17 @@ import hxParser.ParseTree;
 	}
 	function walkNPath_idents(elems:Array<NDotIdent>, stack:WalkStack) {
 		walkArray(elems, stack, walkNDotIdent);
+	}
+	function walkAnonymousStructureFields_ShortNotation_fields(elems:CommaSeparatedAllowTrailing<AnonymousStructureField>, stack:WalkStack) {
+		walkCommaSeparatedTrailing(elems, stack, walkAnonymousStructureField);
+	}
+	function walkComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_AnonymousStructure(braceOpen, fields, braceClose), stack);
+		{
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkAnonymousStructureFields(fields, Edge("fields", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
 	}
 	function walkExpr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
 		stack = Node(Expr_ECheckType(parenOpen, expr, colon, type, parenClose), stack);
@@ -245,12 +256,6 @@ import hxParser.ParseTree;
 	function walkCase_Case_patterns(elems:CommaSeparated<Expr>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkExpr);
 	}
-	function walkNAnonymousTypeFields_PAnonymousShortFields(fields:Null<CommaSeparatedAllowTrailing<NAnonymousTypeField>>, stack:WalkStack) {
-		stack = Node(NAnonymousTypeFields_PAnonymousShortFields(fields), stack);
-		{
-			if (fields != null) walkNAnonymousTypeFields_PAnonymousShortFields_fields(fields, Edge("fields", stack));
-		};
-	}
 	function walkAbstractRelation_From(fromKeyword:Token, type:ComplexType, stack:WalkStack) {
 		stack = Node(AbstractRelation_From(fromKeyword, type), stack);
 		{
@@ -347,6 +352,9 @@ import hxParser.ParseTree;
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
+	function walkAnonymousStructureFields_ClassNotation_fields(elems:Array<ClassField>, stack:WalkStack) {
+		walkArray(elems, stack, walkClassField);
+	}
 	function walkFieldModifier_Override(keyword:Token, stack:WalkStack) {
 		stack = Node(FieldModifier_Override(keyword), stack);
 		{
@@ -422,9 +430,6 @@ import hxParser.ParseTree;
 			walkMacroExpr_Var_decls(decls, Edge("decls", stack));
 		};
 	}
-	function walkComplexType_PStructuralExtension_types(elems:Array<NStructuralExtension>, stack:WalkStack) {
-		walkArray(elems, stack, walkNStructuralExtension);
-	}
 	function walkFieldModifier_Inline(keyword:Token, stack:WalkStack) {
 		stack = Node(FieldModifier_Inline(keyword), stack);
 		{
@@ -439,11 +444,12 @@ import hxParser.ParseTree;
 			walkConstraints(node.constraints, Edge("constraints", stack));
 		};
 	}
-	function walkComplexType_PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_PAnonymousStructure(braceOpen, fields, braceClose), stack);
+	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_StructuralExtension(braceOpen, types, fields, braceClose), stack);
 		{
 			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkNAnonymousTypeFields(fields, Edge("fields", stack));
+			walkComplexType_StructuralExtension_types(types, Edge("types", stack));
+			walkAnonymousStructureFields(fields, Edge("fields", stack));
 			walkToken(braceClose, Edge("braceClose", stack));
 		};
 	}
@@ -467,6 +473,12 @@ import hxParser.ParseTree;
 			walkToken(parenClose, Edge("parenClose", stack));
 		};
 	}
+	function walkAnonymousStructureFields_ClassNotation(fields:Array<ClassField>, stack:WalkStack) {
+		stack = Node(AnonymousStructureFields_ClassNotation(fields), stack);
+		{
+			walkAnonymousStructureFields_ClassNotation_fields(fields, Edge("fields", stack));
+		};
+	}
 	function walkImportMode_IAs(asKeyword:Token, ident:Token, stack:WalkStack) {
 		stack = Node(ImportMode_IAs(asKeyword, ident), stack);
 		{
@@ -488,6 +500,14 @@ import hxParser.ParseTree;
 		case PExtern(token):walkNCommonFlag_PExtern(token, stack);
 		case PPrivate(token):walkNCommonFlag_PPrivate(token, stack);
 	};
+	function walkAnonymousStructureField(node:AnonymousStructureField, stack:WalkStack) {
+		stack = Node(AnonymousStructureField(node), stack);
+		{
+			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
+			walkToken(node.name, Edge("name", stack));
+			walkTypeHint(node.typeHint, Edge("typeHint", stack));
+		};
+	}
 	function walkExpr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr, stack:WalkStack) {
 		stack = Node(Expr_EBinop(exprLeft, op, exprRight), stack);
 		{
@@ -511,9 +531,6 @@ import hxParser.ParseTree;
 			walkToken(node.ident, Edge("ident", stack));
 			walkNPath_idents(node.idents, Edge("idents", stack));
 		};
-	}
-	function walkNAnonymousTypeFields_PAnonymousClassFields_fields(elems:Array<ClassField>, stack:WalkStack) {
-		walkArray(elems, stack, walkClassField);
 	}
 	function walkCase_Default_body(elems:Array<BlockElement>, stack:WalkStack) {
 		walkArray(elems, stack, walkBlockElement);
@@ -644,6 +661,12 @@ import hxParser.ParseTree;
 			walkToken(node.parenClose, Edge("parenClose", stack));
 		};
 	}
+	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>, stack:WalkStack) {
+		stack = Node(AnonymousStructureFields_ShortNotation(fields), stack);
+		{
+			if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields, Edge("fields", stack));
+		};
+	}
 	function walkFieldModifier_Macro(keyword:Token, stack:WalkStack) {
 		stack = Node(FieldModifier_Macro(keyword), stack);
 		{
@@ -733,15 +756,6 @@ import hxParser.ParseTree;
 		{
 			walkToken(braceOpen, Edge("braceOpen", stack));
 			walkExpr_EObjectDecl_fields(fields, Edge("fields", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkComplexType_PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_PStructuralExtension(braceOpen, types, fields, braceClose), stack);
-		{
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkComplexType_PStructuralExtension_types(types, Edge("types", stack));
-			walkNAnonymousTypeFields(fields, Edge("fields", stack));
 			walkToken(braceClose, Edge("braceClose", stack));
 		};
 	}
@@ -890,14 +904,6 @@ import hxParser.ParseTree;
 			walkComplexType(type, Edge("type", stack));
 		};
 	}
-	function walkComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_PParenthesisType(parenOpen, ct, parenClose), stack);
-		{
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkComplexType(ct, Edge("ct", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
 	function walkExpr_ETry_catches(elems:Array<Catch>, stack:WalkStack) {
 		walkArray(elems, stack, walkCatch);
 	}
@@ -954,6 +960,14 @@ import hxParser.ParseTree;
 			walkToken(op, Edge("op", stack));
 		};
 	}
+	function walkComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType, stack:WalkStack) {
+		stack = Node(ComplexType_Function(typeLeft, arrow, typeRight), stack);
+		{
+			walkComplexType(typeLeft, Edge("typeLeft", stack));
+			walkToken(arrow, Edge("arrow", stack));
+			walkComplexType(typeRight, Edge("typeRight", stack));
+		};
+	}
 	function walkBlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token, stack:WalkStack) {
 		stack = Node(BlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon), stack);
 		{
@@ -996,6 +1010,10 @@ import hxParser.ParseTree;
 			walkToken(ident, Edge("ident", stack));
 		};
 	}
+	function walkAnonymousStructureFields(node:AnonymousStructureFields, stack:WalkStack) switch node {
+		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields, stack);
+		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields, stack);
+	};
 	function walkFieldModifier(node:FieldModifier, stack:WalkStack) switch node {
 		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword, stack);
 		case Inline(keyword):walkFieldModifier_Inline(keyword, stack);
@@ -1041,13 +1059,6 @@ import hxParser.ParseTree;
 			walkComplexType(node.type, Edge("type", stack));
 		};
 	}
-	function walkComplexType_POptionalType(questionmark:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(ComplexType_POptionalType(questionmark, type), stack);
-		{
-			walkToken(questionmark, Edge("questionmark", stack));
-			walkComplexType(type, Edge("type", stack));
-		};
-	}
 	function walkAssignment(node:Assignment, stack:WalkStack) {
 		stack = Node(Assignment(node), stack);
 		{
@@ -1085,12 +1096,6 @@ import hxParser.ParseTree;
 			walkStringToken(s, Edge("s", stack));
 		};
 	}
-	function walkNAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>, stack:WalkStack) {
-		stack = Node(NAnonymousTypeFields_PAnonymousClassFields(fields), stack);
-		{
-			walkNAnonymousTypeFields_PAnonymousClassFields_fields(fields, Edge("fields", stack));
-		};
-	}
 	function walkExpr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
 		stack = Node(Expr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose), stack);
 		{
@@ -1100,14 +1105,6 @@ import hxParser.ParseTree;
 			walkToken(comma, Edge("comma", stack));
 			walkComplexType(type, Edge("type", stack));
 			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkNAnonymousTypeField(node:NAnonymousTypeField, stack:WalkStack) {
-		stack = Node(NAnonymousTypeField(node), stack);
-		{
-			if (node.questionmark != null) walkToken(node.questionmark, Edge("questionmark", stack));
-			walkToken(node.name, Edge("name", stack));
-			walkTypeHint(node.typeHint, Edge("typeHint", stack));
 		};
 	}
 	function walkFile_decls(elems:Array<Decl>, stack:WalkStack) {
@@ -1137,6 +1134,9 @@ import hxParser.ParseTree;
 			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
 			walkToken(node.semicolon, Edge("semicolon", stack));
 		};
+	}
+	function walkComplexType_StructuralExtension_types(elems:Array<NStructuralExtension>, stack:WalkStack) {
+		walkArray(elems, stack, walkNStructuralExtension);
 	}
 	function walkDecl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token, stack:WalkStack) {
 		stack = Node(Decl_EnumDecl(annotations, flags, enumKeyword, name, params, braceOpen, fields, braceClose), stack);
@@ -1178,6 +1178,12 @@ import hxParser.ParseTree;
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
+	function walkComplexType_TypePath(path:TypePath, stack:WalkStack) {
+		stack = Node(ComplexType_TypePath(path), stack);
+		{
+			walkTypePath(path, Edge("path", stack));
+		};
+	}
 	function walkTypePathParameter_Literal(literal:Literal, stack:WalkStack) {
 		stack = Node(TypePathParameter_Literal(literal), stack);
 		{
@@ -1204,13 +1210,6 @@ import hxParser.ParseTree;
 			walkComplexType(node.type, Edge("type", stack));
 			walkToken(node.parenClose, Edge("parenClose", stack));
 		};
-	}
-	function walkNAnonymousTypeFields(node:NAnonymousTypeFields, stack:WalkStack) switch node {
-		case PAnonymousClassFields(fields):walkNAnonymousTypeFields_PAnonymousClassFields(fields, stack);
-		case PAnonymousShortFields(fields):walkNAnonymousTypeFields_PAnonymousShortFields(fields, stack);
-	};
-	function walkNAnonymousTypeFields_PAnonymousShortFields_fields(elems:CommaSeparatedAllowTrailing<NAnonymousTypeField>, stack:WalkStack) {
-		walkCommaSeparatedTrailing(elems, stack, walkNAnonymousTypeField);
 	}
 	function walkExpr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token, stack:WalkStack) {
 		stack = Node(Expr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose), stack);
@@ -1263,10 +1262,11 @@ import hxParser.ParseTree;
 			walkToken(ident, Edge("ident", stack));
 		};
 	}
-	function walkComplexType_PTypePath(path:TypePath, stack:WalkStack) {
-		stack = Node(ComplexType_PTypePath(path), stack);
+	function walkComplexType_Optional(questionmark:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(ComplexType_Optional(questionmark, type), stack);
 		{
-			walkTypePath(path, Edge("path", stack));
+			walkToken(questionmark, Edge("questionmark", stack));
+			walkComplexType(type, Edge("type", stack));
 		};
 	}
 	function walkFunction_args(elems:CommaSeparated<FunctionArgument>, stack:WalkStack) {

@@ -208,17 +208,17 @@ class Converter {
 		});
 	}
 
-	static function convertAnonymousFields(node:JNodeBase):NAnonymousTypeFields {
+	static function convertAnonymousFields(node:JNodeBase):AnonymousStructureFields {
 		if (node == null)
-			return PAnonymousShortFields(null);
+			return ShortNotation(null);
 		var node:JNode = cast node;
 		return switch (node.name) {
 			case "class_fields":
-				PAnonymousClassFields(node.sub.map(convertClassField));
+				ClassNotation(node.sub.map(convertClassField));
 			case "short_fields":
-				function convertAnonField(node:JNodeBase):NAnonymousTypeField {
+				function convertAnonField(node:JNodeBase):AnonymousStructureField {
 					var node = node.asNode("anonymous_type_field");
-					var result:NAnonymousTypeField = {
+					var result:AnonymousStructureField = {
 						name: convertDollarIdent(node.sub[1]),
 						typeHint: convertTypeHint(node.sub[2]),
 					};
@@ -227,7 +227,7 @@ class Converter {
 						result.questionmark = questionMark.toToken();
 					return result;
 				}
-				PAnonymousShortFields(commaSeparatedTrailing(node.sub, convertAnonField));
+				ShortNotation(commaSeparatedTrailing(node.sub, convertAnonField));
 			case unknown:
 				throw 'Unknown anonymous fields notation: $unknown';
 		}
@@ -237,19 +237,19 @@ class Converter {
 		var node:JNode = cast node.asNode("complex_type").sub[0];
 		return switch (node.name) {
 			case "path":
-				PTypePath(convertTypePath(node.sub[0]));
+				TypePath(convertTypePath(node.sub[0]));
 
 			case "anonymous":
-				PAnonymousStructure(node.sub[0].toToken(), convertAnonymousFields(node.sub[1]), node.sub[2].toToken());
+				AnonymousStructure(node.sub[0].toToken(), convertAnonymousFields(node.sub[1]), node.sub[2].toToken());
 
 			case "function":
-				PFunctionType(convertComplexType(node.sub[0]), node.sub[1].toToken(), convertComplexType(node.sub[2]));
+				Function(convertComplexType(node.sub[0]), node.sub[1].toToken(), convertComplexType(node.sub[2]));
 
 			case "parenthesis":
-				PParenthesisType(node.sub[0].toToken(), convertComplexType(node.sub[1]), node.sub[2].toToken());
+				Parenthesis(node.sub[0].toToken(), convertComplexType(node.sub[1]), node.sub[2].toToken());
 
 			case "optional":
-				POptionalType(node.sub[0].toToken(), convertComplexType(node.sub[1]));
+				Optional(node.sub[0].toToken(), convertComplexType(node.sub[1]));
 
 			case "extension":
 				var extensions = node.sub[1].asNode("extensions").sub.map(function(node):NStructuralExtension {
@@ -260,7 +260,7 @@ class Converter {
 						comma: node.sub[2].toToken(),
 					};
 				});
-				PStructuralExtension(
+				StructuralExtension(
 					node.sub[0].toToken(),
 					extensions,
 					convertAnonymousFields(node.sub[2]),

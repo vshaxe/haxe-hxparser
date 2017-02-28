@@ -238,13 +238,13 @@ enum ClassField {
 	Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, ?typeHint:TypeHint, ?assignment:Assignment, semicolon:Token);
 }
 
-typedef NAnonymousTypeField = {
+typedef AnonymousStructureField = {
 	?questionmark:Token, name:Token, typeHint:TypeHint
 }
 
-enum NAnonymousTypeFields {
-	PAnonymousClassFields(fields:Array<ClassField>);
-	PAnonymousShortFields(?fields:CommaSeparatedAllowTrailing<NAnonymousTypeField>);
+enum AnonymousStructureFields {
+	ClassNotation(fields:Array<ClassField>);
+	ShortNotation(?fields:CommaSeparatedAllowTrailing<AnonymousStructureField>);
 }
 
 typedef NEnumFieldArg = {
@@ -260,12 +260,12 @@ typedef NEnumField = {
 }
 
 enum ComplexType {
-	PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token);
-	PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
-	PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
-	POptionalType(questionmark:Token, type:ComplexType);
-	PTypePath(path:TypePath);
-	PFunctionType(type1:ComplexType, arrow:Token, type2:ComplexType);
+	Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
+	StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
+	AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token);
+	Optional(questionmark:Token, type:ComplexType);
+	TypePath(path:TypePath);
+	Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType);
 }
 
 enum Constraints {

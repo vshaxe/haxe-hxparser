@@ -8,6 +8,9 @@ import hxParser.ParseTree;
 enum NodeKind {
 	AbstractRelation_From(fromKeyword:Token, type:ComplexType);
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
+	AnonymousStructureField(node:AnonymousStructureField);
+	AnonymousStructureFields_ClassNotation(fields:Array<ClassField>);
+	AnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>);
 	Assignment(node:Assignment);
 	BlockElement_Expr(expr:Expr, semicolon:Token);
 	BlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token);
@@ -22,12 +25,12 @@ enum NodeKind {
 	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token);
 	ClassRelation_Extends(extendsKeyword:Token, path:TypePath);
 	ClassRelation_Implements(implementsKeyword:Token, path:TypePath);
-	ComplexType_PAnonymousStructure(braceOpen:Token, fields:NAnonymousTypeFields, braceClose:Token);
-	ComplexType_PFunctionType(type1:ComplexType, arrow:Token, type2:ComplexType);
-	ComplexType_POptionalType(questionmark:Token, type:ComplexType);
-	ComplexType_PParenthesisType(parenOpen:Token, ct:ComplexType, parenClose:Token);
-	ComplexType_PStructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:NAnonymousTypeFields, braceClose:Token);
-	ComplexType_PTypePath(path:TypePath);
+	ComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token);
+	ComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType);
+	ComplexType_Optional(questionmark:Token, type:ComplexType);
+	ComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token);
+	ComplexType_StructuralExtension(braceOpen:Token, types:Array<NStructuralExtension>, fields:AnonymousStructureFields, braceClose:Token);
+	ComplexType_TypePath(path:TypePath);
 	Constraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
 	Constraints_Single(colon:Token, type:ComplexType);
 	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<UnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
@@ -102,9 +105,6 @@ enum NodeKind {
 	MethodExpr_Expr(expr:Expr, semicolon:Token);
 	MethodExpr_None(semicolon:Token);
 	NAnnotations(node:NAnnotations);
-	NAnonymousTypeField(node:NAnonymousTypeField);
-	NAnonymousTypeFields_PAnonymousClassFields(fields:Array<ClassField>);
-	NAnonymousTypeFields_PAnonymousShortFields(fields:Null<CommaSeparatedAllowTrailing<NAnonymousTypeField>>);
 	NCommonFlag_PExtern(token:Token);
 	NCommonFlag_PPrivate(token:Token);
 	NConst_PConstIdent(ident:Token);
