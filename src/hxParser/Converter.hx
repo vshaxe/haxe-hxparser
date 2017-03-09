@@ -826,16 +826,17 @@ class Converter {
     static function convertImportDecl(node:JNodeBase):Decl {
         var node = node.asNode("import_decl");
         var importToken = node.sub[0].toToken();
+        var path = convertPath(node.sub[1]);
 
-        var p = node.sub[1].asNode("import");
-        var path = convertPath(p.sub[0]);
-
-        var mode =
-            if (p.sub[1] == null)
-                INormal
-            else {
-                var node:JNode =  cast p.sub[1];
-                switch (node.name) {
+        var mode, semicolonToken;
+        switch (node.sub)  {
+            case [_, _, s]:
+                semicolonToken = s.toToken();
+                mode = INormal;
+            case [_, _, m, s]:
+                var node:JNode =  cast m;
+                semicolonToken = s.toToken();
+                mode = switch (node.name) {
                     case "alias":
                         var tok = node.sub[0].asToken();
                         var ident = convertIdent(node.sub[1]);
@@ -849,9 +850,9 @@ class Converter {
                     case unknown:
                         throw "Unknown import mode: " + unknown;
                 }
-            }
-
-        var semicolonToken = node.sub[2].toToken();
+            default:
+                throw "Unexpected import_decl format: " + node;
+        }
         return ImportDecl(importToken, path, mode, semicolonToken);
     }
 
