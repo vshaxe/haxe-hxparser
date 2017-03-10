@@ -26,16 +26,23 @@ class JNodeTools {
 }
 
 class Converter {
-    public static function convertResultToFile(root:JResult):File {
-        return convertFile(root.document.tree.asNode("tree").sub[0].asNode("file"));
+
+    var data:JResult;
+
+    public function new(data:JResult) {
+        this.data = data;
     }
 
-    public static function convertResultToClassFields(root:JResult):Array<ClassField> {
-        var classFields = root.document.tree.asNode("tree").sub[0].asNode("class_fields_only").sub[0].asNode("class_fields").sub;
+    public function convertResultToFile():File {
+        return convertFile(data.document.tree.asNode("tree").sub[0].asNode("file"));
+    }
+
+    public function convertResultToClassFields():Array<ClassField> {
+        var classFields = data.document.tree.asNode("tree").sub[0].asNode("class_fields_only").sub[0].asNode("class_fields").sub;
         return classFields.map(convertClassField);
     }
 
-    static function convertFile(node:JNode):File {
+    function convertFile(node:JNode):File {
         var decls = node.sub[1];
         var decls = if (decls != null) decls.asNode("decls").sub.map(convertDecl) else [];
         var eof = node.sub[2].toToken();
@@ -51,7 +58,7 @@ class Converter {
         return result;
     }
 
-    static function convertPack(node:JNodeBase):Package {
+    function convertPack(node:JNodeBase):Package {
         var node = node.asNode("package");
 
         var pack:Package = {
@@ -66,7 +73,7 @@ class Converter {
         return pack;
     }
 
-    static function convertPath(node:JNodeBase):NPath {
+    function convertPath(node:JNodeBase):NPath {
         var node = node.asNode("path");
         var first = convertDollarIdent(node.sub[0]);
         var rest = node.sub.slice(1).map(convertDotIdent);
@@ -76,23 +83,23 @@ class Converter {
         }
     }
 
-    static function convertDotIdent(node:JNodeBase):NDotIdent {
+    function convertDotIdent(node:JNodeBase):NDotIdent {
         var name = node.asNode("dot_ident").sub[0].toToken();
         return PDotIdent(name);
     }
 
-    static inline function convertDollarIdent(node:JNodeBase):Token {
+    inline function convertDollarIdent(node:JNodeBase):Token {
         var node = node.asNode("dollar_ident").sub[0];
         // TODO: Maybe this should change in hxparser
         if (node.name == "token") return node.toToken();
         else return convertIdent(node);
     }
 
-    static inline function convertIdent(node:JNodeBase):Token {
+    inline function convertIdent(node:JNodeBase):Token {
         return node.asNode("ident").sub[0].toToken();
     }
 
-    static function convertAnnotations(node:JNodeBase):NAnnotations {
+    function convertAnnotations(node:JNodeBase):NAnnotations {
         if (node == null)
             return {metadata: []};
 
@@ -105,7 +112,7 @@ class Converter {
         return result;
     }
 
-    static function convertMeta(node:JNodeBase):Metadata {
+    function convertMeta(node:JNodeBase):Metadata {
         var node = node.asNode("metadata");
         return switch (node.sub) {
             case [tok]:
@@ -118,7 +125,7 @@ class Converter {
         }
     }
 
-    static function convertFlags(node:JNodeBase):Array<NCommonFlag> {
+    function convertFlags(node:JNodeBase):Array<NCommonFlag> {
         if (node == null)
             return [];
         return node.asNode("flags").sub.map(function(node) {
@@ -132,7 +139,7 @@ class Converter {
         });
     }
 
-    static function convertTypeParameter(node:JNodeBase):TypePathParameter {
+    function convertTypeParameter(node:JNodeBase):TypePathParameter {
         var node:JNode = cast node;
         return switch (node.name) {
             case "complex_type":
@@ -147,7 +154,7 @@ class Converter {
         }
     }
 
-    static function convertTypePath(node:JNodeBase):TypePath {
+    function convertTypePath(node:JNodeBase):TypePath {
         var node = node.asNode("type_path");
         var result:TypePath = {path: convertPath(node.sub[0])};
 
@@ -164,7 +171,7 @@ class Converter {
         return result;
     }
 
-    static function convertClassRelation(node:JNodeBase):ClassRelation {
+    function convertClassRelation(node:JNodeBase):ClassRelation {
         var node = node.asNode("class_relations");
         var token = node.sub[0].asToken();
         return switch (token.token) {
@@ -177,7 +184,7 @@ class Converter {
         }
     }
 
-    static function convertClassField(node:JNodeBase):ClassField {
+    function convertClassField(node:JNodeBase):ClassField {
         return switch (node.name) {
             case "variable_field":
                 convertVar(node);
@@ -190,7 +197,7 @@ class Converter {
         }
     }
 
-    static function convertModifiers(node:JNodeBase):Array<FieldModifier> {
+    function convertModifiers(node:JNodeBase):Array<FieldModifier> {
         if (node == null)
             return [];
         return node.asNode("modifiers").sub.map(function(node) {
@@ -208,7 +215,7 @@ class Converter {
         });
     }
 
-    static function convertAnonymousFields(node:JNodeBase):AnonymousStructureFields {
+    function convertAnonymousFields(node:JNodeBase):AnonymousStructureFields {
         if (node == null)
             return ShortNotation(null);
         var node:JNode = cast node;
@@ -233,7 +240,7 @@ class Converter {
         }
     }
 
-    static function convertComplexType(node:JNodeBase):ComplexType {
+    function convertComplexType(node:JNodeBase):ComplexType {
         var node:JNode = cast node.asNode("complex_type").sub[0];
         return switch (node.name) {
             case "path":
@@ -272,7 +279,7 @@ class Converter {
         };
     }
 
-    static function convertTypeHint(node:JNodeBase):TypeHint {
+    function convertTypeHint(node:JNodeBase):TypeHint {
         var node = node.asNode("type_hint");
         return {
             colon: node.sub[0].toToken(),
@@ -280,7 +287,7 @@ class Converter {
         };
     }
 
-    static function convertLiteral(node:JNodeBase):Literal {
+    function convertLiteral(node:JNodeBase):Literal {
         var node:JNode = cast node;
         return switch (node.name) {
             case "literal_int":
@@ -296,7 +303,7 @@ class Converter {
         }
     }
 
-    static function convertString(node:JNodeBase):StringToken {
+    function convertString(node:JNodeBase):StringToken {
         var node = node.asNode("string");
         var token = node.sub[0].asToken();
         return switch (token.token.fastCodeAt(0)) {
@@ -306,7 +313,7 @@ class Converter {
         };
     }
 
-    static function convertCallArgs(node:JNodeBase):CallArgs {
+    function convertCallArgs(node:JNodeBase):CallArgs {
         var node = node.asNode("call_args");
         var result:CallArgs = {
             parenOpen: node.sub[0].toToken(),
@@ -317,7 +324,7 @@ class Converter {
         return result;
     }
 
-    static function convertExpr(node:JNodeBase):Expr {
+    function convertExpr(node:JNodeBase):Expr {
         var node:JNode = cast node;
         return switch (node.name) {
             case "expr_binop":
@@ -577,7 +584,7 @@ class Converter {
         }
     }
 
-    static function convertMacroExpr(node:JNodeBase):MacroExpr {
+    function convertMacroExpr(node:JNodeBase):MacroExpr {
         var node:JNode = cast node.asNode("macro_expr").sub[0];
         return switch (node.name) {
             case "macro_type_hint":
@@ -594,7 +601,7 @@ class Converter {
         }
     }
 
-    static function convertFunction(node:JNodeBase):Function {
+    function convertFunction(node:JNodeBase):Function {
         var node = node.asNode("function");
         var result:Function = {
             params: convertTypeDeclParameters(node.sub[1]),
@@ -611,7 +618,7 @@ class Converter {
         return result;
     }
 
-    static function convertVarDecl(node:JNodeBase):VarDecl {
+    function convertVarDecl(node:JNodeBase):VarDecl {
         var node = node.asNode("var_declaration");
         var result:VarDecl = {name: convertDollarIdent(node.sub[0])};
         var hintNode = node.sub[1];
@@ -623,7 +630,7 @@ class Converter {
         return result;
     }
 
-    static function convertBlockElement(node:JNodeBase):BlockElement {
+    function convertBlockElement(node:JNodeBase):BlockElement {
         var node:JNode = cast node;
         return switch (node.name) {
             case "block_element_expr":
@@ -643,7 +650,7 @@ class Converter {
         }
     }
 
-    static function convertAssignment(node:JNodeBase):Assignment {
+    function convertAssignment(node:JNodeBase):Assignment {
         var node = node.asNode("assignment");
         return {
             assign: node.sub[0].toToken(),
@@ -651,7 +658,7 @@ class Converter {
         };
     }
 
-    static function convertFunctionArg(node:JNodeBase):FunctionArgument {
+    function convertFunctionArg(node:JNodeBase):FunctionArgument {
         var node = node.asNode("function_argument");
         var result:FunctionArgument = {
             annotations: convertAnnotations(node.sub[0]),
@@ -666,7 +673,7 @@ class Converter {
         return result;
     }
 
-    static function convertMethod(node:JNodeBase):ClassField {
+    function convertMethod(node:JNodeBase):ClassField {
         var node = node.asNode("function_field");
 
         var annotations = convertAnnotations(node.sub[0]);
@@ -687,7 +694,7 @@ class Converter {
         return Function(annotations, modifiers, functionToken, name, params, parenOpen, args, parenClose, returnTypeHint, expr);
     }
 
-    static function convertMethodExpr(node:JNodeBase):MethodExpr {
+    function convertMethodExpr(node:JNodeBase):MethodExpr {
         var node:JNode = cast node;
         return switch (node.name) {
             case "field_expr_none": None(node.sub[0].toToken());
@@ -697,7 +704,7 @@ class Converter {
         }
     }
 
-    static function convertProperty(node:JNodeBase):ClassField {
+    function convertProperty(node:JNodeBase):ClassField {
         var node = node.asNode("property_field");
         function convertPropertyIdent(n:JNodeBase) {
             var node = n.asNode("property_ident").sub[0];
@@ -720,7 +727,7 @@ class Converter {
         );
     }
 
-    static function convertVar(node:JNodeBase):ClassField {
+    function convertVar(node:JNodeBase):ClassField {
         var node = node.asNode("variable_field");
         var annotations = convertAnnotations(node.sub[0]);
         var modifiers = convertModifiers(node.sub[1]);
@@ -732,7 +739,7 @@ class Converter {
         return Variable(annotations, modifiers, varToken, name, typeHint, assignment, semicolon);
     }
 
-    static function commaSeparatedTrailing<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparatedAllowTrailing<T>> {
+    function commaSeparatedTrailing<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparatedAllowTrailing<T>> {
         var elem = convert(nodes[0]);
         var rest = [];
         var i = 1;
@@ -757,7 +764,7 @@ class Converter {
         return result;
     }
 
-    static function commaSeparated<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparated<T>> {
+    function commaSeparated<T>(nodes:Array<JNodeBase>, convert:JNodeBase->T):Null<CommaSeparated<T>> {
         if (nodes.length == 0)
             return null;
 
@@ -777,7 +784,7 @@ class Converter {
         };
     }
 
-    static function convertTypeDeclParameter(node:JNodeBase):TypeDeclParameter {
+    function convertTypeDeclParameter(node:JNodeBase):TypeDeclParameter {
         var node = node.asNode("type_decl_parameter");
 
         var constraints:Constraints =
@@ -805,7 +812,7 @@ class Converter {
         };
     }
 
-    static function convertTypeDeclParameters(node:JNodeBase):TypeDeclParameters {
+    function convertTypeDeclParameters(node:JNodeBase):TypeDeclParameters {
         if (node == null)
             return null;
 
@@ -818,12 +825,12 @@ class Converter {
         };
     }
 
-    static function convertUsingDecl(node:JNodeBase):Decl {
+    function convertUsingDecl(node:JNodeBase):Decl {
         var node = node.asNode("using_decl");
         return UsingDecl(node.sub[0].toToken(), convertPath(node.sub[1]), node.sub[2].toToken());
     }
 
-    static function convertImportDecl(node:JNodeBase):Decl {
+    function convertImportDecl(node:JNodeBase):Decl {
         var node = node.asNode("import_decl");
         var importToken = node.sub[0].toToken();
         var path = convertPath(node.sub[1]);
@@ -851,7 +858,7 @@ class Converter {
         return ImportDecl(importToken, path, mode, semicolonToken);
     }
 
-    static function convertTypedefDecl(node:JNodeBase):Decl {
+    function convertTypedefDecl(node:JNodeBase):Decl {
         var node = node.asNode("typedef_decl");
         return TypedefDecl(
             convertAnnotations(node.sub[0]),
@@ -865,7 +872,7 @@ class Converter {
         );
     }
 
-    static function convertEnumDecl(node:JNodeBase):Decl {
+    function convertEnumDecl(node:JNodeBase):Decl {
         var node = node.asNode("enum_decl");
 
         function convertEnumArgs(node:JNodeBase):NEnumFieldArgs {
@@ -918,7 +925,7 @@ class Converter {
         );
     }
 
-    static function convertAbstractDecl(node:JNodeBase):Decl {
+    function convertAbstractDecl(node:JNodeBase):Decl {
         var node = node.asNode("abstract_decl");
 
         function convertUnderlyingType(node:JNodeBase):UnderlyingType {
@@ -960,7 +967,7 @@ class Converter {
         );
     }
 
-    static function convertClassDeclInner(node:JNode, offset:Int):ClassDecl {
+    function convertClassDeclInner(node:JNode, offset:Int):ClassDecl {
         var kind = node.sub[offset].asNode("class_or_interface").sub[0].toToken();
         var name = if (node.sub[offset+1] == null) null else convertDollarIdent(node.sub[offset+1]); // name can be null in macro case
         var relations = if (node.sub[offset+3] == null) [] else node.sub[offset+3].asNode("relations").sub.map(convertClassRelation);
@@ -978,14 +985,14 @@ class Converter {
         };
     }
 
-    static function convertClassDecl(node:JNodeBase):Decl {
+    function convertClassDecl(node:JNodeBase):Decl {
         var node = node.asNode("class_decl");
         var annotations = convertAnnotations(node.sub[0]);
         var flags = convertFlags(node.sub[1]);
         return ClassDecl(annotations, flags, convertClassDeclInner(node, 2));
     }
 
-    static function convertDecl(node:JNodeBase):Decl {
+    function convertDecl(node:JNodeBase):Decl {
         return switch (node.name) {
             case "class_decl":
                 convertClassDecl(node);
