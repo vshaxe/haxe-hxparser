@@ -828,31 +828,26 @@ class Converter {
         var importToken = node.sub[0].toToken();
         var path = convertPath(node.sub[1]);
 
-        var mode, semicolonToken;
-        switch (node.sub)  {
-            case [_, _, s]:
-                semicolonToken = s.toToken();
-                mode = INormal;
-            case [_, _, m, s]:
-                var node:JNode =  cast m;
-                semicolonToken = s.toToken();
-                mode = switch (node.name) {
-                    case "alias":
-                        var tok = node.sub[0].asToken();
-                        var ident = convertIdent(node.sub[1]);
-                        switch (tok.token) {
-                            case "as": IAs(tok.convertToToken(), ident);
-                            case "in": IIn(tok.convertToToken(), ident);
-                            case unknown: throw "Unknown as/in import mode: " + unknown;
-                        }
-                    case "all":
-                        IAll(node.sub[0].toToken());
-                    case unknown:
-                        throw "Unknown import mode: " + unknown;
-                }
-            default:
-                throw "Unexpected import_decl format: " + node;
+        var mode = if (node.sub[2] == null)
+            INormal
+        else {
+            var node:JNode = cast node.sub[2];
+            switch (node.name) {
+                case "alias":
+                    var tok = node.sub[0].asToken();
+                    var ident = convertIdent(node.sub[1]);
+                    switch (tok.token) {
+                        case "as": IAs(tok.convertToToken(), ident);
+                        case "in": IIn(tok.convertToToken(), ident);
+                        case unknown: throw "Unknown as/in import mode: " + unknown;
+                    }
+                case "all":
+                    IAll(node.sub[0].toToken());
+                case unknown:
+                    throw "Unknown import mode: " + unknown;
+            }
         }
+        var semicolonToken = node.sub[3].toToken();
         return ImportDecl(importToken, path, mode, semicolonToken);
     }
 
