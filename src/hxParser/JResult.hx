@@ -20,7 +20,10 @@ typedef JToken = {
 typedef JResult = {
     document: {
         tree: JNodeBase,
-        blocks: Array<{start:Int, end:Int}>
+        blocks: Array<{start:Int, end:Int}>,
+        errors: Array<String>,
+        tokens: Array<String>,
+        skipped: Array<Int>
     }
 }
 
