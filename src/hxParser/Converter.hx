@@ -10,27 +10,26 @@ class JNodeTools {
         if (j.name != name) throw "expected " + name + ", got " + j;
         return cast j;
     }
-
-    public static function asToken(j:JNodeBase):JToken {
-        if (j.name != "token") throw "expected token, got " + j;
-        return cast j;
-    }
-
-    public static inline function convertToToken(token:JToken):Token {
-        return Token.fromJToken(token);
-    }
-
-    public static inline function toToken(j:JNodeBase):Token {
-        return convertToToken(asToken(j));
-    }
 }
 
 class Converter {
 
     var data:JResult;
+    var skippedOffset:Int;
+    var tokenOffset:Int;
 
     public function new(data:JResult) {
         this.data = data;
+        this.skippedOffset = 0;
+        this.tokenOffset = 0;
+    }
+
+    function nextToken() {
+        var doc = data.document;
+        var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++]];
+        var token = new Token(doc.tokens[tokenOffset++]);
+        token.leadingTrivia = leading.map(function(s) return new Trivia(s));
+        return token;
     }
 
     public function convertResultToFile():File {
@@ -43,39 +42,45 @@ class Converter {
     }
 
     function convertFile(node:JNode):File {
+        var packNode = node.sub[0];
+        var pack = null;
+        if (packNode != null)
+            pack = convertPack(packNode);
+
         var decls = node.sub[1];
         var decls = if (decls != null) decls.asNode("decls").sub.map(convertDecl) else [];
-        var eof = node.sub[2].toToken();
 
-        var result:File = {
+        var eof = nextToken();
+
+        return {
+            pack: pack,
             decls: decls,
             eof: eof,
         };
-        var packNode = node.sub[0];
-        if (packNode != null)
-            result.pack = convertPack(packNode);
-
-        return result;
     }
 
     function convertPack(node:JNodeBase):Package {
         var node = node.asNode("package");
 
-        var pack:Package = {
-            packageKeyword: node.sub[0].toToken(),
-            semicolon: node.sub[2].toToken(),
-        };
+        var packageKeyword = nextToken();
 
+        var path = null;
         var pathNode = node.sub[1];
         if (pathNode != null)
-            pack.path = convertPath(pathNode);
+            path = convertPath(pathNode);
 
-        return pack;
+        var semicolon = nextToken();
+
+        return {
+            packageKeyword: packageKeyword,
+            path: path,
+            semicolon: semicolon
+        };
     }
 
     function convertPath(node:JNodeBase):NPath {
         var node = node.asNode("path");
-        var first = convertDollarIdent(node.sub[0]);
+        var first = nextToken();
         var rest = node.sub.slice(1).map(convertDotIdent);
         return {
             ident: first,
@@ -84,19 +89,19 @@ class Converter {
     }
 
     function convertDotIdent(node:JNodeBase):NDotIdent {
-        var name = node.asNode("dot_ident").sub[0].toToken();
+        var name = nextToken();
         return PDotIdent(name);
     }
 
     inline function convertDollarIdent(node:JNodeBase):Token {
         var node = node.asNode("dollar_ident").sub[0];
         // TODO: Maybe this should change in hxparser
-        if (node.name == "token") return node.toToken();
+        if (node.name == "token") return nextToken();
         else return convertIdent(node);
     }
 
     inline function convertIdent(node:JNodeBase):Token {
-        return node.asNode("ident").sub[0].toToken();
+        return nextToken();
     }
 
     function convertAnnotations(node:JNodeBase):NAnnotations {
@@ -116,10 +121,11 @@ class Converter {
         var node = node.asNode("metadata");
         return switch (node.sub) {
             case [tok]:
-                Simple(tok.toToken());
+                Simple(nextToken());
             case [tok, exprs, parenClose]:
+                var tok = nextToken();
                 var el = commaSeparated(exprs.asNode("exprs").sub, convertExpr);
-                WithArgs(tok.toToken(), el, parenClose.toToken());
+                WithArgs(tok, el, nextToken());
             case unknown:
                 throw 'Unknown metadata format: ${haxe.Json.stringify(unknown)}';
         }
@@ -129,10 +135,10 @@ class Converter {
         if (node == null)
             return [];
         return node.asNode("flags").sub.map(function(node) {
-            var tok = node.asNode("common_flags").sub[0].asToken();
-            return switch (tok.token) {
-                case "extern": PExtern(tok.convertToToken());
-                case "private": PPrivate(tok.convertToToken());
+            var tok = nextToken();
+            return switch (tok.text) {
+                case "extern": PExtern(tok);
+                case "private": PPrivate(tok);
                 case unknown:
                     throw "Unknown common flag " + unknown;
             }
@@ -147,8 +153,9 @@ class Converter {
             case "literal":
                 Literal(convertLiteral(node.sub[0]));
             case "bracket":
+                var bkOpen = nextToken();
                 var elems = commaSeparatedTrailing(node.sub[1].asNode("elements").sub, convertExpr);
-                ArrayExpr(node.sub[0].toToken(), elems, node.sub[2].toToken());
+                ArrayExpr(bkOpen, elems, nextToken());
             case unknown:
                 throw 'Unknown type parameter type: $unknown';
         }
@@ -162,9 +169,9 @@ class Converter {
         if (tparams != null) {
             var tparams = tparams.asNode("type_path_parameters");
             result.params = {
-                lt: tparams.sub[0].toToken(),
+                lt: nextToken(),
                 params: commaSeparated(tparams.sub[1].asNode("params").sub, convertTypeParameter),
-                gt: tparams.sub[2].toToken(),
+                gt: nextToken(),
             };
         }
 
@@ -173,12 +180,12 @@ class Converter {
 
     function convertClassRelation(node:JNodeBase):ClassRelation {
         var node = node.asNode("class_relations");
-        var token = node.sub[0].asToken();
-        return switch (token.token) {
+        var token = nextToken();
+        return switch (token.text) {
             case "extends":
-                Extends(token.convertToToken(), convertTypePath(node.sub[1]));
+                Extends(token, convertTypePath(node.sub[1]));
             case "implements":
-                Implements(token.convertToToken(), convertTypePath(node.sub[1]));
+                Implements(token, convertTypePath(node.sub[1]));
             case unknown:
                 throw 'Unknown class relation type $unknown';
         }
@@ -201,15 +208,15 @@ class Converter {
         if (node == null)
             return [];
         return node.asNode("modifiers").sub.map(function(node) {
-            var token = node.asToken();
-            return switch (token.token) {
-                case "static": Static(token.convertToToken());
-                case "macro": Macro(token.convertToToken());
-                case "public": Public(token.convertToToken());
-                case "private": Private(token.convertToToken());
-                case "override": Override(token.convertToToken());
-                case "dynamic": Dynamic(token.convertToToken());
-                case "inline": Inline(token.convertToToken());
+            var token = nextToken();
+            return switch (token.text) {
+                case "static": Static(token);
+                case "macro": Macro(token);
+                case "public": Public(token);
+                case "private": Private(token);
+                case "override": Override(token);
+                case "dynamic": Dynamic(token);
+                case "inline": Inline(token);
                 case unknown: throw 'Unknown modifier token: $unknown';
             }
         });
@@ -225,14 +232,15 @@ class Converter {
             case "short_fields":
                 function convertAnonField(node:JNodeBase):AnonymousStructureField {
                     var node = node.asNode("anonymous_type_field");
-                    var result:AnonymousStructureField = {
+                    var questionMark = null;
+                    var questionMarkNode = node.sub[0];
+                    if (questionMarkNode != null)
+                        questionMark = nextToken();
+                    return {
+                        questionMark: questionMark,
                         name: convertDollarIdent(node.sub[1]),
                         typeHint: convertTypeHint(node.sub[2]),
                     };
-                    var questionMark = node.sub[0];
-                    if (questionMark != null)
-                        result.questionMark = questionMark.toToken();
-                    return result;
                 }
                 ShortNotation(commaSeparatedTrailing(node.sub, convertAnonField));
             case unknown:
@@ -247,31 +255,32 @@ class Converter {
                 TypePath(convertTypePath(node.sub[0]));
 
             case "anonymous":
-                AnonymousStructure(node.sub[0].toToken(), convertAnonymousFields(node.sub[1]), node.sub[2].toToken());
+                AnonymousStructure(nextToken(), convertAnonymousFields(node.sub[1]), nextToken());
 
             case "function":
-                Function(convertComplexType(node.sub[0]), node.sub[1].toToken(), convertComplexType(node.sub[2]));
+                Function(convertComplexType(node.sub[0]), nextToken(), convertComplexType(node.sub[2]));
 
             case "parenthesis":
-                Parenthesis(node.sub[0].toToken(), convertComplexType(node.sub[1]), node.sub[2].toToken());
+                Parenthesis(nextToken(), convertComplexType(node.sub[1]), nextToken());
 
             case "optional":
-                Optional(node.sub[0].toToken(), convertComplexType(node.sub[1]));
+                Optional(nextToken(), convertComplexType(node.sub[1]));
 
             case "extension":
+                var brOpen = nextToken();
                 var extensions = node.sub[1].asNode("extensions").sub.map(function(node):StructuralExtension {
                     var node = node.asNode("structural_extension");
                     return {
-                        gt: node.sub[0].toToken(),
+                        gt: nextToken(),
                         path: convertTypePath(node.sub[1]),
-                        comma: node.sub[2].toToken(),
+                        comma: nextToken(),
                     };
                 });
                 StructuralExtension(
-                    node.sub[0].toToken(),
+                    brOpen,
                     extensions,
                     convertAnonymousFields(node.sub[2]),
-                    node.sub[3].toToken()
+                    nextToken()
                 );
 
             case unknown:
@@ -282,7 +291,7 @@ class Converter {
     function convertTypeHint(node:JNodeBase):TypeHint {
         var node = node.asNode("type_hint");
         return {
-            colon: node.sub[0].toToken(),
+            colon: nextToken(),
             type: convertComplexType(node.sub[1])
         };
     }
@@ -291,11 +300,11 @@ class Converter {
         var node:JNode = cast node;
         return switch (node.name) {
             case "literal_int":
-                PLiteralInt(node.sub[0].toToken());
+                PLiteralInt(nextToken());
             case "literal_float":
-                PLiteralFloat(node.sub[0].toToken());
+                PLiteralFloat(nextToken());
             case "literal_regex":
-                PLiteralRegex(node.sub[0].toToken());
+                PLiteralRegex(nextToken());
             case "literal_string":
                 PLiteralString(convertString(node.sub[0]));
             case unknown:
@@ -305,23 +314,25 @@ class Converter {
 
     function convertString(node:JNodeBase):StringToken {
         var node = node.asNode("string");
-        var token = node.sub[0].asToken();
-        return switch (token.token.fastCodeAt(0)) {
-            case '"'.code: DoubleQuote(token.convertToToken());
-            case "'".code: SingleQuote(token.convertToToken());
+        var token = nextToken();
+        return switch (token.text.fastCodeAt(0)) {
+            case '"'.code: DoubleQuote(token);
+            case "'".code: SingleQuote(token);
             case unknown: throw 'Unknown string quote: ${String.fromCharCode(unknown)}';
         };
     }
 
     function convertCallArgs(node:JNodeBase):CallArgs {
         var node = node.asNode("call_args");
-        var result:CallArgs = {
-            parenOpen: node.sub[0].toToken(),
-            parenClose: node.sub[2].toToken(),
-        };
+        var pOpen = nextToken();
+        var args = null;
         if (node.sub[1] != null)
-            result.args = commaSeparated(node.sub[1].asNode("exprs").sub, convertExpr);
-        return result;
+            args = commaSeparated(node.sub[1].asNode("exprs").sub, convertExpr);
+        return {
+            parenOpen: pOpen,
+            args: args,
+            parenClose: nextToken(),
+        };
     }
 
     function convertExpr(node:JNodeBase):Expr {
@@ -329,7 +340,7 @@ class Converter {
         return switch (node.name) {
             case "expr_binop":
                 var a = convertExpr(node.sub[0]);
-                var op = node.sub[1].toToken();
+                var op = nextToken();
                 var b = convertExpr(node.sub[2]);
                 EBinop(a, op, b);
 
@@ -337,7 +348,7 @@ class Converter {
                 var const:JNode = cast node.sub[0];
                 EConst(switch (const.name) {
                     case "ident":
-                        PConstIdent(const.sub[0].toToken());
+                        PConstIdent(nextToken());
                     case "literal":
                         PConstLiteral(convertLiteral(const.sub[0]));
                     case unknown:
@@ -350,116 +361,117 @@ class Converter {
                 ECall(e, args);
 
             case "expr_unary_prefix":
-                var op = node.sub[0].toToken();
+                var op = nextToken();
                 var e = convertExpr(node.sub[1]);
                 EUnaryPrefix(op, e);
 
             case "expr_unary_postfix":
                 var e = convertExpr(node.sub[0]);
-                var op = node.sub[1].toToken();
+                var op = nextToken();
                 EUnaryPostfix(e, op);
 
             case "expr_continue":
-                EContinue(node.sub[0].toToken());
+                EContinue(nextToken());
 
             case "expr_break":
-                EBreak(node.sub[0].toToken());
+                EBreak(nextToken());
 
             case "expr_return":
-                EReturn(node.sub[0].toToken());
+                EReturn(nextToken());
 
             case "expr_return_value":
-                EReturnExpr(node.sub[0].toToken(), convertExpr(node.sub[1]));
+                EReturnExpr(nextToken(), convertExpr(node.sub[1]));
 
             case "expr_unsafe_cast":
-                EUnsafeCast(node.sub[0].toToken(), convertExpr(node.sub[1]));
+                EUnsafeCast(nextToken(), convertExpr(node.sub[1]));
 
             case "expr_safe_cast":
                 ESafeCast(
-                    node.sub[0].toToken(), // cast
-                    node.sub[1].toToken(), // (
+                    nextToken(), // cast
+                    nextToken(), // (
                     convertExpr(node.sub[2]), // expr
-                    node.sub[3].toToken(), // ,
+                    nextToken(), // ,
                     convertComplexType(node.sub[4]), // type
-                    node.sub[5].toToken() // )
+                    nextToken() // )
                 );
 
             case "expr_untyped":
-                EUntyped(node.sub[0].toToken(), convertExpr(node.sub[1]));
+                EUntyped(nextToken(), convertExpr(node.sub[1]));
 
             case "expr_field":
                 EField(convertExpr(node.sub[0]), convertDotIdent(node.sub[1]));
 
             case "expr_parenthesis":
-                EParenthesis(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken());
+                EParenthesis(nextToken(), convertExpr(node.sub[1]), nextToken());
 
             case "expr_typecheck":
-                ECheckType(node.sub[0].toToken(), convertExpr(node.sub[1]), node.sub[2].toToken(), convertComplexType(node.sub[3]), node.sub[4].toToken());
+                ECheckType(nextToken(), convertExpr(node.sub[1]), nextToken(), convertComplexType(node.sub[3]), nextToken());
 
             case "expr_metadata":
                 EMetadata(convertMeta(node.sub[0]), convertExpr(node.sub[1]));
 
             case "expr_in":
-                EIn(convertExpr(node.sub[0]), node.sub[1].toToken(), convertExpr(node.sub[2]));
+                EIn(convertExpr(node.sub[0]), nextToken(), convertExpr(node.sub[2]));
 
             case "expr_throw":
-                EThrow(node.sub[0].toToken(), convertExpr(node.sub[1]));
+                EThrow(nextToken(), convertExpr(node.sub[1]));
 
             case "expr_keyword_ident":
-                EConst(PConstIdent(node.sub[0].asNode("keyword_ident").sub[0].toToken()));
+                EConst(PConstIdent(nextToken()));
 
             case "expr_if":
-                var ifToken = node.sub[0].toToken();
-                var parenOpen = node.sub[1].toToken();
+                var ifToken = nextToken();
+                var parenOpen = nextToken();
                 var econd = convertExpr(node.sub[2]);
-                var parenClose = node.sub[3].toToken();
+                var parenClose = nextToken();
                 var eif = convertExpr(node.sub[4]);
                 var elseNode = node.sub[5];
                 var els = if (elseNode == null) null else {
                     var node = elseNode.asNode("else_expr");
                     {
-                        elseKeyword: node.sub[0].toToken(),
+                        elseKeyword: nextToken(),
                         expr: convertExpr(node.sub[1]),
                     }
                 };
                 EIf(ifToken, parenOpen, econd, parenClose, eif, els);
 
             case "expr_empty_block":
-                EBlock(node.sub[0].toToken(), [], node.sub[1].toToken());
+                EBlock(nextToken(), [], nextToken());
 
             case "expr_nonempty_block":
+                var brOpen = nextToken();
                 var elems = node.sub[1].asNode("elements").sub.map(convertBlockElement);
-                EBlock(node.sub[0].toToken(), elems, node.sub[2].toToken());
+                EBlock(brOpen, elems, nextToken());
 
             case "expr_for":
-                var forToken = node.sub[0].toToken();
-                var parenOpen = node.sub[1].toToken();
+                var forToken = nextToken();
+                var parenOpen = nextToken();
                 var e1 = convertExpr(node.sub[2]);
-                var parenClose = node.sub[3].toToken();
+                var parenClose = nextToken();
                 var e2 = convertExpr(node.sub[4]);
                 EFor(forToken, parenOpen, e1, parenClose, e2);
 
             case "expr_while":
-                var whileToken = node.sub[0].toToken();
-                var parenOpen = node.sub[1].toToken();
+                var whileToken = nextToken();
+                var parenOpen = nextToken();
                 var e1 = convertExpr(node.sub[2]);
-                var parenClose = node.sub[3].toToken();
+                var parenClose = nextToken();
                 var e2 = convertExpr(node.sub[4]);
                 EWhile(whileToken, parenOpen, e1, parenClose, e2);
 
             case "expr_do":
-                var doToken = node.sub[0].toToken();
+                var doToken = nextToken();
                 var e1 = convertExpr(node.sub[1]);
-                var whileToken = node.sub[2].toToken();
-                var parenOpen = node.sub[3].toToken();
+                var whileToken = nextToken();
+                var parenOpen = nextToken();
                 var e2 = convertExpr(node.sub[4]);
-                var parenClose = node.sub[5].toToken();
+                var parenClose = nextToken();
                 EDo(doToken, e1, whileToken, parenOpen, e2, parenClose);
 
             case "expr_array_declaration":
-                var bkopen = node.sub[0].toToken();
+                var bkopen = nextToken();
                 var elems = if (node.sub[1] == null) null else commaSeparatedTrailing(node.sub[1].asNode("elements").sub, convertExpr);
-                var bkclose = node.sub[2].toToken();
+                var bkclose = nextToken();
                 EArrayDecl(bkopen, elems, bkclose);
 
             case "expr_object_declaration":
@@ -477,107 +489,118 @@ class Converter {
                                 throw 'Unknown object field name type: $unknown';
                         }
                     }
-                    var colon = node.sub[1].toToken();
+                    var colon = nextToken();
                     var expr = convertExpr(node.sub[2]);
 
                     return {name: name, colon: colon, expr: expr};
                 }
 
                 EObjectDecl(
-                    node.sub[0].toToken(),
+                    nextToken(),
                     commaSeparatedTrailing(node.sub[1].asNode("object_fields").sub, convertObjectField),
-                    node.sub[2].toToken()
+                    nextToken()
                 );
 
             case "expr_is":
+                var parenOpen = nextToken();
                 var e = convertExpr(node.sub[1]);
+                var isToken = nextToken();
                 var tp = convertTypePath(node.sub[3]);
-                EIs(node.sub[0].toToken(), e, node.sub[2].toToken(), tp, node.sub[4].toToken());
+                var parenClose = nextToken();
+                EIs(parenOpen, e, isToken, tp, parenClose);
 
             case "expr_new":
-                ENew(node.sub[0].toToken(), convertTypePath(node.sub[1]), convertCallArgs(node.sub[2]));
+                ENew(nextToken(), convertTypePath(node.sub[1]), convertCallArgs(node.sub[2]));
 
             case "expr_try":
+                var tryToken = nextToken();
                 var catches = node.sub[2].asNode("catches").sub.map(function(node):Catch {
                     var node = node.asNode("catch");
                     return {
-                        catchKeyword: node.sub[0].toToken(),
-                        parenOpen: node.sub[1].toToken(),
+                        catchKeyword:nextToken(),
+                        parenOpen: nextToken(),
                         ident: convertDollarIdent(node.sub[2]),
                         typeHint: convertTypeHint(node.sub[3]),
-                        parenClose: node.sub[4].toToken(),
+                        parenClose: nextToken(),
                         expr: convertExpr(node.sub[5]),
                     };
                 });
-                ETry(node.sub[0].toToken(), convertExpr(node.sub[1]), catches);
+                ETry(tryToken, convertExpr(node.sub[1]), catches);
 
             case "expr_var":
-                EVar(node.sub[0].toToken(), convertVarDecl(node.sub[1]));
+                EVar(nextToken(), convertVarDecl(node.sub[1]));
 
             case "expr_function":
-                var funToken = node.sub[0].toToken();
+                var funToken = nextToken();
                 EFunction(funToken, convertFunction(node.sub[1]));
 
             case "expr_array_access":
                 EArrayAccess(
                     convertExpr(node.sub[0]), // expr
-                    node.sub[1].toToken(), // [
+                    nextToken(), // [
                     convertExpr(node.sub[2]), // expr
-                    node.sub[3].toToken() // ]
+                    nextToken() // ]
                 );
 
             case "expr_dotint":
                 // TODO wtf is this?
-                EIntDot(node.sub[0].toToken(), node.sub[1].toToken());
+                EIntDot(nextToken(), nextToken());
 
             case "expr_macro":
-                EMacro(node.sub[0].toToken(), convertMacroExpr(node.sub[1]));
+                EMacro(nextToken(), convertMacroExpr(node.sub[1]));
 
             case "expr_macro_escape":
-                EMacroEscape(node.sub[0].toToken(), node.sub[1].toToken(), convertExpr(node.sub[2]), node.sub[3].toToken());
+                EMacroEscape(nextToken(), nextToken(), convertExpr(node.sub[2]), nextToken());
 
             case "expr_switch":
+                var switchToken = nextToken();
+                var expr = convertExpr(node.sub[1]);
+                var brOpen = nextToken();
                 var cases = node.sub[3].asNode("cases").sub.map(function(node):Case {
                     var node = node.asNode("case");
-                    var token = node.sub[0].asToken();
-                    return switch (token.token) {
+                    var token = nextToken();
+                    return switch (token.text) {
                         case "default":
+                            var colon = nextToken();
                             var elems = if (node.sub[2] == null) [] else node.sub[2].asNode("elements").sub.map(convertBlockElement);
-                            Default(token.convertToToken(), node.sub[1].toToken(), elems);
+                            Default(token, colon, elems);
                         case "case":
                             var patterns = commaSeparated(node.sub[1].asNode("exprs").sub, convertExpr);
                             var guardNode = node.sub[2];
                             var guard:Guard = if (guardNode == null) null else {
                                 var node = guardNode.asNode("guard");
                                 {
-                                    ifKeyword: node.sub[0].toToken(),
-                                    parenOpen: node.sub[1].toToken(),
+                                    ifKeyword: nextToken(),
+                                    parenOpen: nextToken(),
                                     expr: convertExpr(node.sub[2]),
-                                    parenClose: node.sub[3].toToken(),
+                                    parenClose: nextToken(),
                                 }
                             };
+                            var colon = nextToken();
                             var elems = if (node.sub[4] == null) [] else node.sub[4].asNode("elements").sub.map(convertBlockElement);
-                            Case(token.convertToToken(), patterns, guard, node.sub[3].toToken(), elems);
+                            Case(token, patterns, guard, colon, elems);
                         case unknown:
                             throw 'Unknown switch case token: $unknown';
                     }
                 });
                 ESwitch(
-                    node.sub[0].toToken(),
-                    convertExpr(node.sub[1]),
-                    node.sub[2].toToken(),
+                    switchToken,
+                    expr,
+                    brOpen,
                     cases,
-                    node.sub[4].toToken()
+                    nextToken()
                 );
 
             case "expr_ternary":
                 var econd = convertExpr(node.sub[0]);
+                var questionmark = nextToken();
                 var ethen = convertExpr(node.sub[2]);
+                var colon = nextToken();
                 var eelse = convertExpr(node.sub[4]);
-                ETernary(econd, node.sub[1].toToken(), ethen, node.sub[3].toToken(), eelse);
+                ETernary(econd, questionmark, ethen, colon, eelse);
 
             case "expr_dollarident":
-                EDollarIdent(node.sub[0].toToken());
+                EDollarIdent(nextToken());
 
             case unknown:
                 throw 'Unknown expression type: $unknown';
@@ -592,8 +615,9 @@ class Converter {
             case "macro_expr_expr":
                 Expr(convertExpr(node.sub[0]));
             case "macro_var":
+                var varToken = nextToken();
                 var decls = commaSeparated(node.sub[1].asNode("vars").sub, convertVarDecl);
-                Var(node.sub[0].toToken(), decls);
+                Var(varToken, decls);
             case "macro_class_decl":
                 Class(convertClassDeclInner(node, 0));
             case unknown:
@@ -603,19 +627,23 @@ class Converter {
 
     function convertFunction(node:JNodeBase):Function {
         var node = node.asNode("function");
-        var result:Function = {
-            params: convertTypeDeclParameters(node.sub[1]),
-            parenOpen: node.sub[2].toToken(),
-            parenClose: node.sub[4].toToken(),
+        var name = null;
+        if (node.sub[0] != null)
+            name = convertDollarIdent(node.sub[0]);
+        var params = convertTypeDeclParameters(node.sub[1]);
+        var parenOpen = nextToken();
+        var args = null;
+        if (node.sub[3] != null)
+            args = commaSeparated(node.sub[3].asNode("args").sub, convertFunctionArg);
+        var parenClose = nextToken();
+        return {
+            name: name,
+            params: params,
+            parenOpen: parenOpen,
+            parenClose: parenClose,
+            typeHint: node.sub[5] == null ? null : convertTypeHint(node.sub[5]),
             expr: convertExpr(node.sub[6])
         };
-        if (node.sub[0] != null)
-            result.name = convertDollarIdent(node.sub[0]);
-        if (node.sub[3] != null)
-            result.args = commaSeparated(node.sub[3].asNode("args").sub, convertFunctionArg);
-        if (node.sub[5] != null)
-            result.typeHint = convertTypeHint(node.sub[5]);
-        return result;
     }
 
     function convertVarDecl(node:JNodeBase):VarDecl {
@@ -634,17 +662,18 @@ class Converter {
         var node:JNode = cast node;
         return switch (node.name) {
             case "block_element_expr":
-                Expr(convertExpr(node.sub[0]), node.sub[1].toToken());
+                Expr(convertExpr(node.sub[0]), nextToken());
             case "block_element_inline_function":
                 InlineFunction(
-                    node.sub[0].toToken(),
-                    node.sub[1].toToken(),
+                    nextToken(),
+                    nextToken(),
                     convertFunction(node.sub[2]),
-                    node.sub[3].toToken()
+                    nextToken()
                 );
             case "block_element_var":
+                var varToken = nextToken();
                 var decls = commaSeparated(node.sub[1].asNode("vars").sub, convertVarDecl);
-                return Var(node.sub[0].toToken(), decls, node.sub[2].toToken());
+                return Var(varToken, decls, nextToken());
             case unknown:
                 throw 'Unknown block element type: $unknown';
         }
@@ -653,7 +682,7 @@ class Converter {
     function convertAssignment(node:JNodeBase):Assignment {
         var node = node.asNode("assignment");
         return {
-            assign: node.sub[0].toToken(),
+            assign: nextToken(),
             expr: convertExpr(node.sub[1]),
         };
     }
@@ -662,10 +691,9 @@ class Converter {
         var node = node.asNode("function_argument");
         var result:FunctionArgument = {
             annotations: convertAnnotations(node.sub[0]),
+            questionMark: node.sub[1] == null ? null : nextToken(),
             name: convertDollarIdent(node.sub[2]),
         };
-        if (node.sub[1] != null)
-            result.questionMark = node.sub[1].toToken();
         if (node.sub[3] != null)
             result.typeHint = convertTypeHint(node.sub[3]);
         if (node.sub[4] != null)
@@ -678,16 +706,16 @@ class Converter {
 
         var annotations = convertAnnotations(node.sub[0]);
         var modifiers = convertModifiers(node.sub[1]);
-        var functionToken = node.sub[2].toToken();
+        var functionToken = nextToken();
         var name =
             if (node.sub[3].name == "token") // e.g. `function new`
-                node.sub[3].toToken();
+                nextToken();
             else
                 convertDollarIdent(node.sub[3]);
         var params = convertTypeDeclParameters(node.sub[4]);
-        var parenOpen = node.sub[5].toToken();
+        var parenOpen = nextToken();
         var args = if (node.sub[6] == null) null else commaSeparated(node.sub[6].asNode("args").sub, convertFunctionArg);
-        var parenClose = node.sub[7].toToken();
+        var parenClose = nextToken();
         var returnTypeHint = if (node.sub[8] == null) null else convertTypeHint(node.sub[8]);
         var expr = convertMethodExpr(node.sub[9]);
 
@@ -697,8 +725,8 @@ class Converter {
     function convertMethodExpr(node:JNodeBase):MethodExpr {
         var node:JNode = cast node;
         return switch (node.name) {
-            case "field_expr_none": None(node.sub[0].toToken());
-            case "field_expr_expr": Expr(convertExpr(node.sub[0]), node.sub[1].toToken());
+            case "field_expr_none": None(nextToken());
+            case "field_expr_expr": Expr(convertExpr(node.sub[0]), nextToken());
             case "field_expr_block": Block(convertExpr(node.sub[0]));
             case unknown: throw 'Unknown field expr type: $unknown';
         }
@@ -708,22 +736,22 @@ class Converter {
         var node = node.asNode("property_field");
         function convertPropertyIdent(n:JNodeBase) {
             var node = n.asNode("property_ident").sub[0];
-            if (node.name == "token") return node.toToken()
+            if (node.name == "token") return nextToken()
             else return convertIdent(node);
         }
         return Property(
             convertAnnotations(node.sub[0]),
             convertModifiers(node.sub[1]),
-            node.sub[2].toToken(),
+            nextToken(),
             convertDollarIdent(node.sub[3]),
-            node.sub[4].toToken(),
+            nextToken(),
             convertPropertyIdent(node.sub[5]),
-            node.sub[6].toToken(),
+            nextToken(),
             convertPropertyIdent(node.sub[7]),
-            node.sub[8].toToken(),
+            nextToken(),
             if (node.sub[9] == null) null else convertTypeHint(node.sub[9]),
             if (node.sub[10] == null) null else convertAssignment(node.sub[10]),
-            node.sub[11].toToken()
+            nextToken()
         );
     }
 
@@ -731,11 +759,11 @@ class Converter {
         var node = node.asNode("variable_field");
         var annotations = convertAnnotations(node.sub[0]);
         var modifiers = convertModifiers(node.sub[1]);
-        var varToken = node.sub[2].toToken();
+        var varToken = nextToken();
         var name = convertDollarIdent(node.sub[3]);
         var typeHint = if (node.sub[4] == null) null else convertTypeHint(node.sub[4]);
         var assignment = if (node.sub[5] == null) null else convertAssignment(node.sub[5]);
-        var semicolon = node.sub[6].toToken();
+        var semicolon = nextToken();
         return Variable(annotations, modifiers, varToken, name, typeHint, assignment, semicolon);
     }
 
@@ -745,7 +773,7 @@ class Converter {
         var i = 1;
         var trailingComma = null;
         while (i < nodes.length) {
-            var comma = nodes[i].toToken();
+            var comma = nextToken();
             if (i + 1 >= nodes.length) {
                 trailingComma = comma;
                 break;
@@ -772,7 +800,7 @@ class Converter {
         var rest = [];
         var i = 1;
         while (i < nodes.length) {
-            var comma = nodes[i].toToken();
+            var comma = nextToken();
             var elem = convert(nodes[i + 1]);
             rest.push({arg: elem, comma: comma});
             i += 2;
@@ -787,29 +815,29 @@ class Converter {
     function convertTypeDeclParameter(node:JNodeBase):TypeDeclParameter {
         var node = node.asNode("type_decl_parameter");
 
-        var constraints:Constraints =
-            if (node.sub[2] == null)
-                None;
-            else {
-                var node:JNode = cast node.sub[2];
-                switch (node.name) {
-                    case "single":
-                        Single(node.sub[0].toToken(), convertComplexType(node.sub[1]));
-                    case "multiple":
-                        var typeNodes = node.sub.slice(2,4);
-                        typeNodes = typeNodes.concat(node.sub[4].asNode("types").sub);
-                        var types = commaSeparated(typeNodes, convertComplexType);
-                        Multiple(node.sub[0].toToken(), node.sub[1].toToken(), types, node.sub[5].toToken());
-                    case unknown:
-                        throw 'Unknown type constraint node: $unknown';
-                }
-            }
-
         return {
             annotations: convertAnnotations(node.sub[0]),
             name: convertDollarIdent(node.sub[1]),
-            constraints: constraints,
-        };
+            constraints:
+                if (node.sub[2] == null)
+                    None;
+                else {
+                    var node:JNode = cast node.sub[2];
+                    switch (node.name) {
+                        case "single":
+                            Single(nextToken(), convertComplexType(node.sub[1]));
+                        case "multiple":
+                            var colon = nextToken();
+                            var parenOpen = nextToken();
+                            var typeNodes = node.sub.slice(2,4);
+                            typeNodes = typeNodes.concat(node.sub[4].asNode("types").sub);
+                            var types = commaSeparated(typeNodes, convertComplexType);
+                            Multiple(colon, parenOpen, types, nextToken());
+                        case unknown:
+                            throw 'Unknown type constraint node: $unknown';
+                    }
+                }
+        }
     }
 
     function convertTypeDeclParameters(node:JNodeBase):TypeDeclParameters {
@@ -817,22 +845,21 @@ class Converter {
             return null;
 
         var node = node.asNode("type_decl_parameters");
-        var params = commaSeparated(node.sub[1].asNode("params").sub, convertTypeDeclParameter);
         return {
-            lt: node.sub[0].toToken(),
-            params: params,
-            gt: node.sub[2].toToken(),
+            lt: nextToken(),
+            params: commaSeparated(node.sub[1].asNode("params").sub, convertTypeDeclParameter),
+            gt: nextToken(),
         };
     }
 
     function convertUsingDecl(node:JNodeBase):Decl {
         var node = node.asNode("using_decl");
-        return UsingDecl(node.sub[0].toToken(), convertPath(node.sub[1]), node.sub[2].toToken());
+        return UsingDecl(nextToken(), convertPath(node.sub[1]), nextToken());
     }
 
     function convertImportDecl(node:JNodeBase):Decl {
         var node = node.asNode("import_decl");
-        var importToken = node.sub[0].toToken();
+        var importToken = nextToken();
         var path = convertPath(node.sub[1]);
 
         var mode = if (node.sub[2] == null)
@@ -841,20 +868,20 @@ class Converter {
             var node:JNode = cast node.sub[2];
             switch (node.name) {
                 case "alias":
-                    var tok = node.sub[0].asToken();
+                    var tok = nextToken();
                     var ident = convertIdent(node.sub[1]);
-                    switch (tok.token) {
-                        case "as": IAs(tok.convertToToken(), ident);
-                        case "in": IIn(tok.convertToToken(), ident);
+                    switch (tok.text) {
+                        case "as": IAs(tok, ident);
+                        case "in": IIn(tok, ident);
                         case unknown: throw "Unknown as/in import mode: " + unknown;
                     }
                 case "all":
-                    IAll(node.sub[0].toToken());
+                    IAll(nextToken());
                 case unknown:
                     throw "Unknown import mode: " + unknown;
             }
         }
-        var semicolonToken = node.sub[3].toToken();
+        var semicolonToken = nextToken();
         return ImportDecl(importToken, path, mode, semicolonToken);
     }
 
@@ -863,12 +890,12 @@ class Converter {
         return TypedefDecl(
             convertAnnotations(node.sub[0]),
             convertFlags(node.sub[1]),
-            node.sub[2].toToken(),
+            nextToken(),
             convertDollarIdent(node.sub[3]),
             convertTypeDeclParameters(node.sub[4]),
-            node.sub[5].toToken(),
+            nextToken(),
             convertComplexType(node.sub[6]),
-            if (node.sub[7] != null) node.sub[7].toToken() else null
+            if (node.sub[7] != null) nextToken() else null // TODO: This won't work if we remove the indices
         );
     }
 
@@ -884,44 +911,41 @@ class Converter {
             function convertEnumArg(node:JNodeBase):NEnumFieldArg {
                 var node = node.asNode("enum_field_arg");
                 var result:NEnumFieldArg = {
+                    questionMark: node.sub[0] == null ? null : nextToken(),
                     name: convertDollarIdent(node.sub[1]),
                     typeHint: convertTypeHint(node.sub[2]),
                 }
-                if (node.sub[0] != null)
-                    result.questionMark = node.sub[0].toToken();
                 return result;
             }
 
             return {
-                parenOpen: node.sub[0].toToken(),
+                parenOpen: nextToken(),
                 args: if (node.sub[1] == null) null else commaSeparated(node.sub[1].asNode("args").sub, convertEnumArg),
-                parenClose: node.sub[2].toToken(),
+                parenClose: nextToken(),
             };
             return null;
         }
 
         var fieldsNode = node.sub[6];
-        var fields = if (fieldsNode == null) [] else fieldsNode.asNode("enum_fields").sub.map(function(node) {
-            var node = node.asNode("enum_field");
-            return {
-                annotations: convertAnnotations(node.sub[0]),
-                name: convertDollarIdent(node.sub[1]),
-                params: convertTypeDeclParameters(node.sub[2]),
-                args: convertEnumArgs(node.sub[3]),
-                typeHint: if (node.sub[4] == null) null else convertTypeHint(node.sub[4]),
-                semicolon: node.sub[5].toToken(),
-            };
-        });
-
         return EnumDecl(
             convertAnnotations(node.sub[0]),
             convertFlags(node.sub[1]),
-            node.sub[2].toToken(),
+            nextToken(),
             convertDollarIdent(node.sub[3]),
             convertTypeDeclParameters(node.sub[4]),
-            node.sub[5].toToken(),
-            fields,
-            node.sub[7].toToken()
+            nextToken(),
+            if (fieldsNode == null) [] else fieldsNode.asNode("enum_fields").sub.map(function(node) {
+                var node = node.asNode("enum_field");
+                return {
+                    annotations: convertAnnotations(node.sub[0]),
+                    name: convertDollarIdent(node.sub[1]),
+                    params: convertTypeDeclParameters(node.sub[2]),
+                    args: convertEnumArgs(node.sub[3]),
+                    typeHint: if (node.sub[4] == null) null else convertTypeHint(node.sub[4]),
+                    semicolon: nextToken(),
+                };
+            }),
+            nextToken()
         );
     }
 
@@ -931,9 +955,9 @@ class Converter {
         function convertUnderlyingType(node:JNodeBase):UnderlyingType {
             var node = node.asNode("underlying_type");
             return {
-                parenOpen: node.sub[0].toToken(),
+                parenOpen: nextToken(),
                 type: convertComplexType(node.sub[1]),
-                parenClose: node.sub[2].toToken(),
+                parenClose: nextToken(),
             };
         }
 
@@ -943,41 +967,53 @@ class Converter {
             var node = node.asNode("relations");
             return node.sub.map(function(node) {
                 var node = node.asNode("abstract relations");
-                var tok = node.sub[0].asToken();
+                var tok = nextToken();
                 var ct = convertComplexType(node.sub[1]);
-                return switch (tok.token) {
-                    case "from": From(tok.convertToToken(), ct);
-                    case "to": To(tok.convertToToken(), ct);
+                return switch (tok.text) {
+                    case "from": From(tok, ct);
+                    case "to": To(tok, ct);
                     case unknown: throw 'Unknown abstract relation type: $unknown';
                 }
             });
         }
 
+        var annotations = convertAnnotations(node.sub[0]);
+        var flags = convertFlags(node.sub[1]);
+        var abstractToken = nextToken();
+        var name = convertDollarIdent(node.sub[3]);
+        var params = convertTypeDeclParameters(node.sub[4]);
+        var underlyingType = if (node.sub[5] == null) null else convertUnderlyingType(node.sub[5]);
+        var relations = convertAbstractRelations(node.sub[6]);
+        var brOpen = nextToken();
+        var fields = if (node.sub[8] == null) [] else node.sub[8].asNode("class_fields").sub.map(convertClassField);
+        var brClose = nextToken();
+
         return AbstractDecl(
-            convertAnnotations(node.sub[0]),
-            convertFlags(node.sub[1]),
-            node.sub[2].toToken(),
-            convertDollarIdent(node.sub[3]),
-            convertTypeDeclParameters(node.sub[4]),
-            if (node.sub[5] == null) null else convertUnderlyingType(node.sub[5]),
-            convertAbstractRelations(node.sub[6]),
-            node.sub[7].toToken(),
-            if (node.sub[8] == null) [] else node.sub[8].asNode("class_fields").sub.map(convertClassField),
-            node.sub[9].toToken()
+            annotations,
+            flags,
+            abstractToken,
+            name,
+            params,
+            underlyingType,
+            relations,
+            brOpen,
+            fields,
+            brClose
         );
     }
 
     function convertClassDeclInner(node:JNode, offset:Int):ClassDecl {
-        var kind = node.sub[offset].asNode("class_or_interface").sub[0].toToken();
+        var kind = nextToken();
         var name = if (node.sub[offset+1] == null) null else convertDollarIdent(node.sub[offset+1]); // name can be null in macro case
+        var params = convertTypeDeclParameters(node.sub[offset+2]);
         var relations = if (node.sub[offset+3] == null) [] else node.sub[offset+3].asNode("relations").sub.map(convertClassRelation);
-        var braceOpen = node.sub[offset+4].toToken();
+        var braceOpen = nextToken();
         var fields = if (node.sub[offset+5] == null) [] else node.sub[offset+5].asNode("class_fields").sub.map(convertClassField);
-        var braceClose = node.sub[offset+6].toToken();
+        var braceClose = nextToken();
         return {
             kind: kind,
             name: name,
-            params: convertTypeDeclParameters(node.sub[offset+2]),
+            params: params,
             relations: relations,
             braceOpen: braceOpen,
             braceClose: braceClose,
