@@ -29,6 +29,18 @@ class Converter {
         var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++]];
         var token = new Token(doc.tokens[tokenOffset++]);
         token.leadingTrivia = leading.map(Trivia.new);
+        token.trailingTrivia = [];
+        var k = doc.skipped[skippedOffset];
+        for (i in 0...k) {
+            switch (doc.tokens[tokenOffset]) {
+                case "#if" | "#else" | "#elseif": break; // I think having #end as trailing makes sense?
+                case tok:
+                    token.trailingTrivia.push(new Trivia(tok));
+                    ++tokenOffset;
+                    --doc.skipped[skippedOffset];
+                    if (tok == "\n") break;
+            }
+        }
         return token;
     }
 
