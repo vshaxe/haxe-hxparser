@@ -652,6 +652,7 @@ class Converter {
             name: name,
             params: params,
             parenOpen: parenOpen,
+            args: args,
             parenClose: parenClose,
             typeHint: node.sub[5] == null ? null : convertTypeHint(node.sub[5]),
             expr: convertExpr(node.sub[6])
