@@ -28,7 +28,7 @@ class Converter {
         var doc = data.document;
         var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++]];
         var token = new Token(doc.tokens[tokenOffset++]);
-        token.leadingTrivia = leading.map(function(s) return new Trivia(s));
+        token.leadingTrivia = leading.map(Trivia.new);
         return token;
     }
 
