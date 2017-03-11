@@ -26,13 +26,19 @@ class Converter {
 
     function nextToken() {
         var doc = data.document;
-        var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++]];
-        var token = new Token(doc.tokens[tokenOffset++]);
+        var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++].token];
+        var jToken = doc.tokens[tokenOffset++];
+        var token = new Token(jToken.token);
+        switch (jToken.flag) {
+            case null:
+            case Implicit: token.implicit = true;
+            case Inserted: token.inserted = true;
+        }
         token.leadingTrivia = leading.map(Trivia.new);
         token.trailingTrivia = [];
         var k = doc.skipped[skippedOffset];
         for (i in 0...k) {
-            switch (doc.tokens[tokenOffset]) {
+            switch (doc.tokens[tokenOffset].token) {
                 case "#if" | "#else" | "#elseif": break; // I think having #end as trailing makes sense?
                 case tok:
                     token.trailingTrivia.push(new Trivia(tok));

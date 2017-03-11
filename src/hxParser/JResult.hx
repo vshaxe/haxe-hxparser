@@ -17,12 +17,17 @@ typedef JToken = {
     @:optional var trivia:JTrivia;
 }
 
+@:enum abstract JTriviaFlag(String) {
+    var Implicit = "implicit";
+    var Inserted = "inserted";
+}
+
 typedef JResult = {
     document: {
         tree: JNodeBase,
         blocks: Array<{start:Int, end:Int}>,
         errors: Array<String>,
-        tokens: Array<String>,
+        tokens: Array<{token: String, ?flag:JTriviaFlag}>,
         skipped: Array<Int>
     }
 }
