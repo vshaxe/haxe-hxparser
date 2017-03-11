@@ -6,6 +6,7 @@ package hxParser;
 import hxParser.ParseTree;
 
 enum NodeKind {
+	AbstractDecl(node:AbstractDecl);
 	AbstractRelation_From(fromKeyword:Token, type:ComplexType);
 	AbstractRelation_To(toKeyword:Token, type:ComplexType);
 	AnonymousStructureField(node:AnonymousStructureField);
@@ -20,6 +21,7 @@ enum NodeKind {
 	Case_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>);
 	Catch(node:Catch);
 	ClassDecl(node:ClassDecl);
+	ClassDecl2(node:ClassDecl2);
 	ClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr);
 	ClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token);
 	ClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token);
@@ -33,12 +35,13 @@ enum NodeKind {
 	ComplexType_TypePath(path:TypePath);
 	Constraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token);
 	Constraints_Single(colon:Token, type:ComplexType);
-	Decl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<UnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
-	Decl_ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
-	Decl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
-	Decl_ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
-	Decl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<TypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>);
-	Decl_UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
+	Decl_AbstractDecl(decl:AbstractDecl);
+	Decl_ClassDecl(decl:ClassDecl2);
+	Decl_EnumDecl(decl:EnumDecl);
+	Decl_ImportDecl(decl:ImportDecl);
+	Decl_TypedefDecl(decl:TypedefDecl);
+	Decl_UsingDecl(decl:UsingDecl);
+	EnumDecl(node:EnumDecl);
 	ExprElse(node:ExprElse);
 	Expr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token);
 	Expr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token);
@@ -88,6 +91,7 @@ enum NodeKind {
 	Function(node:Function);
 	FunctionArgument(node:FunctionArgument);
 	Guard(node:Guard);
+	ImportDecl(node:ImportDecl);
 	ImportMode_IAll(dotStar:Token);
 	ImportMode_IAs(asKeyword:Token, ident:Token);
 	ImportMode_IIn(inKeyword:Token, ident:Token);
@@ -130,6 +134,8 @@ enum NodeKind {
 	TypePathParameter_Literal(literal:Literal);
 	TypePathParameter_Type(type:ComplexType);
 	TypePathParameters(node:TypePathParameters);
+	TypedefDecl(node:TypedefDecl);
 	UnderlyingType(node:UnderlyingType);
+	UsingDecl(node:UsingDecl);
 	VarDecl(node:VarDecl);
 }

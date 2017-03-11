@@ -309,13 +309,68 @@ typedef ClassDecl = {
     braceClose:Token
 }
 
+typedef ImportDecl = {
+    importKeyword:Token,
+    path:NPath,
+    mode:ImportMode,
+    semicolon:Token
+}
+
+typedef UsingDecl = {
+    usingKeyword:Token,
+    path:NPath,
+    semicolon:Token
+}
+
+typedef DeclBase = {
+    annotations:NAnnotations,
+    flags:Array<NCommonFlag>
+}
+
+typedef ClassDecl2 = {
+    > DeclBase,
+    decl: ClassDecl
+}
+
+typedef EnumDecl = {
+    > DeclBase,
+    enumKeyword:Token,
+    name:Token,
+    ?params:TypeDeclParameters,
+    braceOpen:Token,
+    fields:Array<NEnumField>,
+    braceClose:Token
+}
+
+typedef TypedefDecl = {
+    > DeclBase,
+    typedefKeyword:Token,
+    name:Token,
+    ?params:TypeDeclParameters,
+    assign:Token,
+    type:ComplexType,
+    ?semicolon:Token
+}
+
+typedef AbstractDecl = {
+    > DeclBase,
+    abstractKeyword:Token,
+    name:Token,
+    ?params:TypeDeclParameters,
+    ?underlyingType:UnderlyingType,
+    relations:Array<AbstractRelation>,
+    braceOpen:Token,
+    fields:Array<ClassField>,
+    braceClose:Token
+}
+
 enum Decl {
-    ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token);
-    UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token);
-    ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl);
-    EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, ?params:TypeDeclParameters, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token);
-    TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, ?params:TypeDeclParameters, assign:Token, type:ComplexType, ?semicolon:Token);
-    AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, ?params:TypeDeclParameters, ?underlyingType:UnderlyingType, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token);
+    ImportDecl(decl:ImportDecl);
+    UsingDecl(decl:UsingDecl);
+    ClassDecl(decl:ClassDecl2);
+    EnumDecl(decl:EnumDecl);
+    TypedefDecl(decl:TypedefDecl);
+    AbstractDecl(decl:AbstractDecl);
 }
 
 typedef Package = {

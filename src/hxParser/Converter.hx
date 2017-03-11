@@ -854,7 +854,11 @@ class Converter {
 
     function convertUsingDecl(node:JNodeBase):Decl {
         var node = node.asNode("using_decl");
-        return UsingDecl(nextToken(), convertPath(node.sub[1]), nextToken());
+        return UsingDecl({
+            usingKeyword: nextToken(),
+            path: convertPath(node.sub[1]),
+            semicolon: nextToken()
+        });
     }
 
     function convertImportDecl(node:JNodeBase):Decl {
@@ -882,21 +886,26 @@ class Converter {
             }
         }
         var semicolonToken = nextToken();
-        return ImportDecl(importToken, path, mode, semicolonToken);
+        return ImportDecl({
+            importKeyword: importToken,
+            path: path,
+            mode: mode,
+            semicolon: semicolonToken
+        });
     }
 
     function convertTypedefDecl(node:JNodeBase):Decl {
         var node = node.asNode("typedef_decl");
-        return TypedefDecl(
-            convertAnnotations(node.sub[0]),
-            convertFlags(node.sub[1]),
-            nextToken(),
-            convertDollarIdent(node.sub[3]),
-            convertTypeDeclParameters(node.sub[4]),
-            nextToken(),
-            convertComplexType(node.sub[6]),
-            if (node.sub[7] != null) nextToken() else null // TODO: This won't work if we remove the indices
-        );
+        return TypedefDecl({
+            annotations: convertAnnotations(node.sub[0]),
+            flags: convertFlags(node.sub[1]),
+            typedefKeyword: nextToken(),
+            name: convertDollarIdent(node.sub[3]),
+            params: convertTypeDeclParameters(node.sub[4]),
+            assign: nextToken(),
+            type: convertComplexType(node.sub[6]),
+            semicolon: if (node.sub[7] != null) nextToken() else null // TODO: This won't work if we remove the indices
+        });
     }
 
     function convertEnumDecl(node:JNodeBase):Decl {
@@ -927,14 +936,14 @@ class Converter {
         }
 
         var fieldsNode = node.sub[6];
-        return EnumDecl(
-            convertAnnotations(node.sub[0]),
-            convertFlags(node.sub[1]),
-            nextToken(),
-            convertDollarIdent(node.sub[3]),
-            convertTypeDeclParameters(node.sub[4]),
-            nextToken(),
-            if (fieldsNode == null) [] else fieldsNode.asNode("enum_fields").sub.map(function(node) {
+        return EnumDecl({
+            annotations: convertAnnotations(node.sub[0]),
+            flags: convertFlags(node.sub[1]),
+            enumKeyword: nextToken(),
+            name: convertDollarIdent(node.sub[3]),
+            params: convertTypeDeclParameters(node.sub[4]),
+            braceOpen: nextToken(),
+            fields: if (fieldsNode == null) [] else fieldsNode.asNode("enum_fields").sub.map(function(node) {
                 var node = node.asNode("enum_field");
                 return {
                     annotations: convertAnnotations(node.sub[0]),
@@ -945,8 +954,8 @@ class Converter {
                     semicolon: nextToken(),
                 };
             }),
-            nextToken()
-        );
+            braceClose: nextToken()
+        });
     }
 
     function convertAbstractDecl(node:JNodeBase):Decl {
@@ -988,18 +997,18 @@ class Converter {
         var fields = if (node.sub[8] == null) [] else node.sub[8].asNode("class_fields").sub.map(convertClassField);
         var brClose = nextToken();
 
-        return AbstractDecl(
-            annotations,
-            flags,
-            abstractToken,
-            name,
-            params,
-            underlyingType,
-            relations,
-            brOpen,
-            fields,
-            brClose
-        );
+        return AbstractDecl({
+            annotations: annotations,
+            flags: flags,
+            abstractKeyword: abstractToken,
+            name: name,
+            params: params,
+            underlyingType: underlyingType,
+            relations: relations,
+            braceOpen: brOpen,
+            fields: fields,
+            braceClose: brClose
+    });
     }
 
     function convertClassDeclInner(node:JNode, offset:Int):ClassDecl {
@@ -1025,7 +1034,11 @@ class Converter {
         var node = node.asNode("class_decl");
         var annotations = convertAnnotations(node.sub[0]);
         var flags = convertFlags(node.sub[1]);
-        return ClassDecl(annotations, flags, convertClassDeclInner(node, 2));
+        return ClassDecl({
+            annotations: annotations,
+            flags: flags,
+            decl: convertClassDeclInner(node, 2)
+        });
     }
 
     function convertDecl(node:JNodeBase):Decl {

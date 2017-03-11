@@ -29,6 +29,9 @@ import hxParser.ParseTree;
 		walkToken(extendsKeyword);
 		walkTypePath(path);
 	}
+	function walkAbstractDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
 	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>) {
 		walkCommaSeparated(elems, walkTypePathParameter);
 	}
@@ -45,13 +48,8 @@ import hxParser.ParseTree;
 		walkToken(node.parenClose);
 		walkExpr(node.expr);
 	}
-	function walkDecl_ClassDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, classDecl:ClassDecl) {
-		walkNAnnotations(annotations);
-		walkDecl_ClassDecl_flags(flags);
-		walkClassDecl(classDecl);
-	}
-	function walkDecl_AbstractDecl_relations(elems:Array<AbstractRelation>) {
-		walkArray(elems, walkAbstractRelation);
+	function walkDecl_ClassDecl(decl:ClassDecl2) {
+		walkClassDecl2(decl);
 	}
 	function walkNDotIdent_PDotIdent(name:Token) {
 		walkToken(name);
@@ -96,6 +94,9 @@ import hxParser.ParseTree;
 	function walkExpr_EReturn(returnKeyword:Token) {
 		walkToken(returnKeyword);
 	}
+	function walkEnumDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
 	function walkNEnumFieldArgs(node:NEnumFieldArgs) {
 		walkToken(node.parenOpen);
 		if (node.args != null) walkNEnumFieldArgs_args(node.args);
@@ -118,6 +119,12 @@ import hxParser.ParseTree;
 		walkToken(colon);
 		walkComplexType(type);
 		walkToken(parenClose);
+	}
+	function walkImportDecl(node:ImportDecl) {
+		walkToken(node.importKeyword);
+		walkNPath(node.path);
+		walkImportMode(node.mode);
+		walkToken(node.semicolon);
 	}
 	function walkCase_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>) {
 		walkToken(defaultKeyword);
@@ -155,11 +162,8 @@ import hxParser.ParseTree;
 		walkMetadata_WithArgs_args(args);
 		walkToken(parenClose);
 	}
-	function walkDecl_ImportDecl(importKeyword:Token, path:NPath, mode:ImportMode, semicolon:Token) {
-		walkToken(importKeyword);
-		walkNPath(path);
-		walkImportMode(mode);
-		walkToken(semicolon);
+	function walkDecl_ImportDecl(decl:ImportDecl) {
+		walkImportDecl(decl);
 	}
 	function walkNDotIdent_PDot(dot:Token) {
 		walkToken(dot);
@@ -187,9 +191,6 @@ import hxParser.ParseTree;
 	function walkClassField_Function_modifiers(elems:Array<FieldModifier>) {
 		walkArray(elems, walkFieldModifier);
 	}
-	function walkDecl_AbstractDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
 	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>) {
 		walkCommaSeparated(elems, walkTypeDeclParameter);
 	}
@@ -200,17 +201,8 @@ import hxParser.ParseTree;
 	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>) {
 		walkCommaSeparated(elems, walkNEnumFieldArg);
 	}
-	function walkDecl_AbstractDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, abstractKeyword:Token, name:Token, params:Null<TypeDeclParameters>, underlyingType:Null<UnderlyingType>, relations:Array<AbstractRelation>, braceOpen:Token, fields:Array<ClassField>, braceClose:Token) {
-		walkNAnnotations(annotations);
-		walkDecl_AbstractDecl_flags(flags);
-		walkToken(abstractKeyword);
-		walkToken(name);
-		if (params != null) walkTypeDeclParameters(params);
-		if (underlyingType != null) walkUnderlyingType(underlyingType);
-		walkDecl_AbstractDecl_relations(relations);
-		walkToken(braceOpen);
-		walkDecl_AbstractDecl_fields(fields);
-		walkToken(braceClose);
+	function walkDecl_AbstractDecl(decl:AbstractDecl) {
+		walkAbstractDecl(decl);
 	}
 	function walkPackage(node:Package) {
 		walkToken(node.packageKeyword);
@@ -295,6 +287,9 @@ import hxParser.ParseTree;
 	}
 	function walkMacroExpr_Expr(expr:Expr) {
 		walkExpr(expr);
+	}
+	function walkClassDecl2_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
 	}
 	function walkMacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>) {
 		walkToken(varKeyword);
@@ -394,9 +389,6 @@ import hxParser.ParseTree;
 		walkExpr(expr);
 		walkToken(parenClose);
 	}
-	function walkDecl_EnumDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
 	function walkExpr(node:Expr) switch node {
 		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose);
 		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr);
@@ -469,6 +461,9 @@ import hxParser.ParseTree;
 	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>) {
 		if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields);
 	}
+	function walkAbstractDecl_fields(elems:Array<ClassField>) {
+		walkArray(elems, walkClassField);
+	}
 	function walkFieldModifier_Macro(keyword:Token) {
 		walkToken(keyword);
 	}
@@ -492,9 +487,6 @@ import hxParser.ParseTree;
 	function walkExpr_EBreak(breakKeyword:Token) {
 		walkToken(breakKeyword);
 	}
-	function walkDecl_EnumDecl_fields(elems:Array<NEnumField>) {
-		walkArray(elems, walkNEnumField);
-	}
 	function walkExpr_EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, exprElse:Null<ExprElse>) {
 		walkToken(ifKeyword);
 		walkToken(parenOpen);
@@ -510,17 +502,12 @@ import hxParser.ParseTree;
 	function walkNCommonFlag_PExtern(token:Token) {
 		walkToken(token);
 	}
-	function walkDecl_UsingDecl(usingKeyword:Token, path:NPath, semicolon:Token) {
-		walkToken(usingKeyword);
-		walkNPath(path);
-		walkToken(semicolon);
+	function walkDecl_UsingDecl(decl:UsingDecl) {
+		walkUsingDecl(decl);
 	}
 	function walkAbstractRelation_To(toKeyword:Token, type:ComplexType) {
 		walkToken(toKeyword);
 		walkComplexType(type);
-	}
-	function walkDecl_AbstractDecl_fields(elems:Array<ClassField>) {
-		walkArray(elems, walkClassField);
 	}
 	function walkMethodExpr_Expr(expr:Expr, semicolon:Token) {
 		walkExpr(expr);
@@ -547,6 +534,9 @@ import hxParser.ParseTree;
 		if (guard != null) walkGuard(guard);
 		walkToken(colon);
 		walkCase_Case_body(body);
+	}
+	function walkTypedefDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
 	}
 	function walkExpr_EField(expr:Expr, ident:NDotIdent) {
 		walkExpr(expr);
@@ -577,6 +567,16 @@ import hxParser.ParseTree;
 	function walkExpr_EBlock_elems(elems:Array<BlockElement>) {
 		walkArray(elems, walkBlockElement);
 	}
+	function walkTypedefDecl(node:TypedefDecl) {
+		walkNAnnotations(node.annotations);
+		walkTypedefDecl_flags(node.flags);
+		walkToken(node.typedefKeyword);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkToken(node.assign);
+		walkComplexType(node.type);
+		if (node.semicolon != null) walkToken(node.semicolon);
+	}
 	function walkNAnnotations_metadata(elems:Array<Metadata>) {
 		walkArray(elems, walkMetadata);
 	}
@@ -592,13 +592,13 @@ import hxParser.ParseTree;
 		walkToken(functionKeyword);
 		walkFunction(fun);
 	}
-	function walkDecl_ClassDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
 	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
 		walkToken(bracketOpen);
 		if (elems != null) walkExpr_EArrayDecl_elems(elems);
 		walkToken(bracketClose);
+	}
+	function walkEnumDecl_fields(elems:Array<NEnumField>) {
+		walkArray(elems, walkNEnumField);
 	}
 	function walkNAnnotations(node:NAnnotations) {
 		if (node.doc != null) walkToken(node.doc);
@@ -608,6 +608,16 @@ import hxParser.ParseTree;
 		walkToken(tryKeyword);
 		walkExpr(expr);
 		walkExpr_ETry_catches(catches);
+	}
+	function walkEnumDecl(node:EnumDecl) {
+		walkNAnnotations(node.annotations);
+		walkEnumDecl_flags(node.flags);
+		walkToken(node.enumKeyword);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkToken(node.braceOpen);
+		walkEnumDecl_fields(node.fields);
+		walkToken(node.braceClose);
 	}
 	function walkNDotIdent(node:NDotIdent) switch node {
 		case PDotIdent(name):walkNDotIdent_PDotIdent(name);
@@ -634,6 +644,11 @@ import hxParser.ParseTree;
 	function walkExpr_ETry_catches(elems:Array<Catch>) {
 		walkArray(elems, walkCatch);
 	}
+	function walkUsingDecl(node:UsingDecl) {
+		walkToken(node.usingKeyword);
+		walkNPath(node.path);
+		walkToken(node.semicolon);
+	}
 	function walkFieldModifier_Private(keyword:Token) {
 		walkToken(keyword);
 	}
@@ -643,15 +658,20 @@ import hxParser.ParseTree;
 	function walkExpr_EConst(const:NConst) {
 		walkNConst(const);
 	}
-	function walkDecl_TypedefDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, typedefKeyword:Token, name:Token, params:Null<TypeDeclParameters>, assign:Token, type:ComplexType, semicolon:Null<Token>) {
-		walkNAnnotations(annotations);
-		walkDecl_TypedefDecl_flags(flags);
-		walkToken(typedefKeyword);
-		walkToken(name);
-		if (params != null) walkTypeDeclParameters(params);
-		walkToken(assign);
-		walkComplexType(type);
-		if (semicolon != null) walkToken(semicolon);
+	function walkDecl_TypedefDecl(decl:TypedefDecl) {
+		walkTypedefDecl(decl);
+	}
+	function walkAbstractDecl(node:AbstractDecl) {
+		walkNAnnotations(node.annotations);
+		walkAbstractDecl_flags(node.flags);
+		walkToken(node.abstractKeyword);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		if (node.underlyingType != null) walkUnderlyingType(node.underlyingType);
+		walkAbstractDecl_relations(node.relations);
+		walkToken(node.braceOpen);
+		walkAbstractDecl_fields(node.fields);
+		walkToken(node.braceClose);
 	}
 	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token) {
 		walkNAnnotations(annotations);
@@ -679,9 +699,6 @@ import hxParser.ParseTree;
 		walkToken(functionKeyword);
 		walkFunction(fun);
 		walkToken(semicolon);
-	}
-	function walkDecl_TypedefDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
 	}
 	function walkLiteral_PLiteralInt(token:Token) {
 		walkToken(token);
@@ -738,6 +755,9 @@ import hxParser.ParseTree;
 		walkToken(node.colon);
 		walkComplexType(node.type);
 	}
+	function walkAbstractDecl_relations(elems:Array<AbstractRelation>) {
+		walkArray(elems, walkAbstractRelation);
+	}
 	function walkAssignment(node:Assignment) {
 		walkToken(node.assign);
 		walkExpr(node.expr);
@@ -775,12 +795,12 @@ import hxParser.ParseTree;
 		walkArray(elems, walkDecl);
 	}
 	function walkDecl(node:Decl) switch node {
-		case ClassDecl(annotations, flags, classDecl):walkDecl_ClassDecl(annotations, flags, classDecl);
-		case TypedefDecl(annotations, flags, typedefKeyword, name, params, assign, type, semicolon):walkDecl_TypedefDecl(annotations, flags, typedefKeyword, name, params, assign, type, semicolon);
-		case EnumDecl(annotations, flags, enumKeyword, name, params, braceOpen, fields, braceClose):walkDecl_EnumDecl(annotations, flags, enumKeyword, name, params, braceOpen, fields, braceClose);
-		case UsingDecl(usingKeyword, path, semicolon):walkDecl_UsingDecl(usingKeyword, path, semicolon);
-		case AbstractDecl(annotations, flags, abstractKeyword, name, params, underlyingType, relations, braceOpen, fields, braceClose):walkDecl_AbstractDecl(annotations, flags, abstractKeyword, name, params, underlyingType, relations, braceOpen, fields, braceClose);
-		case ImportDecl(importKeyword, path, mode, semicolon):walkDecl_ImportDecl(importKeyword, path, mode, semicolon);
+		case ClassDecl(decl):walkDecl_ClassDecl(decl);
+		case TypedefDecl(decl):walkDecl_TypedefDecl(decl);
+		case EnumDecl(decl):walkDecl_EnumDecl(decl);
+		case UsingDecl(decl):walkDecl_UsingDecl(decl);
+		case AbstractDecl(decl):walkDecl_AbstractDecl(decl);
+		case ImportDecl(decl):walkDecl_ImportDecl(decl);
 	};
 	function walkCallArgs_args(elems:CommaSeparated<Expr>) {
 		walkCommaSeparated(elems, walkExpr);
@@ -799,15 +819,8 @@ import hxParser.ParseTree;
 	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>) {
 		walkArray(elems, walkStructuralExtension);
 	}
-	function walkDecl_EnumDecl(annotations:NAnnotations, flags:Array<NCommonFlag>, enumKeyword:Token, name:Token, params:Null<TypeDeclParameters>, braceOpen:Token, fields:Array<NEnumField>, braceClose:Token) {
-		walkNAnnotations(annotations);
-		walkDecl_EnumDecl_flags(flags);
-		walkToken(enumKeyword);
-		walkToken(name);
-		if (params != null) walkTypeDeclParameters(params);
-		walkToken(braceOpen);
-		walkDecl_EnumDecl_fields(fields);
-		walkToken(braceClose);
+	function walkDecl_EnumDecl(decl:EnumDecl) {
+		walkEnumDecl(decl);
 	}
 	function walkExpr_EMacro(macroKeyword:Token, expr:MacroExpr) {
 		walkToken(macroKeyword);
@@ -841,6 +854,11 @@ import hxParser.ParseTree;
 	function walkExpr_EReturnExpr(returnKeyword:Token, expr:Expr) {
 		walkToken(returnKeyword);
 		walkExpr(expr);
+	}
+	function walkClassDecl2(node:ClassDecl2) {
+		walkNAnnotations(node.annotations);
+		walkClassDecl2_flags(node.flags);
+		walkClassDecl(node.decl);
 	}
 	function walkUnderlyingType(node:UnderlyingType) {
 		walkToken(node.parenOpen);
