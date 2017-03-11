@@ -44,7 +44,9 @@ class Converter {
                     token.trailingTrivia.push(new Trivia(tok));
                     ++tokenOffset;
                     --doc.skipped[skippedOffset];
-                    if (tok == "\n") break;
+                    switch (tok) {
+                        case "\n" | "\r\n" | "r": break;
+                    }
             }
         }
         return token;
