@@ -2,12 +2,12 @@ package hxParser;
 
 import hxParser.JResult;
 import hxParser.ParseTree;
-using hxParser.Converter.JNodeTools;
 using StringTools;
+using hxParser.Converter.JNodeTools;
 
 class JNodeTools {
     public static function asNode(j:JNodeBase, name:String):JNode {
-        if (j.name != name) throw "expected " + name + ", got " + j;
+        if (j == null || j.name != name) throw "expected '" + name + "', got '" + j + "'";
         return cast j;
     }
 }
