@@ -45,7 +45,7 @@ class Converter {
                     ++tokenOffset;
                     --doc.skipped[skippedOffset];
                     switch (tok) {
-                        case "\n" | "\r\n" | "r": break;
+                        case "\n" | "\r\n" | "\r": break;
                     }
             }
         }
