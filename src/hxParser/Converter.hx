@@ -534,6 +534,7 @@ class Converter {
 
             case "expr_try":
                 var tryToken = nextToken();
+                var expr = convertExpr(node.sub[1]);
                 var catches = node.sub[2].asNode("catches").sub.map(function(node):Catch {
                     var node = node.asNode("catch");
                     return {
@@ -545,7 +546,7 @@ class Converter {
                         expr: convertExpr(node.sub[5]),
                     };
                 });
-                ETry(tryToken, convertExpr(node.sub[1]), catches);
+                ETry(tryToken, expr, catches);
 
             case "expr_var":
                 EVar(nextToken(), convertVarDecl(node.sub[1]));
