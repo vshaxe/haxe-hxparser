@@ -324,12 +324,30 @@ class Converter {
             case "literal_float":
                 PLiteralFloat(nextToken());
             case "literal_regex":
-                PLiteralRegex(nextToken());
+                var token = nextToken();
+                token.text = escapeRegex(token.text);
+                PLiteralRegex(token);
             case "literal_string":
                 PLiteralString(convertString(node.sub[0]));
             case unknown:
                 throw 'Unknown literal type: $unknown';
         }
+    }
+
+    function escapeRegex(literal:String):String {
+        // extract the actual regex inside of ~//
+        var content = literal.substr(2, literal.length - 1);
+        var end = content.lastIndexOf("/");
+        if (end == -1) throw 'regex literal end not found: ${literal}';
+        var modifiers = content.substr(end + 1);
+        content = content.substring(0, end);
+        return '~/${
+            content
+                .replace("\n", "\\\\n")
+                .replace("\r", "\\\\r")
+                .replace("\t", "\\\\t")
+                .replace("/", "\\\\/")
+        }/' + modifiers;
     }
 
     function convertString(node:JNodeBase):StringToken {
