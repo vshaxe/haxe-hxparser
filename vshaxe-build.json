@@ -1,0 +1,15 @@
+{
+    "targets": [
+        {
+            "name": "hxparser-walker",
+            "args": {
+                "classPaths": ["src"],
+                "macros": [
+                    "util.GenWalker.gen()",
+                    "util.GenStackAwareWalker.gen()"
+                ],
+                "debug": true
+            }
+        }
+    ]
+}
