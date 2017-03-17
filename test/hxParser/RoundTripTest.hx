@@ -17,7 +17,7 @@ class RoundTripTest {
     function run(paths:Array<String>) {
         function loop(paths:Array<String>) {
             for (path in paths) {
-                if (FileSystem.isDirectory(path))
+                if (FileSystem.exists(path) && FileSystem.isDirectory(path))
                     loop([for (file in FileSystem.readDirectory(path))
                         if (!isDirectoryIgnored(file)) '$path/$file'
                     ]);
