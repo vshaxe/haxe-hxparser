@@ -1,6 +1,17 @@
 {
     "targets": [
         {
+            "name": "hxparser",
+            "composite": true,
+            "targetDependencies": [
+                "hxparser-walker",
+                "hxparser-tests"
+            ],
+            "args": {
+                "debug": true
+            }
+        },
+        {
             "name": "hxparser-walker",
             "args": {
                 "classPaths": ["src"],
@@ -10,6 +21,22 @@
                 ],
                 "debug": true
             }
+        },
+        {
+            "name": "hxparser-tests",
+            "inherit": "vshaxe-node",
+            "args": {
+                "classPaths": ["src", "test"],
+                "debug": true,
+                "main": "hxParser.RoundTripTest",
+                "output": {
+                    "target": "js",
+                    "path": "bin/test.js"
+                }
+            },
+            "afterBuildCommands": [
+                ["node", "bin/test.js"]
+            ]
         }
     ]
 }
