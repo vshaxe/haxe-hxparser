@@ -6,14 +6,7 @@ using StringTools;
 
 class RoundTripTest {
     static function main() {
-        new RoundTripTest().run([getHaxeStdPath()]);
-    }
-
-    static function getHaxeStdPath():String {
-        if (Sys.getEnv("TRAVIS") == "true") {
-            return Sys.getEnv("HOME") + "/haxe/std";
-        }
-        return Sys.getEnv("HAXEPATH") + "/std";
+        new RoundTripTest().run(Sys.args());
     }
 
     var successes:Int = 0;

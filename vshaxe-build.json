@@ -33,10 +33,7 @@
                     "target": "js",
                     "path": "bin/test.js"
                 }
-            },
-            "afterBuildCommands": [
-                ["node", "bin/test.js"]
-            ]
+            }
         }
     ]
 }

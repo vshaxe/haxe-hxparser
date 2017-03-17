@@ -9,3 +9,5 @@ install:
 
 script:
  - haxelib run vshaxe-build -t hxparser -v -m both
+ - git clone https://github.com/HaxeFoundation/haxe haxe-git --depth 1
+ - node bin/test.js haxe-git
