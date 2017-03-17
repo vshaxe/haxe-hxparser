@@ -1,4 +1,5 @@
 {
+    "mainTarget": "hxparser",
     "targets": [
         {
             "name": "hxparser",

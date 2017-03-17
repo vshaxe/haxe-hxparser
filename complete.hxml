@@ -1,0 +1,9 @@
+# This file is generated with vshaxe-build - DO NOT EDIT MANUALLY!
+-cp src
+-cp test
+-D analyzer-optimize
+-D js_unflatten
+-lib hxnodejs
+-debug
+-js bin/test.js
+-main hxParser.RoundTripTest
