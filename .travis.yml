@@ -8,4 +8,4 @@ install:
  - haxelib git vshaxe-build https://github.com/vshaxe/vshaxe-build
 
 script:
- - haxelib run vshaxe-build -t hxparser -v
+ - haxelib run vshaxe-build -t hxparser -v -m both
