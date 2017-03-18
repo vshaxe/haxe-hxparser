@@ -61,6 +61,11 @@ class Converter {
         return classFields.map(convertClassField);
     }
 
+    public function convertResultToBlockElements():Array<BlockElement> {
+        var blockElements = data.document.tree.asNode("tree").sub[0].asNode("block_elements_only").sub[0].asNode("elements").sub;
+        return blockElements.map(convertBlockElement);
+    }
+
     function convertFile(node:JNode):File {
         var packNode = node.sub[0];
         var pack = null;

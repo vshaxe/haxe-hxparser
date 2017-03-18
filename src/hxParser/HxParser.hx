@@ -6,6 +6,7 @@ import util.Result;
     var File = "file";
     var ClassFields = "class_fields";
     var ClassDecl = "class_decl";
+    var BlockElements = "block_elements";
 }
 
 class HxParser {
