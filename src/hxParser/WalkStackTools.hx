@@ -34,8 +34,8 @@ class WalkStackTools {
         Sys.println(print(stack));
     }
 
-    public static function getDepth(stack:WalkStack):StackDepth {
-        function loop(stack:WalkStack):StackDepth {
+    public static function getDepth(stack:WalkStack):WalkStackDepth {
+        function loop(stack:WalkStack):WalkStackDepth {
             return switch (stack) {
                 case Edge("elems", _): Block;
                 case Edge("fields", _): Field;
@@ -48,7 +48,7 @@ class WalkStackTools {
     }
 }
 
-enum StackDepth {
+enum WalkStackDepth {
     Block;
     Field;
     Decl;
