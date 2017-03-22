@@ -33,4 +33,24 @@ class WalkStackTools {
     public static inline function dump(stack:WalkStack) {
         Sys.println(print(stack));
     }
+
+    public static function getDepth(stack:WalkStack):StackDepth {
+        function loop(stack:WalkStack):StackDepth {
+            return switch (stack) {
+                case Edge("elems", _): Block;
+                case Edge("fields", _): Field;
+                case Edge("decls", _): Decl;
+                case Edge(_, parent) | Element(_, parent) | Node(_, parent): loop(parent);
+                case Root: Unknown;
+            };
+        }
+        return loop(stack);
+    }
+}
+
+enum StackDepth {
+    Block;
+    Field;
+    Decl;
+    Unknown;
 }
