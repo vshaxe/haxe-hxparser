@@ -22,21 +22,13 @@ class Token {
     public var implicit:Bool;
     public var inserted:Bool;
 
+    public var prevToken(default,null):Token;
+    public var nextToken(default,null):Token;
+
     public function new(text) {
         this.text = text;
         implicit = false;
         inserted = false;
-    }
-
-    public static function fromJToken(jtoken:hxParser.JResult.JToken):Token {
-        var token = new Token(jtoken.token);
-        if (jtoken.trivia != null) {
-            if (jtoken.trivia.implicit != null) token.implicit = jtoken.trivia.implicit;
-            if (jtoken.trivia.inserted != null) token.inserted = jtoken.trivia.inserted;
-            if (jtoken.trivia.leading != null) token.leadingTrivia = jtoken.trivia.leading.map(Trivia.fromJTrivia);
-            if (jtoken.trivia.trailing != null) token.trailingTrivia = jtoken.trivia.trailing.map(Trivia.fromJTrivia);
-        }
-        return token;
     }
 
     public function appearsInSource() {

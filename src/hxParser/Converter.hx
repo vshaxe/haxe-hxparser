@@ -17,6 +17,7 @@ class Converter {
     var data:JResult;
     var skippedOffset:Int;
     var tokenOffset:Int;
+    var prevToken:Token;
 
     public function new(data:JResult) {
         this.data = data;
@@ -24,11 +25,15 @@ class Converter {
         this.tokenOffset = 0;
     }
 
+    @:access(hxParser.Token)
     function nextToken() {
         var doc = data.document;
         var leading = [for (i in 0...doc.skipped[skippedOffset++]) doc.tokens[tokenOffset++].token];
         var jToken = doc.tokens[tokenOffset++];
         var token = new Token(jToken.token);
+        token.prevToken = prevToken;
+        if (prevToken != null) prevToken.nextToken = token;
+        prevToken = token;
         switch (jToken.flag) {
             case null:
             case Implicit: token.implicit = true;
