@@ -11,7 +11,6 @@ class Trivia {
         return new Trivia(jtrivia.token);
     }
 
-    @:keep
     public function toString() return '${haxe.Json.stringify(text)}';
 }
 
@@ -35,7 +34,6 @@ class Token {
         return !implicit && !inserted && text != "<eof>";
     }
 
-    @:keep
     public function toString() return '$text';
 }
 
