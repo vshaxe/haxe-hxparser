@@ -46,6 +46,19 @@ class WalkStackTools {
         }
         return loop(stack);
     }
+
+    public static function find(stack:WalkStack, f:WalkStack->Bool):Bool {
+        function loop(stack:WalkStack, f:WalkStack->Bool):Bool {
+            if (f(stack)) {
+                return true;
+            }
+            return switch (stack) {
+                case Edge(_, parent) | Element(_, parent) | Node(_, parent): loop(parent, f);
+                case Root: false;
+            }
+        }
+        return loop(stack, f);
+    }
 }
 
 enum WalkStackDepth {
