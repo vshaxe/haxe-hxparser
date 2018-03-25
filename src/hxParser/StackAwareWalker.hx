@@ -29,868 +29,6 @@ import hxParser.ParseTree;
 		};
 		if (elems.comma != null) walkToken(elems.comma, Edge("commaTrailing", stack));
 	}
-	function walkClassRelation_Extends(extendsKeyword:Token, path:TypePath, stack:WalkStack) {
-		stack = Node(ClassRelation_Extends(extendsKeyword, path), stack);
-		{
-			walkToken(extendsKeyword, Edge("extendsKeyword", stack));
-			walkTypePath(path, Edge("path", stack));
-		};
-	}
-	function walkAbstractDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
-		walkArray(elems, stack, walkNCommonFlag);
-	}
-	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkTypePathParameter);
-	}
-	function walkComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_Parenthesis(parenOpen, type, parenClose), stack);
-		{
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkComplexType(type, Edge("type", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkCatch(node:Catch, stack:WalkStack) {
-		stack = Node(Catch(node), stack);
-		{
-			walkToken(node.catchKeyword, Edge("catchKeyword", stack));
-			walkToken(node.parenOpen, Edge("parenOpen", stack));
-			walkToken(node.ident, Edge("ident", stack));
-			walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			walkToken(node.parenClose, Edge("parenClose", stack));
-			walkExpr(node.expr, Edge("expr", stack));
-		};
-	}
-	function walkDecl_ClassDecl(decl:ClassDecl2, stack:WalkStack) {
-		stack = Node(Decl_ClassDecl(decl), stack);
-		{
-			walkClassDecl2(decl, Edge("decl", stack));
-		};
-	}
-	function walkNDotIdent_PDotIdent(name:Token, stack:WalkStack) {
-		stack = Node(NDotIdent_PDotIdent(name), stack);
-		{
-			walkToken(name, Edge("name", stack));
-		};
-	}
-	function walkComplexType(node:ComplexType, stack:WalkStack) switch node {
-		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose, stack);
-		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose, stack);
-		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose, stack);
-		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type, stack);
-		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight, stack);
-		case TypePath(path):walkComplexType_TypePath(path, stack);
-	};
-	function walkMacroExpr(node:MacroExpr, stack:WalkStack) switch node {
-		case Class(classDecl):walkMacroExpr_Class(classDecl, stack);
-		case TypeHint(typeHint):walkMacroExpr_TypeHint(typeHint, stack);
-		case Expr(expr):walkMacroExpr_Expr(expr, stack);
-		case Var(varKeyword, decls):walkMacroExpr_Var(varKeyword, decls, stack);
-	};
-	function walkFunctionArgument(node:FunctionArgument, stack:WalkStack) {
-		stack = Node(FunctionArgument(node), stack);
-		{
-			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
-			walkToken(node.name, Edge("name", stack));
-			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
-		};
-	}
-	function walkExpr_EDollarIdent(ident:Token, stack:WalkStack) {
-		stack = Node(Expr_EDollarIdent(ident), stack);
-		{
-			walkToken(ident, Edge("ident", stack));
-		};
-	}
-	function walkObjectFieldName_NString(string:StringToken, stack:WalkStack) {
-		stack = Node(ObjectFieldName_NString(string), stack);
-		{
-			walkStringToken(string, Edge("string", stack));
-		};
-	}
-	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token, stack:WalkStack) {
-		stack = Node(Constraints_Multiple(colon, parenOpen, types, parenClose), stack);
-		{
-			walkToken(colon, Edge("colon", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkConstraints_Multiple_types(types, Edge("types", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkExprElse(node:ExprElse, stack:WalkStack) {
-		stack = Node(ExprElse(node), stack);
-		{
-			walkToken(node.elseKeyword, Edge("elseKeyword", stack));
-			walkExpr(node.expr, Edge("expr", stack));
-		};
-	}
-	function walkExpr_EReturn(returnKeyword:Token, stack:WalkStack) {
-		stack = Node(Expr_EReturn(returnKeyword), stack);
-		{
-			walkToken(returnKeyword, Edge("returnKeyword", stack));
-		};
-	}
-	function walkEnumDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
-		walkArray(elems, stack, walkNCommonFlag);
-	}
-	function walkNEnumFieldArgs(node:NEnumFieldArgs, stack:WalkStack) {
-		stack = Node(NEnumFieldArgs(node), stack);
-		{
-			walkToken(node.parenOpen, Edge("parenOpen", stack));
-			if (node.args != null) walkNEnumFieldArgs_args(node.args, Edge("args", stack));
-			walkToken(node.parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkNPath_idents(elems:Array<NDotIdent>, stack:WalkStack) {
-		walkArray(elems, stack, walkNDotIdent);
-	}
-	function walkAnonymousStructureFields_ShortNotation_fields(elems:CommaSeparatedAllowTrailing<AnonymousStructureField>, stack:WalkStack) {
-		walkCommaSeparatedTrailing(elems, stack, walkAnonymousStructureField);
-	}
-	function walkComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_AnonymousStructure(braceOpen, fields, braceClose), stack);
-		{
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkAnonymousStructureFields(fields, Edge("fields", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkExpr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
-		stack = Node(Expr_ECheckType(parenOpen, expr, colon, type, parenClose), stack);
-		{
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(colon, Edge("colon", stack));
-			walkComplexType(type, Edge("type", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkImportDecl(node:ImportDecl, stack:WalkStack) {
-		stack = Node(ImportDecl(node), stack);
-		{
-			walkToken(node.importKeyword, Edge("importKeyword", stack));
-			walkNPath(node.path, Edge("path", stack));
-			walkImportMode(node.mode, Edge("mode", stack));
-			walkToken(node.semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkCase_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>, stack:WalkStack) {
-		stack = Node(Case_Default(defaultKeyword, colon, body), stack);
-		{
-			walkToken(defaultKeyword, Edge("defaultKeyword", stack));
-			walkToken(colon, Edge("colon", stack));
-			walkCase_Default_body(body, Edge("body", stack));
-		};
-	}
-	function walkClassDecl(node:ClassDecl, stack:WalkStack) {
-		stack = Node(ClassDecl(node), stack);
-		{
-			walkToken(node.kind, Edge("kind", stack));
-			walkToken(node.name, Edge("name", stack));
-			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
-			walkClassDecl_relations(node.relations, Edge("relations", stack));
-			walkToken(node.braceOpen, Edge("braceOpen", stack));
-			walkClassDecl_fields(node.fields, Edge("fields", stack));
-			walkToken(node.braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkNConst_PConstLiteral(literal:Literal, stack:WalkStack) {
-		stack = Node(NConst_PConstLiteral(literal), stack);
-		{
-			walkLiteral(literal, Edge("literal", stack));
-		};
-	}
-	function walkImportMode(node:ImportMode, stack:WalkStack) switch node {
-		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident, stack);
-		case INormal:{ };
-		case IAll(dotStar):walkImportMode_IAll(dotStar, stack);
-		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident, stack);
-	};
-	function walkFile(node:File, stack:WalkStack) {
-		stack = Node(File(node), stack);
-		{
-			if (node.pack != null) walkPackage(node.pack, Edge("pack", stack));
-			walkFile_decls(node.decls, Edge("decls", stack));
-			walkToken(node.eof, Edge("eof", stack));
-		};
-	}
-	function walkFieldModifier_Static(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Static(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkMetadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token, stack:WalkStack) {
-		stack = Node(Metadata_WithArgs(name, args, parenClose), stack);
-		{
-			walkToken(name, Edge("name", stack));
-			walkMetadata_WithArgs_args(args, Edge("args", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkDecl_ImportDecl(decl:ImportDecl, stack:WalkStack) {
-		stack = Node(Decl_ImportDecl(decl), stack);
-		{
-			walkImportDecl(decl, Edge("decl", stack));
-		};
-	}
-	function walkNDotIdent_PDot(dot:Token, stack:WalkStack) {
-		stack = Node(NDotIdent_PDot(dot), stack);
-		{
-			walkToken(dot, Edge("dot", stack));
-		};
-	}
-	function walkMethodExpr(node:MethodExpr, stack:WalkStack) switch node {
-		case None(semicolon):walkMethodExpr_None(semicolon, stack);
-		case Expr(expr, semicolon):walkMethodExpr_Expr(expr, semicolon, stack);
-		case Block(expr):walkMethodExpr_Block(expr, stack);
-	};
-	function walkExpr_EMetadata(metadata:Metadata, expr:Expr, stack:WalkStack) {
-		stack = Node(Expr_EMetadata(metadata, expr), stack);
-		{
-			walkMetadata(metadata, Edge("metadata", stack));
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkExpr_EThrow(throwKeyword:Token, expr:Expr, stack:WalkStack) {
-		stack = Node(Expr_EThrow(throwKeyword, expr), stack);
-		{
-			walkToken(throwKeyword, Edge("throwKeyword", stack));
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkCase_Case_patterns(elems:CommaSeparated<Expr>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkExpr);
-	}
-	function walkAbstractRelation_From(fromKeyword:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(AbstractRelation_From(fromKeyword, type), stack);
-		{
-			walkToken(fromKeyword, Edge("fromKeyword", stack));
-			walkComplexType(type, Edge("type", stack));
-		};
-	}
-	function walkClassField_Function_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
-		walkArray(elems, stack, walkFieldModifier);
-	}
-	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkTypeDeclParameter);
-	}
-	function walkExpr_EVar(varKeyword:Token, decl:VarDecl, stack:WalkStack) {
-		stack = Node(Expr_EVar(varKeyword, decl), stack);
-		{
-			walkToken(varKeyword, Edge("varKeyword", stack));
-			walkVarDecl(decl, Edge("decl", stack));
-		};
-	}
-	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkNEnumFieldArg);
-	}
-	function walkDecl_AbstractDecl(decl:AbstractDecl, stack:WalkStack) {
-		stack = Node(Decl_AbstractDecl(decl), stack);
-		{
-			walkAbstractDecl(decl, Edge("decl", stack));
-		};
-	}
-	function walkPackage(node:Package, stack:WalkStack) {
-		stack = Node(Package(node), stack);
-		{
-			walkToken(node.packageKeyword, Edge("packageKeyword", stack));
-			if (node.path != null) walkNPath(node.path, Edge("path", stack));
-			walkToken(node.semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr, stack:WalkStack) {
-		stack = Node(ClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr), stack);
-		{
-			walkNAnnotations(annotations, Edge("annotations", stack));
-			walkClassField_Function_modifiers(modifiers, Edge("modifiers", stack));
-			walkToken(functionKeyword, Edge("functionKeyword", stack));
-			walkToken(name, Edge("name", stack));
-			if (params != null) walkTypeDeclParameters(params, Edge("params", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			if (args != null) walkClassField_Function_args(args, Edge("args", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
-			walkMethodExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkStringToken_DoubleQuote(token:Token, stack:WalkStack) {
-		stack = Node(StringToken_DoubleQuote(token), stack);
-		{
-			walkToken(token, Edge("token", stack));
-		};
-	}
-	function walkFunction(node:Function, stack:WalkStack) {
-		stack = Node(Function(node), stack);
-		{
-			if (node.name != null) walkToken(node.name, Edge("name", stack));
-			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
-			walkToken(node.parenOpen, Edge("parenOpen", stack));
-			if (node.args != null) walkFunction_args(node.args, Edge("args", stack));
-			walkToken(node.parenClose, Edge("parenClose", stack));
-			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			walkExpr(node.expr, Edge("expr", stack));
-		};
-	}
-	function walkTypePath(node:TypePath, stack:WalkStack) {
-		stack = Node(TypePath(node), stack);
-		{
-			walkNPath(node.path, Edge("path", stack));
-			if (node.params != null) walkTypePathParameters(node.params, Edge("params", stack));
-		};
-	}
-	function walkBlockElement_Expr(expr:Expr, semicolon:Token, stack:WalkStack) {
-		stack = Node(BlockElement_Expr(expr, semicolon), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkAnonymousStructureFields_ClassNotation_fields(elems:Array<ClassField>, stack:WalkStack) {
-		walkArray(elems, stack, walkClassField);
-	}
-	function walkFieldModifier_Override(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Override(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkMetadata(node:Metadata, stack:WalkStack) switch node {
-		case WithArgs(name, args, parenClose):walkMetadata_WithArgs(name, args, parenClose, stack);
-		case Simple(name):walkMetadata_Simple(name, stack);
-	};
-	function walkStringToken_SingleQuote(token:Token, stack:WalkStack) {
-		stack = Node(StringToken_SingleQuote(token), stack);
-		{
-			walkToken(token, Edge("token", stack));
-		};
-	}
-	function walkExpr_EIntDot(int:Token, dot:Token, stack:WalkStack) {
-		stack = Node(Expr_EIntDot(int, dot), stack);
-		{
-			walkToken(int, Edge("int", stack));
-			walkToken(dot, Edge("dot", stack));
-		};
-	}
-	function walkClassField_Property_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
-		walkArray(elems, stack, walkFieldModifier);
-	}
-	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr, stack:WalkStack) {
-		stack = Node(Expr_ETernary(exprCond, questionMark, exprThen, colon, exprElse), stack);
-		{
-			walkExpr(exprCond, Edge("exprCond", stack));
-			walkToken(questionMark, Edge("questionMark", stack));
-			walkExpr(exprThen, Edge("exprThen", stack));
-			walkToken(colon, Edge("colon", stack));
-			walkExpr(exprElse, Edge("exprElse", stack));
-		};
-	}
-	function walkFieldModifier_Public(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Public(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkMacroExpr_Var_decls(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkVarDecl);
-	}
-	function walkExpr_ENew(newKeyword:Token, path:TypePath, args:CallArgs, stack:WalkStack) {
-		stack = Node(Expr_ENew(newKeyword, path, args), stack);
-		{
-			walkToken(newKeyword, Edge("newKeyword", stack));
-			walkTypePath(path, Edge("path", stack));
-			walkCallArgs(args, Edge("args", stack));
-		};
-	}
-	function walkMethodExpr_Block(expr:Expr, stack:WalkStack) {
-		stack = Node(MethodExpr_Block(expr), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkCase_Case_body(elems:Array<BlockElement>, stack:WalkStack) {
-		walkArray(elems, stack, walkBlockElement);
-	}
-	function walkMacroExpr_Expr(expr:Expr, stack:WalkStack) {
-		stack = Node(MacroExpr_Expr(expr), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkClassDecl2_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
-		walkArray(elems, stack, walkNCommonFlag);
-	}
-	function walkMacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, stack:WalkStack) {
-		stack = Node(MacroExpr_Var(varKeyword, decls), stack);
-		{
-			walkToken(varKeyword, Edge("varKeyword", stack));
-			walkMacroExpr_Var_decls(decls, Edge("decls", stack));
-		};
-	}
-	function walkFieldModifier_Inline(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Inline(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkTypeDeclParameter(node:TypeDeclParameter, stack:WalkStack) {
-		stack = Node(TypeDeclParameter(node), stack);
-		{
-			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			walkToken(node.name, Edge("name", stack));
-			walkConstraints(node.constraints, Edge("constraints", stack));
-		};
-	}
-	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
-		stack = Node(ComplexType_StructuralExtension(braceOpen, types, fields, braceClose), stack);
-		{
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkComplexType_StructuralExtension_types(types, Edge("types", stack));
-			walkAnonymousStructureFields(fields, Edge("fields", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkLiteral(node:Literal, stack:WalkStack) switch node {
-		case PLiteralString(s):walkLiteral_PLiteralString(s, stack);
-		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token, stack);
-		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token, stack);
-		case PLiteralInt(token):walkLiteral_PLiteralInt(token, stack);
-	};
-	function walkBlockElement_Var_decls(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkVarDecl);
-	}
-	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose), stack);
-		{
-			walkToken(doKeyword, Edge("doKeyword", stack));
-			walkExpr(exprBody, Edge("exprBody", stack));
-			walkToken(whileKeyword, Edge("whileKeyword", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(exprCond, Edge("exprCond", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkAnonymousStructureFields_ClassNotation(fields:Array<ClassField>, stack:WalkStack) {
-		stack = Node(AnonymousStructureFields_ClassNotation(fields), stack);
-		{
-			walkAnonymousStructureFields_ClassNotation_fields(fields, Edge("fields", stack));
-		};
-	}
-	function walkImportMode_IAs(asKeyword:Token, ident:Token, stack:WalkStack) {
-		stack = Node(ImportMode_IAs(asKeyword, ident), stack);
-		{
-			walkToken(asKeyword, Edge("asKeyword", stack));
-			walkToken(ident, Edge("ident", stack));
-		};
-	}
-	function walkExpr_EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr, stack:WalkStack) {
-		stack = Node(Expr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody), stack);
-		{
-			walkToken(forKeyword, Edge("forKeyword", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(exprIter, Edge("exprIter", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-			walkExpr(exprBody, Edge("exprBody", stack));
-		};
-	}
-	function walkNCommonFlag(node:NCommonFlag, stack:WalkStack) switch node {
-		case PExtern(token):walkNCommonFlag_PExtern(token, stack);
-		case PPrivate(token):walkNCommonFlag_PPrivate(token, stack);
-	};
-	function walkAnonymousStructureField(node:AnonymousStructureField, stack:WalkStack) {
-		stack = Node(AnonymousStructureField(node), stack);
-		{
-			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
-			walkToken(node.name, Edge("name", stack));
-			walkTypeHint(node.typeHint, Edge("typeHint", stack));
-		};
-	}
-	function walkExpr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr, stack:WalkStack) {
-		stack = Node(Expr_EBinop(exprLeft, op, exprRight), stack);
-		{
-			walkExpr(exprLeft, Edge("exprLeft", stack));
-			walkToken(op, Edge("op", stack));
-			walkExpr(exprRight, Edge("exprRight", stack));
-		};
-	}
-	function walkFieldModifier_Dynamic(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Dynamic(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkClassDecl_relations(elems:Array<ClassRelation>, stack:WalkStack) {
-		walkArray(elems, stack, walkClassRelation);
-	}
-	function walkNPath(node:NPath, stack:WalkStack) {
-		stack = Node(NPath(node), stack);
-		{
-			walkToken(node.ident, Edge("ident", stack));
-			walkNPath_idents(node.idents, Edge("idents", stack));
-		};
-	}
-	function walkCase_Default_body(elems:Array<BlockElement>, stack:WalkStack) {
-		walkArray(elems, stack, walkBlockElement);
-	}
-	function walkMetadata_WithArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkExpr);
-	}
-	function walkClassRelation(node:ClassRelation, stack:WalkStack) switch node {
-		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path, stack);
-		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path, stack);
-	};
-	function walkVarDecl(node:VarDecl, stack:WalkStack) {
-		stack = Node(VarDecl(node), stack);
-		{
-			walkToken(node.name, Edge("name", stack));
-			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
-			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
-		};
-	}
-	function walkExpr_EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EBlock(braceOpen, elems, braceClose), stack);
-		{
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkExpr_EBlock_elems(elems, Edge("elems", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkExpr_EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EParenthesis(parenOpen, expr, parenClose), stack);
-		{
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkExpr(node:Expr, stack:WalkStack) switch node {
-		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose, stack);
-		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr, stack);
-		case EField(expr, ident):walkExpr_EField(expr, ident, stack);
-		case EMacro(macroKeyword, expr):walkExpr_EMacro(macroKeyword, expr, stack);
-		case ESwitch(switchKeyword, expr, braceOpen, cases, braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose, stack);
-		case EReturnExpr(returnKeyword, expr):walkExpr_EReturnExpr(returnKeyword, expr, stack);
-		case EUnsafeCast(castKeyword, expr):walkExpr_EUnsafeCast(castKeyword, expr, stack);
-		case EIn(exprLeft, inKeyword, exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight, stack);
-		case EParenthesis(parenOpen, expr, parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose, stack);
-		case ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose, stack);
-		case EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse, stack);
-		case EBlock(braceOpen, elems, braceClose):walkExpr_EBlock(braceOpen, elems, braceClose, stack);
-		case EUnaryPrefix(op, expr):walkExpr_EUnaryPrefix(op, expr, stack);
-		case EBinop(exprLeft, op, exprRight):walkExpr_EBinop(exprLeft, op, exprRight, stack);
-		case ETry(tryKeyword, expr, catches):walkExpr_ETry(tryKeyword, expr, catches, stack);
-		case EObjectDecl(braceOpen, fields, braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose, stack);
-		case EVar(varKeyword, decl):walkExpr_EVar(varKeyword, decl, stack);
-		case EBreak(breakKeyword):walkExpr_EBreak(breakKeyword, stack);
-		case EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody, stack);
-		case ENew(newKeyword, path, args):walkExpr_ENew(newKeyword, path, args, stack);
-		case ECall(expr, args):walkExpr_ECall(expr, args, stack);
-		case ECheckType(parenOpen, expr, colon, type, parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose, stack);
-		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword, stack);
-		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op, stack);
-		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose, stack);
-		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse, stack);
-		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose, stack);
-		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose, stack);
-		case EConst(const):walkExpr_EConst(const, stack);
-		case EDollarIdent(ident):walkExpr_EDollarIdent(ident, stack);
-		case EFunction(functionKeyword, fun):walkExpr_EFunction(functionKeyword, fun, stack);
-		case EReturn(returnKeyword):walkExpr_EReturn(returnKeyword, stack);
-		case EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody, stack);
-		case EArrayDecl(bracketOpen, elems, bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose, stack);
-		case EIntDot(int, dot):walkExpr_EIntDot(int, dot, stack);
-		case EThrow(throwKeyword, expr):walkExpr_EThrow(throwKeyword, expr, stack);
-		case EUntyped(untypedKeyword, expr):walkExpr_EUntyped(untypedKeyword, expr, stack);
-	};
-	function walkExpr_ECall(expr:Expr, args:CallArgs, stack:WalkStack) {
-		stack = Node(Expr_ECall(expr, args), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-			walkCallArgs(args, Edge("args", stack));
-		};
-	}
-	function walkExpr_EObjectDecl_fields(elems:CommaSeparatedAllowTrailing<ObjectField>, stack:WalkStack) {
-		walkCommaSeparatedTrailing(elems, stack, walkObjectField);
-	}
-	function walkTypeDeclParameters(node:TypeDeclParameters, stack:WalkStack) {
-		stack = Node(TypeDeclParameters(node), stack);
-		{
-			walkToken(node.lt, Edge("lt", stack));
-			walkTypeDeclParameters_params(node.params, Edge("params", stack));
-			walkToken(node.gt, Edge("gt", stack));
-		};
-	}
-	function walkMetadata_Simple(name:Token, stack:WalkStack) {
-		stack = Node(Metadata_Simple(name), stack);
-		{
-			walkToken(name, Edge("name", stack));
-		};
-	}
-	function walkTypePathParameter(node:TypePathParameter, stack:WalkStack) switch node {
-		case Type(type):walkTypePathParameter_Type(type, stack);
-		case Literal(literal):walkTypePathParameter_Literal(literal, stack);
-		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose, stack);
-	};
-	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath, stack:WalkStack) {
-		stack = Node(ClassRelation_Implements(implementsKeyword, path), stack);
-		{
-			walkToken(implementsKeyword, Edge("implementsKeyword", stack));
-			walkTypePath(path, Edge("path", stack));
-		};
-	}
-	function walkGuard(node:Guard, stack:WalkStack) {
-		stack = Node(Guard(node), stack);
-		{
-			walkToken(node.ifKeyword, Edge("ifKeyword", stack));
-			walkToken(node.parenOpen, Edge("parenOpen", stack));
-			walkExpr(node.expr, Edge("expr", stack));
-			walkToken(node.parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>, stack:WalkStack) {
-		stack = Node(AnonymousStructureFields_ShortNotation(fields), stack);
-		{
-			if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields, Edge("fields", stack));
-		};
-	}
-	function walkAbstractDecl_fields(elems:Array<ClassField>, stack:WalkStack) {
-		walkArray(elems, stack, walkClassField);
-	}
-	function walkFieldModifier_Macro(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Macro(keyword), stack);
-		{
-			walkToken(keyword, Edge("keyword", stack));
-		};
-	}
-	function walkMacroExpr_TypeHint(typeHint:TypeHint, stack:WalkStack) {
-		stack = Node(MacroExpr_TypeHint(typeHint), stack);
-		{
-			walkTypeHint(typeHint, Edge("typeHint", stack));
-		};
-	}
-	function walkExpr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr, stack:WalkStack) {
-		stack = Node(Expr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody), stack);
-		{
-			walkToken(whileKeyword, Edge("whileKeyword", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(exprCond, Edge("exprCond", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-			walkExpr(exprBody, Edge("exprBody", stack));
-		};
-	}
-	function walkAbstractRelation(node:AbstractRelation, stack:WalkStack) switch node {
-		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type, stack);
-		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type, stack);
-	};
-	function walkTypePathParameter_ArrayExpr_elems(elems:CommaSeparatedAllowTrailing<Expr>, stack:WalkStack) {
-		walkCommaSeparatedTrailing(elems, stack, walkExpr);
-	}
-	function walkExpr_EBreak(breakKeyword:Token, stack:WalkStack) {
-		stack = Node(Expr_EBreak(breakKeyword), stack);
-		{
-			walkToken(breakKeyword, Edge("breakKeyword", stack));
-		};
-	}
-	function walkExpr_EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, exprElse:Null<ExprElse>, stack:WalkStack) {
-		stack = Node(Expr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse), stack);
-		{
-			walkToken(ifKeyword, Edge("ifKeyword", stack));
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(exprCond, Edge("exprCond", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-			walkExpr(exprThen, Edge("exprThen", stack));
-			if (exprElse != null) walkExprElse(exprElse, Edge("exprElse", stack));
-		};
-	}
-	function walkNConst(node:NConst, stack:WalkStack) switch node {
-		case PConstLiteral(literal):walkNConst_PConstLiteral(literal, stack);
-		case PConstIdent(ident):walkNConst_PConstIdent(ident, stack);
-	};
-	function walkNCommonFlag_PExtern(token:Token, stack:WalkStack) {
-		stack = Node(NCommonFlag_PExtern(token), stack);
-		{
-			walkToken(token, Edge("token", stack));
-		};
-	}
-	function walkDecl_UsingDecl(decl:UsingDecl, stack:WalkStack) {
-		stack = Node(Decl_UsingDecl(decl), stack);
-		{
-			walkUsingDecl(decl, Edge("decl", stack));
-		};
-	}
-	function walkAbstractRelation_To(toKeyword:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(AbstractRelation_To(toKeyword, type), stack);
-		{
-			walkToken(toKeyword, Edge("toKeyword", stack));
-			walkComplexType(type, Edge("type", stack));
-		};
-	}
-	function walkMethodExpr_Expr(expr:Expr, semicolon:Token, stack:WalkStack) {
-		stack = Node(MethodExpr_Expr(expr, semicolon), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkExpr_EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EObjectDecl(braceOpen, fields, braceClose), stack);
-		{
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkExpr_EObjectDecl_fields(fields, Edge("fields", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkExpr_EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EIs(parenOpen, expr, isKeyword, path, parenClose), stack);
-		{
-			walkToken(parenOpen, Edge("parenOpen", stack));
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(isKeyword, Edge("isKeyword", stack));
-			walkTypePath(path, Edge("path", stack));
-			walkToken(parenClose, Edge("parenClose", stack));
-		};
-	}
-	function walkClassDecl_fields(elems:Array<ClassField>, stack:WalkStack) {
-		walkArray(elems, stack, walkClassField);
-	}
-	function walkCase_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>, stack:WalkStack) {
-		stack = Node(Case_Case(caseKeyword, patterns, guard, colon, body), stack);
-		{
-			walkToken(caseKeyword, Edge("caseKeyword", stack));
-			walkCase_Case_patterns(patterns, Edge("patterns", stack));
-			if (guard != null) walkGuard(guard, Edge("guard", stack));
-			walkToken(colon, Edge("colon", stack));
-			walkCase_Case_body(body, Edge("body", stack));
-		};
-	}
-	function walkTypedefDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
-		walkArray(elems, stack, walkNCommonFlag);
-	}
-	function walkExpr_EField(expr:Expr, ident:NDotIdent, stack:WalkStack) {
-		stack = Node(Expr_EField(expr, ident), stack);
-		{
-			walkExpr(expr, Edge("expr", stack));
-			walkNDotIdent(ident, Edge("ident", stack));
-		};
-	}
-	function walkExpr_EIn(exprLeft:Expr, inKeyword:Token, exprRight:Expr, stack:WalkStack) {
-		stack = Node(Expr_EIn(exprLeft, inKeyword, exprRight), stack);
-		{
-			walkExpr(exprLeft, Edge("exprLeft", stack));
-			walkToken(inKeyword, Edge("inKeyword", stack));
-			walkExpr(exprRight, Edge("exprRight", stack));
-		};
-	}
-	function walkExpr_EUntyped(untypedKeyword:Token, expr:Expr, stack:WalkStack) {
-		stack = Node(Expr_EUntyped(untypedKeyword, expr), stack);
-		{
-			walkToken(untypedKeyword, Edge("untypedKeyword", stack));
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkNConst_PConstIdent(ident:Token, stack:WalkStack) {
-		stack = Node(NConst_PConstIdent(ident), stack);
-		{
-			walkToken(ident, Edge("ident", stack));
-		};
-	}
-	function walkTypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token, stack:WalkStack) {
-		stack = Node(TypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose), stack);
-		{
-			walkToken(bracketOpen, Edge("bracketOpen", stack));
-			if (elems != null) walkTypePathParameter_ArrayExpr_elems(elems, Edge("elems", stack));
-			walkToken(bracketClose, Edge("bracketClose", stack));
-		};
-	}
-	function walkBlockElement_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token, stack:WalkStack) {
-		stack = Node(BlockElement_Var(varKeyword, decls, semicolon), stack);
-		{
-			walkToken(varKeyword, Edge("varKeyword", stack));
-			walkBlockElement_Var_decls(decls, Edge("decls", stack));
-			walkToken(semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkExpr_EBlock_elems(elems:Array<BlockElement>, stack:WalkStack) {
-		walkArray(elems, stack, walkBlockElement);
-	}
-	function walkTypedefDecl(node:TypedefDecl, stack:WalkStack) {
-		stack = Node(TypedefDecl(node), stack);
-		{
-			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			walkTypedefDecl_flags(node.flags, Edge("flags", stack));
-			walkToken(node.typedefKeyword, Edge("typedefKeyword", stack));
-			walkToken(node.name, Edge("name", stack));
-			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
-			walkToken(node.assign, Edge("assign", stack));
-			walkComplexType(node.type, Edge("type", stack));
-			if (node.semicolon != null) walkToken(node.semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkNAnnotations_metadata(elems:Array<Metadata>, stack:WalkStack) {
-		walkArray(elems, stack, walkMetadata);
-	}
-	function walkStringToken(node:StringToken, stack:WalkStack) switch node {
-		case SingleQuote(token):walkStringToken_SingleQuote(token, stack);
-		case DoubleQuote(token):walkStringToken_DoubleQuote(token, stack);
-	};
-	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr, stack:WalkStack) {
-		stack = Node(Expr_EUnsafeCast(castKeyword, expr), stack);
-		{
-			walkToken(castKeyword, Edge("castKeyword", stack));
-			walkExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkExpr_EFunction(functionKeyword:Token, fun:Function, stack:WalkStack) {
-		stack = Node(Expr_EFunction(functionKeyword, fun), stack);
-		{
-			walkToken(functionKeyword, Edge("functionKeyword", stack));
-			walkFunction(fun, Edge("fun", stack));
-		};
-	}
-	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EArrayDecl(bracketOpen, elems, bracketClose), stack);
-		{
-			walkToken(bracketOpen, Edge("bracketOpen", stack));
-			if (elems != null) walkExpr_EArrayDecl_elems(elems, Edge("elems", stack));
-			walkToken(bracketClose, Edge("bracketClose", stack));
-		};
-	}
-	function walkEnumDecl_fields(elems:Array<NEnumField>, stack:WalkStack) {
-		walkArray(elems, stack, walkNEnumField);
-	}
-	function walkNAnnotations(node:NAnnotations, stack:WalkStack) {
-		stack = Node(NAnnotations(node), stack);
-		{
-			if (node.doc != null) walkToken(node.doc, Edge("doc", stack));
-			walkNAnnotations_metadata(node.metadata, Edge("metadata", stack));
-		};
-	}
-	function walkExpr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>, stack:WalkStack) {
-		stack = Node(Expr_ETry(tryKeyword, expr, catches), stack);
-		{
-			walkToken(tryKeyword, Edge("tryKeyword", stack));
-			walkExpr(expr, Edge("expr", stack));
-			walkExpr_ETry_catches(catches, Edge("catches", stack));
-		};
-	}
-	function walkEnumDecl(node:EnumDecl, stack:WalkStack) {
-		stack = Node(EnumDecl(node), stack);
-		{
-			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			walkEnumDecl_flags(node.flags, Edge("flags", stack));
-			walkToken(node.enumKeyword, Edge("enumKeyword", stack));
-			walkToken(node.name, Edge("name", stack));
-			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
-			walkToken(node.braceOpen, Edge("braceOpen", stack));
-			walkEnumDecl_fields(node.fields, Edge("fields", stack));
-			walkToken(node.braceClose, Edge("braceClose", stack));
-		};
-	}
-	function walkNDotIdent(node:NDotIdent, stack:WalkStack) switch node {
-		case PDotIdent(name):walkNDotIdent_PDotIdent(name, stack);
-		case PDot(dot):walkNDotIdent_PDot(dot, stack);
-	};
 	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token, stack:WalkStack) {
 		stack = Node(ClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon), stack);
 		{
@@ -908,44 +46,297 @@ import hxParser.ParseTree;
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
-	function walkConstraints_Single(colon:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(Constraints_Single(colon, type), stack);
+	function walkExpr_EObjectDecl_fields(elems:CommaSeparatedAllowTrailing<ObjectField>, stack:WalkStack) {
+		walkCommaSeparatedTrailing(elems, stack, walkObjectField);
+	}
+	function walkStringToken(node:StringToken, stack:WalkStack) switch node {
+		case DoubleQuote(token):walkStringToken_DoubleQuote(token, stack);
+		case SingleQuote(token):walkStringToken_SingleQuote(token, stack);
+	};
+	function walkCase_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>, stack:WalkStack) {
+		stack = Node(Case_Case(caseKeyword, patterns, guard, colon, body), stack);
 		{
+			walkToken(caseKeyword, Edge("caseKeyword", stack));
+			walkCase_Case_patterns(patterns, Edge("patterns", stack));
+			if (guard != null) walkGuard(guard, Edge("guard", stack));
 			walkToken(colon, Edge("colon", stack));
-			walkComplexType(type, Edge("type", stack));
+			walkCase_Case_body(body, Edge("body", stack));
 		};
 	}
-	function walkExpr_ETry_catches(elems:Array<Catch>, stack:WalkStack) {
-		walkArray(elems, stack, walkCatch);
+	function walkDecl(node:Decl, stack:WalkStack) switch node {
+		case AbstractDecl(decl):walkDecl_AbstractDecl(decl, stack);
+		case ImportDecl(decl):walkDecl_ImportDecl(decl, stack);
+		case TypedefDecl(decl):walkDecl_TypedefDecl(decl, stack);
+		case UsingDecl(decl):walkDecl_UsingDecl(decl, stack);
+		case ClassDecl(decl):walkDecl_ClassDecl(decl, stack);
+		case EnumDecl(decl):walkDecl_EnumDecl(decl, stack);
+	};
+	function walkFieldModifier(node:FieldModifier, stack:WalkStack) switch node {
+		case Macro(keyword):walkFieldModifier_Macro(keyword, stack);
+		case Public(keyword):walkFieldModifier_Public(keyword, stack);
+		case Private(keyword):walkFieldModifier_Private(keyword, stack);
+		case Static(keyword):walkFieldModifier_Static(keyword, stack);
+		case Inline(keyword):walkFieldModifier_Inline(keyword, stack);
+		case Override(keyword):walkFieldModifier_Override(keyword, stack);
+		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword, stack);
+	};
+	function walkExpr_EBlock_elems(elems:Array<BlockElement>, stack:WalkStack) {
+		walkArray(elems, stack, walkBlockElement);
 	}
-	function walkUsingDecl(node:UsingDecl, stack:WalkStack) {
-		stack = Node(UsingDecl(node), stack);
+	function walkFunctionArgument(node:FunctionArgument, stack:WalkStack) {
+		stack = Node(FunctionArgument(node), stack);
 		{
-			walkToken(node.usingKeyword, Edge("usingKeyword", stack));
-			walkNPath(node.path, Edge("path", stack));
-			walkToken(node.semicolon, Edge("semicolon", stack));
+			walkNAnnotations(node.annotations, Edge("annotations", stack));
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
+			walkToken(node.name, Edge("name", stack));
+			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
+			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
 		};
 	}
-	function walkFieldModifier_Private(keyword:Token, stack:WalkStack) {
-		stack = Node(FieldModifier_Private(keyword), stack);
+	function walkExpr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr, stack:WalkStack) {
+		stack = Node(Expr_EBinop(exprLeft, op, exprRight), stack);
+		{
+			walkExpr(exprLeft, Edge("exprLeft", stack));
+			walkToken(op, Edge("op", stack));
+			walkExpr(exprRight, Edge("exprRight", stack));
+		};
+	}
+	function walkFieldModifier_Macro(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Macro(keyword), stack);
 		{
 			walkToken(keyword, Edge("keyword", stack));
 		};
 	}
-	function walkClassField_Function_args(elems:CommaSeparated<FunctionArgument>, stack:WalkStack) {
+	function walkExpr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>, stack:WalkStack) {
+		stack = Node(Expr_ETry(tryKeyword, expr, catches), stack);
+		{
+			walkToken(tryKeyword, Edge("tryKeyword", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkExpr_ETry_catches(catches, Edge("catches", stack));
+		};
+	}
+	function walkBlockElement_Expr(expr:Expr, semicolon:Token, stack:WalkStack) {
+		stack = Node(BlockElement_Expr(expr, semicolon), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkObjectFieldName_NString(string:StringToken, stack:WalkStack) {
+		stack = Node(ObjectFieldName_NString(string), stack);
+		{
+			walkStringToken(string, Edge("string", stack));
+		};
+	}
+	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_StructuralExtension(braceOpen, types, fields, braceClose), stack);
+		{
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkComplexType_StructuralExtension_types(types, Edge("types", stack));
+			walkAnonymousStructureFields(fields, Edge("fields", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
+	}
+	function walkExpr_EUntyped(untypedKeyword:Token, expr:Expr, stack:WalkStack) {
+		stack = Node(Expr_EUntyped(untypedKeyword, expr), stack);
+		{
+			walkToken(untypedKeyword, Edge("untypedKeyword", stack));
+			walkExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkMacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, stack:WalkStack) {
+		stack = Node(MacroExpr_Var(varKeyword, decls), stack);
+		{
+			walkToken(varKeyword, Edge("varKeyword", stack));
+			walkMacroExpr_Var_decls(decls, Edge("decls", stack));
+		};
+	}
+	function walkClassField_Function_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
+		walkArray(elems, stack, walkFieldModifier);
+	}
+	function walkFunction_args(elems:CommaSeparated<FunctionArgument>, stack:WalkStack) {
 		walkCommaSeparated(elems, stack, walkFunctionArgument);
 	}
-	function walkExpr_EConst(const:NConst, stack:WalkStack) {
-		stack = Node(Expr_EConst(const), stack);
+	function walkAnonymousStructureFields(node:AnonymousStructureFields, stack:WalkStack) switch node {
+		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields, stack);
+		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields, stack);
+	};
+	function walkComplexType(node:ComplexType, stack:WalkStack) switch node {
+		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose, stack);
+		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose, stack);
+		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose, stack);
+		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight, stack);
+		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type, stack);
+		case TypePath(path):walkComplexType_TypePath(path, stack);
+	};
+	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose), stack);
 		{
-			walkNConst(const, Edge("const", stack));
+			walkToken(doKeyword, Edge("doKeyword", stack));
+			walkExpr(exprBody, Edge("exprBody", stack));
+			walkToken(whileKeyword, Edge("whileKeyword", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(exprCond, Edge("exprCond", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
 		};
 	}
-	function walkDecl_TypedefDecl(decl:TypedefDecl, stack:WalkStack) {
-		stack = Node(Decl_TypedefDecl(decl), stack);
+	function walkImportDecl(node:ImportDecl, stack:WalkStack) {
+		stack = Node(ImportDecl(node), stack);
 		{
-			walkTypedefDecl(decl, Edge("decl", stack));
+			walkToken(node.importKeyword, Edge("importKeyword", stack));
+			walkNPath(node.path, Edge("path", stack));
+			walkImportMode(node.mode, Edge("mode", stack));
+			walkToken(node.semicolon, Edge("semicolon", stack));
 		};
+	}
+	function walkMacroExpr_Var_decls(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkVarDecl);
+	}
+	function walkGuard(node:Guard, stack:WalkStack) {
+		stack = Node(Guard(node), stack);
+		{
+			walkToken(node.ifKeyword, Edge("ifKeyword", stack));
+			walkToken(node.parenOpen, Edge("parenOpen", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+			walkToken(node.parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkExpr_EIn(exprLeft:Expr, inKeyword:Token, exprRight:Expr, stack:WalkStack) {
+		stack = Node(Expr_EIn(exprLeft, inKeyword, exprRight), stack);
+		{
+			walkExpr(exprLeft, Edge("exprLeft", stack));
+			walkToken(inKeyword, Edge("inKeyword", stack));
+			walkExpr(exprRight, Edge("exprRight", stack));
+		};
+	}
+	function walkEnumDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
+		walkArray(elems, stack, walkNCommonFlag);
+	}
+	function walkStructuralExtension(node:StructuralExtension, stack:WalkStack) {
+		stack = Node(StructuralExtension(node), stack);
+		{
+			walkToken(node.gt, Edge("gt", stack));
+			walkTypePath(node.path, Edge("path", stack));
+			walkToken(node.comma, Edge("comma", stack));
+		};
+	}
+	function walkExpr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
+		stack = Node(Expr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose), stack);
+		{
+			walkToken(castKeyword, Edge("castKeyword", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(comma, Edge("comma", stack));
+			walkComplexType(type, Edge("type", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkImportMode_IAs(asKeyword:Token, ident:Token, stack:WalkStack) {
+		stack = Node(ImportMode_IAs(asKeyword, ident), stack);
+		{
+			walkToken(asKeyword, Edge("asKeyword", stack));
+			walkToken(ident, Edge("ident", stack));
+		};
+	}
+	function walkFieldModifier_Public(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Public(keyword), stack);
+		{
+			walkToken(keyword, Edge("keyword", stack));
+		};
+	}
+	function walkLiteral(node:Literal, stack:WalkStack) switch node {
+		case PLiteralString(s):walkLiteral_PLiteralString(s, stack);
+		case PLiteralInt(token):walkLiteral_PLiteralInt(token, stack);
+		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token, stack);
+		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token, stack);
+	};
+	function walkConstraints(node:Constraints, stack:WalkStack) switch node {
+		case None:{ };
+		case Single(colon, type):walkConstraints_Single(colon, type, stack);
+		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose, stack);
+	};
+	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr, stack:WalkStack) {
+		stack = Node(ClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr), stack);
+		{
+			walkNAnnotations(annotations, Edge("annotations", stack));
+			walkClassField_Function_modifiers(modifiers, Edge("modifiers", stack));
+			walkToken(functionKeyword, Edge("functionKeyword", stack));
+			walkToken(name, Edge("name", stack));
+			if (params != null) walkTypeDeclParameters(params, Edge("params", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			if (args != null) walkClassField_Function_args(args, Edge("args", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
+			walkMethodExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkExpr_EArrayDecl_elems(elems:CommaSeparatedAllowTrailing<Expr>, stack:WalkStack) {
+		walkCommaSeparatedTrailing(elems, stack, walkExpr);
+	}
+	function walkFunction(node:Function, stack:WalkStack) {
+		stack = Node(Function(node), stack);
+		{
+			if (node.name != null) walkToken(node.name, Edge("name", stack));
+			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
+			walkToken(node.parenOpen, Edge("parenOpen", stack));
+			if (node.args != null) walkFunction_args(node.args, Edge("args", stack));
+			walkToken(node.parenClose, Edge("parenClose", stack));
+			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+		};
+	}
+	function walkExpr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token, stack:WalkStack) {
+		stack = Node(Expr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose), stack);
+		{
+			walkToken(switchKeyword, Edge("switchKeyword", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkExpr_ESwitch_cases(cases, Edge("cases", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
+	}
+	function walkTypedefDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
+		walkArray(elems, stack, walkNCommonFlag);
+	}
+	function walkFile_decls(elems:Array<Decl>, stack:WalkStack) {
+		walkArray(elems, stack, walkDecl);
+	}
+	function walkTypePath(node:TypePath, stack:WalkStack) {
+		stack = Node(TypePath(node), stack);
+		{
+			walkNPath(node.path, Edge("path", stack));
+			if (node.params != null) walkTypePathParameters(node.params, Edge("params", stack));
+		};
+	}
+	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkTypeDeclParameter);
+	}
+	function walkExpr_EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EParenthesis(parenOpen, expr, parenClose), stack);
+		{
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkClassDecl2(node:ClassDecl2, stack:WalkStack) {
+		stack = Node(ClassDecl2(node), stack);
+		{
+			walkNAnnotations(node.annotations, Edge("annotations", stack));
+			walkClassDecl2_flags(node.flags, Edge("flags", stack));
+			walkClassDecl(node.decl, Edge("decl", stack));
+		};
+	}
+	function walkPackage(node:Package, stack:WalkStack) {
+		stack = Node(Package(node), stack);
+		{
+			walkToken(node.packageKeyword, Edge("packageKeyword", stack));
+			if (node.path != null) walkNPath(node.path, Edge("path", stack));
+			walkToken(node.semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkNAnnotations_metadata(elems:Array<Metadata>, stack:WalkStack) {
+		walkArray(elems, stack, walkMetadata);
 	}
 	function walkAbstractDecl(node:AbstractDecl, stack:WalkStack) {
 		stack = Node(AbstractDecl(node), stack);
@@ -962,22 +353,65 @@ import hxParser.ParseTree;
 			walkToken(node.braceClose, Edge("braceClose", stack));
 		};
 	}
-	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token, stack:WalkStack) {
-		stack = Node(ClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon), stack);
+	function walkClassField(node:ClassField, stack:WalkStack) switch node {
+		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon, stack);
+		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon, stack);
+		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr, stack);
+	};
+	function walkFieldModifier_Inline(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Inline(keyword), stack);
 		{
-			walkNAnnotations(annotations, Edge("annotations", stack));
-			walkClassField_Variable_modifiers(modifiers, Edge("modifiers", stack));
-			walkToken(varKeyword, Edge("varKeyword", stack));
-			walkToken(name, Edge("name", stack));
-			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
-			if (assignment != null) walkAssignment(assignment, Edge("assignment", stack));
-			walkToken(semicolon, Edge("semicolon", stack));
+			walkToken(keyword, Edge("keyword", stack));
 		};
 	}
-	function walkLiteral_PLiteralFloat(token:Token, stack:WalkStack) {
-		stack = Node(Literal_PLiteralFloat(token), stack);
+	function walkExpr_EReturn(returnKeyword:Token, stack:WalkStack) {
+		stack = Node(Expr_EReturn(returnKeyword), stack);
+		{
+			walkToken(returnKeyword, Edge("returnKeyword", stack));
+		};
+	}
+	function walkNEnumFieldArgs(node:NEnumFieldArgs, stack:WalkStack) {
+		stack = Node(NEnumFieldArgs(node), stack);
+		{
+			walkToken(node.parenOpen, Edge("parenOpen", stack));
+			if (node.args != null) walkNEnumFieldArgs_args(node.args, Edge("args", stack));
+			walkToken(node.parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkExpr_EIntDot(int:Token, dot:Token, stack:WalkStack) {
+		stack = Node(Expr_EIntDot(int, dot), stack);
+		{
+			walkToken(int, Edge("int", stack));
+			walkToken(dot, Edge("dot", stack));
+		};
+	}
+	function walkLiteral_PLiteralRegex(token:Token, stack:WalkStack) {
+		stack = Node(Literal_PLiteralRegex(token), stack);
 		{
 			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkExpr_EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EBlock(braceOpen, elems, braceClose), stack);
+		{
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkExpr_EBlock_elems(elems, Edge("elems", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
+	}
+	function walkExpr_ECall(expr:Expr, args:CallArgs, stack:WalkStack) {
+		stack = Node(Expr_ECall(expr, args), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+			walkCallArgs(args, Edge("args", stack));
+		};
+	}
+	function walkCase_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>, stack:WalkStack) {
+		stack = Node(Case_Default(defaultKeyword, colon, body), stack);
+		{
+			walkToken(defaultKeyword, Edge("defaultKeyword", stack));
+			walkToken(colon, Edge("colon", stack));
+			walkCase_Default_body(body, Edge("body", stack));
 		};
 	}
 	function walkExpr_EUnaryPostfix(expr:Expr, op:Token, stack:WalkStack) {
@@ -987,27 +421,10 @@ import hxParser.ParseTree;
 			walkToken(op, Edge("op", stack));
 		};
 	}
-	function walkComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType, stack:WalkStack) {
-		stack = Node(ComplexType_Function(typeLeft, arrow, typeRight), stack);
+	function walkMethodExpr_Block(expr:Expr, stack:WalkStack) {
+		stack = Node(MethodExpr_Block(expr), stack);
 		{
-			walkComplexType(typeLeft, Edge("typeLeft", stack));
-			walkToken(arrow, Edge("arrow", stack));
-			walkComplexType(typeRight, Edge("typeRight", stack));
-		};
-	}
-	function walkBlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token, stack:WalkStack) {
-		stack = Node(BlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon), stack);
-		{
-			walkToken(inlineKeyword, Edge("inlineKeyword", stack));
-			walkToken(functionKeyword, Edge("functionKeyword", stack));
-			walkFunction(fun, Edge("fun", stack));
-			walkToken(semicolon, Edge("semicolon", stack));
-		};
-	}
-	function walkLiteral_PLiteralInt(token:Token, stack:WalkStack) {
-		stack = Node(Literal_PLiteralInt(token), stack);
-		{
-			walkToken(token, Edge("token", stack));
+			walkExpr(expr, Edge("expr", stack));
 		};
 	}
 	function walkCallArgs(node:CallArgs, stack:WalkStack) {
@@ -1018,73 +435,51 @@ import hxParser.ParseTree;
 			walkToken(node.parenClose, Edge("parenClose", stack));
 		};
 	}
-	function walkExpr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose), stack);
+	function walkExpr_EMetadata(metadata:Metadata, expr:Expr, stack:WalkStack) {
+		stack = Node(Expr_EMetadata(metadata, expr), stack);
 		{
+			walkMetadata(metadata, Edge("metadata", stack));
 			walkExpr(expr, Edge("expr", stack));
-			walkToken(bracketOpen, Edge("bracketOpen", stack));
-			walkExpr(exprKey, Edge("exprKey", stack));
-			walkToken(bracketClose, Edge("bracketClose", stack));
 		};
 	}
-	function walkImportMode_IIn(inKeyword:Token, ident:Token, stack:WalkStack) {
-		stack = Node(ImportMode_IIn(inKeyword, ident), stack);
+	function walkClassDecl(node:ClassDecl, stack:WalkStack) {
+		stack = Node(ClassDecl(node), stack);
 		{
-			walkToken(inKeyword, Edge("inKeyword", stack));
-			walkToken(ident, Edge("ident", stack));
+			walkToken(node.kind, Edge("kind", stack));
+			walkToken(node.name, Edge("name", stack));
+			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
+			walkClassDecl_relations(node.relations, Edge("relations", stack));
+			walkToken(node.braceOpen, Edge("braceOpen", stack));
+			walkClassDecl_fields(node.fields, Edge("fields", stack));
+			walkToken(node.braceClose, Edge("braceClose", stack));
 		};
 	}
-	function walkAnonymousStructureFields(node:AnonymousStructureFields, stack:WalkStack) switch node {
-		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields, stack);
-		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields, stack);
+	function walkMetadata_Simple(name:Token, stack:WalkStack) {
+		stack = Node(Metadata_Simple(name), stack);
+		{
+			walkToken(name, Edge("name", stack));
+		};
+	}
+	function walkCase_Case_body(elems:Array<BlockElement>, stack:WalkStack) {
+		walkArray(elems, stack, walkBlockElement);
+	}
+	function walkImportMode(node:ImportMode, stack:WalkStack) switch node {
+		case IAll(dotStar):walkImportMode_IAll(dotStar, stack);
+		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident, stack);
+		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident, stack);
+		case INormal:{ };
 	};
-	function walkFieldModifier(node:FieldModifier, stack:WalkStack) switch node {
-		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword, stack);
-		case Inline(keyword):walkFieldModifier_Inline(keyword, stack);
-		case Macro(keyword):walkFieldModifier_Macro(keyword, stack);
-		case Override(keyword):walkFieldModifier_Override(keyword, stack);
-		case Private(keyword):walkFieldModifier_Private(keyword, stack);
-		case Public(keyword):walkFieldModifier_Public(keyword, stack);
-		case Static(keyword):walkFieldModifier_Static(keyword, stack);
+	function walkMethodExpr(node:MethodExpr, stack:WalkStack) switch node {
+		case Block(expr):walkMethodExpr_Block(expr, stack);
+		case None(semicolon):walkMethodExpr_None(semicolon, stack);
+		case Expr(expr, semicolon):walkMethodExpr_Expr(expr, semicolon, stack);
 	};
-	function walkBlockElement(node:BlockElement, stack:WalkStack) switch node {
-		case Expr(expr, semicolon):walkBlockElement_Expr(expr, semicolon, stack);
-		case InlineFunction(inlineKeyword, functionKeyword, fun, semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon, stack);
-		case Var(varKeyword, decls, semicolon):walkBlockElement_Var(varKeyword, decls, semicolon, stack);
-	};
-	function walkExpr_EContinue(continueKeyword:Token, stack:WalkStack) {
-		stack = Node(Expr_EContinue(continueKeyword), stack);
+	function walkExpr_EThrow(throwKeyword:Token, expr:Expr, stack:WalkStack) {
+		stack = Node(Expr_EThrow(throwKeyword, expr), stack);
 		{
-			walkToken(continueKeyword, Edge("continueKeyword", stack));
-		};
-	}
-	function walkTypePathParameter_Type(type:ComplexType, stack:WalkStack) {
-		stack = Node(TypePathParameter_Type(type), stack);
-		{
-			walkComplexType(type, Edge("type", stack));
-		};
-	}
-	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token, stack:WalkStack) {
-		stack = Node(Expr_EMacroEscape(ident, braceOpen, expr, braceClose), stack);
-		{
-			walkToken(ident, Edge("ident", stack));
-			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkToken(throwKeyword, Edge("throwKeyword", stack));
 			walkExpr(expr, Edge("expr", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
 		};
-	}
-	function walkExpr_EArrayDecl_elems(elems:CommaSeparatedAllowTrailing<Expr>, stack:WalkStack) {
-		walkCommaSeparatedTrailing(elems, stack, walkExpr);
-	}
-	function walkTypeHint(node:TypeHint, stack:WalkStack) {
-		stack = Node(TypeHint(node), stack);
-		{
-			walkToken(node.colon, Edge("colon", stack));
-			walkComplexType(node.type, Edge("type", stack));
-		};
-	}
-	function walkAbstractDecl_relations(elems:Array<AbstractRelation>, stack:WalkStack) {
-		walkArray(elems, stack, walkAbstractRelation);
 	}
 	function walkAssignment(node:Assignment, stack:WalkStack) {
 		stack = Node(Assignment(node), stack);
@@ -1093,63 +488,142 @@ import hxParser.ParseTree;
 			walkExpr(node.expr, Edge("expr", stack));
 		};
 	}
+	function walkMethodExpr_Expr(expr:Expr, semicolon:Token, stack:WalkStack) {
+		stack = Node(MethodExpr_Expr(expr, semicolon), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkMacroExpr_Class(classDecl:ClassDecl, stack:WalkStack) {
+		stack = Node(MacroExpr_Class(classDecl), stack);
+		{
+			walkClassDecl(classDecl, Edge("classDecl", stack));
+		};
+	}
+	function walkCase_Case_patterns(elems:CommaSeparated<Expr>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkExpr);
+	}
+	function walkNPath_idents(elems:Array<NDotIdent>, stack:WalkStack) {
+		walkArray(elems, stack, walkNDotIdent);
+	}
+	function walkNCommonFlag(node:NCommonFlag, stack:WalkStack) switch node {
+		case PPrivate(token):walkNCommonFlag_PPrivate(token, stack);
+		case PExtern(token):walkNCommonFlag_PExtern(token, stack);
+	};
 	function walkClassField_Variable_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
 		walkArray(elems, stack, walkFieldModifier);
 	}
-	function walkConstraints(node:Constraints, stack:WalkStack) switch node {
-		case None:{ };
-		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose, stack);
-		case Single(colon, type):walkConstraints_Single(colon, type, stack);
-	};
-	function walkObjectField(node:ObjectField, stack:WalkStack) {
-		stack = Node(ObjectField(node), stack);
+	function walkTypeHint(node:TypeHint, stack:WalkStack) {
+		stack = Node(TypeHint(node), stack);
 		{
-			walkObjectFieldName(node.name, Edge("name", stack));
 			walkToken(node.colon, Edge("colon", stack));
-			walkExpr(node.expr, Edge("expr", stack));
+			walkComplexType(node.type, Edge("type", stack));
 		};
 	}
-	function walkTypePathParameters(node:TypePathParameters, stack:WalkStack) {
-		stack = Node(TypePathParameters(node), stack);
+	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EArrayDecl(bracketOpen, elems, bracketClose), stack);
 		{
-			walkToken(node.lt, Edge("lt", stack));
-			walkTypePathParameters_params(node.params, Edge("params", stack));
-			walkToken(node.gt, Edge("gt", stack));
+			walkToken(bracketOpen, Edge("bracketOpen", stack));
+			if (elems != null) walkExpr_EArrayDecl_elems(elems, Edge("elems", stack));
+			walkToken(bracketClose, Edge("bracketClose", stack));
 		};
 	}
-	function walkLiteral_PLiteralString(s:StringToken, stack:WalkStack) {
-		stack = Node(Literal_PLiteralString(s), stack);
+	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>, stack:WalkStack) {
+		stack = Node(AnonymousStructureFields_ShortNotation(fields), stack);
 		{
-			walkStringToken(s, Edge("s", stack));
+			if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields, Edge("fields", stack));
 		};
 	}
-	function walkExpr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
-		stack = Node(Expr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose), stack);
+	function walkExpr_EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EIs(parenOpen, expr, isKeyword, path, parenClose), stack);
 		{
-			walkToken(castKeyword, Edge("castKeyword", stack));
 			walkToken(parenOpen, Edge("parenOpen", stack));
 			walkExpr(expr, Edge("expr", stack));
-			walkToken(comma, Edge("comma", stack));
-			walkComplexType(type, Edge("type", stack));
+			walkToken(isKeyword, Edge("isKeyword", stack));
+			walkTypePath(path, Edge("path", stack));
 			walkToken(parenClose, Edge("parenClose", stack));
 		};
 	}
-	function walkFile_decls(elems:Array<Decl>, stack:WalkStack) {
-		walkArray(elems, stack, walkDecl);
+	function walkExpr_EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EObjectDecl(braceOpen, fields, braceClose), stack);
+		{
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkExpr_EObjectDecl_fields(fields, Edge("fields", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
 	}
-	function walkDecl(node:Decl, stack:WalkStack) switch node {
-		case ClassDecl(decl):walkDecl_ClassDecl(decl, stack);
-		case TypedefDecl(decl):walkDecl_TypedefDecl(decl, stack);
-		case EnumDecl(decl):walkDecl_EnumDecl(decl, stack);
-		case UsingDecl(decl):walkDecl_UsingDecl(decl, stack);
-		case AbstractDecl(decl):walkDecl_AbstractDecl(decl, stack);
-		case ImportDecl(decl):walkDecl_ImportDecl(decl, stack);
-	};
-	function walkCallArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkExpr);
+	function walkUsingDecl(node:UsingDecl, stack:WalkStack) {
+		stack = Node(UsingDecl(node), stack);
+		{
+			walkToken(node.usingKeyword, Edge("usingKeyword", stack));
+			walkNPath(node.path, Edge("path", stack));
+			walkToken(node.semicolon, Edge("semicolon", stack));
+		};
 	}
-	function walkConstraints_Multiple_types(elems:CommaSeparated<ComplexType>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkComplexType);
+	function walkClassDecl_relations(elems:Array<ClassRelation>, stack:WalkStack) {
+		walkArray(elems, stack, walkClassRelation);
+	}
+	function walkExpr_EField(expr:Expr, ident:NDotIdent, stack:WalkStack) {
+		stack = Node(Expr_EField(expr, ident), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+			walkNDotIdent(ident, Edge("ident", stack));
+		};
+	}
+	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>, stack:WalkStack) {
+		walkArray(elems, stack, walkStructuralExtension);
+	}
+	function walkTypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token, stack:WalkStack) {
+		stack = Node(TypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose), stack);
+		{
+			walkToken(bracketOpen, Edge("bracketOpen", stack));
+			if (elems != null) walkTypePathParameter_ArrayExpr_elems(elems, Edge("elems", stack));
+			walkToken(bracketClose, Edge("bracketClose", stack));
+		};
+	}
+	function walkComplexType_Optional(questionMark:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(ComplexType_Optional(questionMark, type), stack);
+		{
+			walkToken(questionMark, Edge("questionMark", stack));
+			walkComplexType(type, Edge("type", stack));
+		};
+	}
+	function walkExpr_EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, exprElse:Null<ExprElse>, stack:WalkStack) {
+		stack = Node(Expr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse), stack);
+		{
+			walkToken(ifKeyword, Edge("ifKeyword", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(exprCond, Edge("exprCond", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+			walkExpr(exprThen, Edge("exprThen", stack));
+			if (exprElse != null) walkExprElse(exprElse, Edge("exprElse", stack));
+		};
+	}
+	function walkComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_AnonymousStructure(braceOpen, fields, braceClose), stack);
+		{
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkAnonymousStructureFields(fields, Edge("fields", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
+	}
+	function walkVarDecl(node:VarDecl, stack:WalkStack) {
+		stack = Node(VarDecl(node), stack);
+		{
+			walkToken(node.name, Edge("name", stack));
+			if (node.typeHint != null) walkTypeHint(node.typeHint, Edge("typeHint", stack));
+			if (node.assignment != null) walkAssignment(node.assignment, Edge("assignment", stack));
+		};
+	}
+	function walkNCommonFlag_PExtern(token:Token, stack:WalkStack) {
+		stack = Node(NCommonFlag_PExtern(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkTypePathParameter_ArrayExpr_elems(elems:CommaSeparatedAllowTrailing<Expr>, stack:WalkStack) {
+		walkCommaSeparatedTrailing(elems, stack, walkExpr);
 	}
 	function walkNEnumField(node:NEnumField, stack:WalkStack) {
 		stack = Node(NEnumField(node), stack);
@@ -1162,34 +636,10 @@ import hxParser.ParseTree;
 			walkToken(node.semicolon, Edge("semicolon", stack));
 		};
 	}
-	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>, stack:WalkStack) {
-		walkArray(elems, stack, walkStructuralExtension);
-	}
-	function walkDecl_EnumDecl(decl:EnumDecl, stack:WalkStack) {
-		stack = Node(Decl_EnumDecl(decl), stack);
+	function walkNConst_PConstLiteral(literal:Literal, stack:WalkStack) {
+		stack = Node(NConst_PConstLiteral(literal), stack);
 		{
-			walkEnumDecl(decl, Edge("decl", stack));
-		};
-	}
-	function walkExpr_EMacro(macroKeyword:Token, expr:MacroExpr, stack:WalkStack) {
-		stack = Node(Expr_EMacro(macroKeyword, expr), stack);
-		{
-			walkToken(macroKeyword, Edge("macroKeyword", stack));
-			walkMacroExpr(expr, Edge("expr", stack));
-		};
-	}
-	function walkNEnumFieldArg(node:NEnumFieldArg, stack:WalkStack) {
-		stack = Node(NEnumFieldArg(node), stack);
-		{
-			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
-			walkToken(node.name, Edge("name", stack));
-			walkTypeHint(node.typeHint, Edge("typeHint", stack));
-		};
-	}
-	function walkLiteral_PLiteralRegex(token:Token, stack:WalkStack) {
-		stack = Node(Literal_PLiteralRegex(token), stack);
-		{
-			walkToken(token, Edge("token", stack));
+			walkLiteral(literal, Edge("literal", stack));
 		};
 	}
 	function walkMethodExpr_None(semicolon:Token, stack:WalkStack) {
@@ -1198,30 +648,255 @@ import hxParser.ParseTree;
 			walkToken(semicolon, Edge("semicolon", stack));
 		};
 	}
-	function walkComplexType_TypePath(path:TypePath, stack:WalkStack) {
-		stack = Node(ComplexType_TypePath(path), stack);
+	function walkAbstractRelation_From(fromKeyword:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(AbstractRelation_From(fromKeyword, type), stack);
 		{
-			walkTypePath(path, Edge("path", stack));
+			walkToken(fromKeyword, Edge("fromKeyword", stack));
+			walkComplexType(type, Edge("type", stack));
 		};
 	}
+	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token, stack:WalkStack) {
+		stack = Node(ClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon), stack);
+		{
+			walkNAnnotations(annotations, Edge("annotations", stack));
+			walkClassField_Variable_modifiers(modifiers, Edge("modifiers", stack));
+			walkToken(varKeyword, Edge("varKeyword", stack));
+			walkToken(name, Edge("name", stack));
+			if (typeHint != null) walkTypeHint(typeHint, Edge("typeHint", stack));
+			if (assignment != null) walkAssignment(assignment, Edge("assignment", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkTypeDeclParameter(node:TypeDeclParameter, stack:WalkStack) {
+		stack = Node(TypeDeclParameter(node), stack);
+		{
+			walkNAnnotations(node.annotations, Edge("annotations", stack));
+			walkToken(node.name, Edge("name", stack));
+			walkConstraints(node.constraints, Edge("constraints", stack));
+		};
+	}
+	function walkComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
+		stack = Node(ComplexType_Parenthesis(parenOpen, type, parenClose), stack);
+		{
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkComplexType(type, Edge("type", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkNDotIdent(node:NDotIdent, stack:WalkStack) switch node {
+		case PDotIdent(name):walkNDotIdent_PDotIdent(name, stack);
+		case PDot(dot):walkNDotIdent_PDot(dot, stack);
+	};
+	function walkExpr_EUnaryPrefix(op:Token, expr:Expr, stack:WalkStack) {
+		stack = Node(Expr_EUnaryPrefix(op, expr), stack);
+		{
+			walkToken(op, Edge("op", stack));
+			walkExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkAnonymousStructureField(node:AnonymousStructureField, stack:WalkStack) {
+		stack = Node(AnonymousStructureField(node), stack);
+		{
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
+			walkToken(node.name, Edge("name", stack));
+			walkTypeHint(node.typeHint, Edge("typeHint", stack));
+		};
+	}
+	function walkFieldModifier_Dynamic(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Dynamic(keyword), stack);
+		{
+			walkToken(keyword, Edge("keyword", stack));
+		};
+	}
+	function walkExpr_EConst(const:NConst, stack:WalkStack) {
+		stack = Node(Expr_EConst(const), stack);
+		{
+			walkNConst(const, Edge("const", stack));
+		};
+	}
+	function walkClassField_Function_args(elems:CommaSeparated<FunctionArgument>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkFunctionArgument);
+	}
+	function walkClassRelation(node:ClassRelation, stack:WalkStack) switch node {
+		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path, stack);
+		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path, stack);
+	};
+	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr, stack:WalkStack) {
+		stack = Node(Expr_ETernary(exprCond, questionMark, exprThen, colon, exprElse), stack);
+		{
+			walkExpr(exprCond, Edge("exprCond", stack));
+			walkToken(questionMark, Edge("questionMark", stack));
+			walkExpr(exprThen, Edge("exprThen", stack));
+			walkToken(colon, Edge("colon", stack));
+			walkExpr(exprElse, Edge("exprElse", stack));
+		};
+	}
+	function walkCase_Default_body(elems:Array<BlockElement>, stack:WalkStack) {
+		walkArray(elems, stack, walkBlockElement);
+	}
+	function walkExpr_EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr, stack:WalkStack) {
+		stack = Node(Expr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody), stack);
+		{
+			walkToken(forKeyword, Edge("forKeyword", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(exprIter, Edge("exprIter", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+			walkExpr(exprBody, Edge("exprBody", stack));
+		};
+	}
+	function walkDecl_EnumDecl(decl:EnumDecl, stack:WalkStack) {
+		stack = Node(Decl_EnumDecl(decl), stack);
+		{
+			walkEnumDecl(decl, Edge("decl", stack));
+		};
+	}
+	function walkMacroExpr_Expr(expr:Expr, stack:WalkStack) {
+		stack = Node(MacroExpr_Expr(expr), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkDecl_ClassDecl(decl:ClassDecl2, stack:WalkStack) {
+		stack = Node(Decl_ClassDecl(decl), stack);
+		{
+			walkClassDecl2(decl, Edge("decl", stack));
+		};
+	}
+	function walkBlockElement(node:BlockElement, stack:WalkStack) switch node {
+		case InlineFunction(inlineKeyword, functionKeyword, fun, semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon, stack);
+		case Var(varKeyword, decls, semicolon):walkBlockElement_Var(varKeyword, decls, semicolon, stack);
+		case Expr(expr, semicolon):walkBlockElement_Expr(expr, semicolon, stack);
+	};
 	function walkTypePathParameter_Literal(literal:Literal, stack:WalkStack) {
 		stack = Node(TypePathParameter_Literal(literal), stack);
 		{
 			walkLiteral(literal, Edge("literal", stack));
 		};
 	}
-	function walkMacroExpr_Class(classDecl:ClassDecl, stack:WalkStack) {
-		stack = Node(MacroExpr_Class(classDecl), stack);
+	function walkAnonymousStructureFields_ClassNotation_fields(elems:Array<ClassField>, stack:WalkStack) {
+		walkArray(elems, stack, walkClassField);
+	}
+	function walkFieldModifier_Static(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Static(keyword), stack);
 		{
-			walkClassDecl(classDecl, Edge("classDecl", stack));
+			walkToken(keyword, Edge("keyword", stack));
 		};
 	}
-	function walkStructuralExtension(node:StructuralExtension, stack:WalkStack) {
-		stack = Node(StructuralExtension(node), stack);
+	function walkCatch(node:Catch, stack:WalkStack) {
+		stack = Node(Catch(node), stack);
 		{
-			walkToken(node.gt, Edge("gt", stack));
-			walkTypePath(node.path, Edge("path", stack));
-			walkToken(node.comma, Edge("comma", stack));
+			walkToken(node.catchKeyword, Edge("catchKeyword", stack));
+			walkToken(node.parenOpen, Edge("parenOpen", stack));
+			walkToken(node.ident, Edge("ident", stack));
+			walkTypeHint(node.typeHint, Edge("typeHint", stack));
+			walkToken(node.parenClose, Edge("parenClose", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+		};
+	}
+	function walkAbstractDecl_fields(elems:Array<ClassField>, stack:WalkStack) {
+		walkArray(elems, stack, walkClassField);
+	}
+	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkNEnumFieldArg);
+	}
+	function walkFile(node:File, stack:WalkStack) {
+		stack = Node(File(node), stack);
+		{
+			if (node.pack != null) walkPackage(node.pack, Edge("pack", stack));
+			walkFile_decls(node.decls, Edge("decls", stack));
+			walkToken(node.eof, Edge("eof", stack));
+		};
+	}
+	function walkCallArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkExpr);
+	}
+	function walkExpr_EBreak(breakKeyword:Token, stack:WalkStack) {
+		stack = Node(Expr_EBreak(breakKeyword), stack);
+		{
+			walkToken(breakKeyword, Edge("breakKeyword", stack));
+		};
+	}
+	function walkExpr_ESwitch_cases(elems:Array<Case>, stack:WalkStack) {
+		walkArray(elems, stack, walkCase);
+	}
+	function walkExpr_EDollarIdent(ident:Token, stack:WalkStack) {
+		stack = Node(Expr_EDollarIdent(ident), stack);
+		{
+			walkToken(ident, Edge("ident", stack));
+		};
+	}
+	function walkObjectField(node:ObjectField, stack:WalkStack) {
+		stack = Node(ObjectField(node), stack);
+		{
+			walkObjectFieldName(node.name, Edge("name", stack));
+			walkToken(node.colon, Edge("colon", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+		};
+	}
+	function walkImportMode_IIn(inKeyword:Token, ident:Token, stack:WalkStack) {
+		stack = Node(ImportMode_IIn(inKeyword, ident), stack);
+		{
+			walkToken(inKeyword, Edge("inKeyword", stack));
+			walkToken(ident, Edge("ident", stack));
+		};
+	}
+	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr, stack:WalkStack) {
+		stack = Node(Expr_EUnsafeCast(castKeyword, expr), stack);
+		{
+			walkToken(castKeyword, Edge("castKeyword", stack));
+			walkExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkTypedefDecl(node:TypedefDecl, stack:WalkStack) {
+		stack = Node(TypedefDecl(node), stack);
+		{
+			walkNAnnotations(node.annotations, Edge("annotations", stack));
+			walkTypedefDecl_flags(node.flags, Edge("flags", stack));
+			walkToken(node.typedefKeyword, Edge("typedefKeyword", stack));
+			walkToken(node.name, Edge("name", stack));
+			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
+			walkToken(node.assign, Edge("assign", stack));
+			walkComplexType(node.type, Edge("type", stack));
+			if (node.semicolon != null) walkToken(node.semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkMacroExpr(node:MacroExpr, stack:WalkStack) switch node {
+		case TypeHint(typeHint):walkMacroExpr_TypeHint(typeHint, stack);
+		case Var(varKeyword, decls):walkMacroExpr_Var(varKeyword, decls, stack);
+		case Class(classDecl):walkMacroExpr_Class(classDecl, stack);
+		case Expr(expr):walkMacroExpr_Expr(expr, stack);
+	};
+	function walkMetadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token, stack:WalkStack) {
+		stack = Node(Metadata_WithArgs(name, args, parenClose), stack);
+		{
+			walkToken(name, Edge("name", stack));
+			walkMetadata_WithArgs_args(args, Edge("args", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkDecl_AbstractDecl(decl:AbstractDecl, stack:WalkStack) {
+		stack = Node(Decl_AbstractDecl(decl), stack);
+		{
+			walkAbstractDecl(decl, Edge("decl", stack));
+		};
+	}
+	function walkAbstractRelation(node:AbstractRelation, stack:WalkStack) switch node {
+		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type, stack);
+		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type, stack);
+	};
+	function walkNDotIdent_PDot(dot:Token, stack:WalkStack) {
+		stack = Node(NDotIdent_PDot(dot), stack);
+		{
+			walkToken(dot, Edge("dot", stack));
+		};
+	}
+	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token, stack:WalkStack) {
+		stack = Node(Constraints_Multiple(colon, parenOpen, types, parenClose), stack);
+		{
+			walkToken(colon, Edge("colon", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkConstraints_Multiple_types(types, Edge("types", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
 		};
 	}
 	function walkExpr_EReturnExpr(returnKeyword:Token, expr:Expr, stack:WalkStack) {
@@ -1231,12 +906,115 @@ import hxParser.ParseTree;
 			walkExpr(expr, Edge("expr", stack));
 		};
 	}
-	function walkClassDecl2(node:ClassDecl2, stack:WalkStack) {
-		stack = Node(ClassDecl2(node), stack);
+	function walkNConst_PConstIdent(ident:Token, stack:WalkStack) {
+		stack = Node(NConst_PConstIdent(ident), stack);
 		{
-			walkNAnnotations(node.annotations, Edge("annotations", stack));
-			walkClassDecl2_flags(node.flags, Edge("flags", stack));
-			walkClassDecl(node.decl, Edge("decl", stack));
+			walkToken(ident, Edge("ident", stack));
+		};
+	}
+	function walkClassField_Property_modifiers(elems:Array<FieldModifier>, stack:WalkStack) {
+		walkArray(elems, stack, walkFieldModifier);
+	}
+	function walkConstraints_Single(colon:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(Constraints_Single(colon, type), stack);
+		{
+			walkToken(colon, Edge("colon", stack));
+			walkComplexType(type, Edge("type", stack));
+		};
+	}
+	function walkExpr_ETry_catches(elems:Array<Catch>, stack:WalkStack) {
+		walkArray(elems, stack, walkCatch);
+	}
+	function walkExpr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose), stack);
+		{
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(bracketOpen, Edge("bracketOpen", stack));
+			walkExpr(exprKey, Edge("exprKey", stack));
+			walkToken(bracketClose, Edge("bracketClose", stack));
+		};
+	}
+	function walkCase(node:Case, stack:WalkStack) switch node {
+		case Default(defaultKeyword, colon, body):walkCase_Default(defaultKeyword, colon, body, stack);
+		case Case(caseKeyword, patterns, guard, colon, body):walkCase_Case(caseKeyword, patterns, guard, colon, body, stack);
+	};
+	function walkObjectFieldName_NIdent(ident:Token, stack:WalkStack) {
+		stack = Node(ObjectFieldName_NIdent(ident), stack);
+		{
+			walkToken(ident, Edge("ident", stack));
+		};
+	}
+	function walkTypeDeclParameters(node:TypeDeclParameters, stack:WalkStack) {
+		stack = Node(TypeDeclParameters(node), stack);
+		{
+			walkToken(node.lt, Edge("lt", stack));
+			walkTypeDeclParameters_params(node.params, Edge("params", stack));
+			walkToken(node.gt, Edge("gt", stack));
+		};
+	}
+	function walkExpr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr, stack:WalkStack) {
+		stack = Node(Expr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody), stack);
+		{
+			walkToken(whileKeyword, Edge("whileKeyword", stack));
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(exprCond, Edge("exprCond", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+			walkExpr(exprBody, Edge("exprBody", stack));
+		};
+	}
+	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath, stack:WalkStack) {
+		stack = Node(ClassRelation_Implements(implementsKeyword, path), stack);
+		{
+			walkToken(implementsKeyword, Edge("implementsKeyword", stack));
+			walkTypePath(path, Edge("path", stack));
+		};
+	}
+	function walkNPath(node:NPath, stack:WalkStack) {
+		stack = Node(NPath(node), stack);
+		{
+			walkToken(node.ident, Edge("ident", stack));
+			walkNPath_idents(node.idents, Edge("idents", stack));
+		};
+	}
+	function walkNConst(node:NConst, stack:WalkStack) switch node {
+		case PConstIdent(ident):walkNConst_PConstIdent(ident, stack);
+		case PConstLiteral(literal):walkNConst_PConstLiteral(literal, stack);
+	};
+	function walkNCommonFlag_PPrivate(token:Token, stack:WalkStack) {
+		stack = Node(NCommonFlag_PPrivate(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkDecl_UsingDecl(decl:UsingDecl, stack:WalkStack) {
+		stack = Node(Decl_UsingDecl(decl), stack);
+		{
+			walkUsingDecl(decl, Edge("decl", stack));
+		};
+	}
+	function walkTypePathParameters(node:TypePathParameters, stack:WalkStack) {
+		stack = Node(TypePathParameters(node), stack);
+		{
+			walkToken(node.lt, Edge("lt", stack));
+			walkTypePathParameters_params(node.params, Edge("params", stack));
+			walkToken(node.gt, Edge("gt", stack));
+		};
+	}
+	function walkConstraints_Multiple_types(elems:CommaSeparated<ComplexType>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkComplexType);
+	}
+	function walkClassRelation_Extends(extendsKeyword:Token, path:TypePath, stack:WalkStack) {
+		stack = Node(ClassRelation_Extends(extendsKeyword, path), stack);
+		{
+			walkToken(extendsKeyword, Edge("extendsKeyword", stack));
+			walkTypePath(path, Edge("path", stack));
+		};
+	}
+	function walkExpr_EVar(varKeyword:Token, decl:VarDecl, stack:WalkStack) {
+		stack = Node(Expr_EVar(varKeyword, decl), stack);
+		{
+			walkToken(varKeyword, Edge("varKeyword", stack));
+			walkVarDecl(decl, Edge("decl", stack));
 		};
 	}
 	function walkUnderlyingType(node:UnderlyingType, stack:WalkStack) {
@@ -1247,65 +1025,287 @@ import hxParser.ParseTree;
 			walkToken(node.parenClose, Edge("parenClose", stack));
 		};
 	}
-	function walkExpr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token, stack:WalkStack) {
-		stack = Node(Expr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose), stack);
+	function walkAnonymousStructureFields_ClassNotation(fields:Array<ClassField>, stack:WalkStack) {
+		stack = Node(AnonymousStructureFields_ClassNotation(fields), stack);
 		{
-			walkToken(switchKeyword, Edge("switchKeyword", stack));
-			walkExpr(expr, Edge("expr", stack));
-			walkToken(braceOpen, Edge("braceOpen", stack));
-			walkExpr_ESwitch_cases(cases, Edge("cases", stack));
-			walkToken(braceClose, Edge("braceClose", stack));
+			walkAnonymousStructureFields_ClassNotation_fields(fields, Edge("fields", stack));
 		};
 	}
-	function walkNCommonFlag_PPrivate(token:Token, stack:WalkStack) {
-		stack = Node(NCommonFlag_PPrivate(token), stack);
+	function walkMacroExpr_TypeHint(typeHint:TypeHint, stack:WalkStack) {
+		stack = Node(MacroExpr_TypeHint(typeHint), stack);
+		{
+			walkTypeHint(typeHint, Edge("typeHint", stack));
+		};
+	}
+	function walkComplexType_TypePath(path:TypePath, stack:WalkStack) {
+		stack = Node(ComplexType_TypePath(path), stack);
+		{
+			walkTypePath(path, Edge("path", stack));
+		};
+	}
+	function walkDecl_TypedefDecl(decl:TypedefDecl, stack:WalkStack) {
+		stack = Node(Decl_TypedefDecl(decl), stack);
+		{
+			walkTypedefDecl(decl, Edge("decl", stack));
+		};
+	}
+	function walkStringToken_DoubleQuote(token:Token, stack:WalkStack) {
+		stack = Node(StringToken_DoubleQuote(token), stack);
 		{
 			walkToken(token, Edge("token", stack));
 		};
 	}
-	function walkCase(node:Case, stack:WalkStack) switch node {
-		case Default(defaultKeyword, colon, body):walkCase_Default(defaultKeyword, colon, body, stack);
-		case Case(caseKeyword, patterns, guard, colon, body):walkCase_Case(caseKeyword, patterns, guard, colon, body, stack);
-	};
+	function walkDecl_ImportDecl(decl:ImportDecl, stack:WalkStack) {
+		stack = Node(Decl_ImportDecl(decl), stack);
+		{
+			walkImportDecl(decl, Edge("decl", stack));
+		};
+	}
 	function walkObjectFieldName(node:ObjectFieldName, stack:WalkStack) switch node {
-		case NString(string):walkObjectFieldName_NString(string, stack);
 		case NIdent(ident):walkObjectFieldName_NIdent(ident, stack);
+		case NString(string):walkObjectFieldName_NString(string, stack);
 	};
+	function walkExpr_EFunction(functionKeyword:Token, fun:Function, stack:WalkStack) {
+		stack = Node(Expr_EFunction(functionKeyword, fun), stack);
+		{
+			walkToken(functionKeyword, Edge("functionKeyword", stack));
+			walkFunction(fun, Edge("fun", stack));
+		};
+	}
+	function walkTypePathParameter_Type(type:ComplexType, stack:WalkStack) {
+		stack = Node(TypePathParameter_Type(type), stack);
+		{
+			walkComplexType(type, Edge("type", stack));
+		};
+	}
+	function walkClassDecl2_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
+		walkArray(elems, stack, walkNCommonFlag);
+	}
+	function walkFieldModifier_Override(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Override(keyword), stack);
+		{
+			walkToken(keyword, Edge("keyword", stack));
+		};
+	}
+	function walkExpr_EMacro(macroKeyword:Token, expr:MacroExpr, stack:WalkStack) {
+		stack = Node(Expr_EMacro(macroKeyword, expr), stack);
+		{
+			walkToken(macroKeyword, Edge("macroKeyword", stack));
+			walkMacroExpr(expr, Edge("expr", stack));
+		};
+	}
+	function walkComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType, stack:WalkStack) {
+		stack = Node(ComplexType_Function(typeLeft, arrow, typeRight), stack);
+		{
+			walkComplexType(typeLeft, Edge("typeLeft", stack));
+			walkToken(arrow, Edge("arrow", stack));
+			walkComplexType(typeRight, Edge("typeRight", stack));
+		};
+	}
 	function walkImportMode_IAll(dotStar:Token, stack:WalkStack) {
 		stack = Node(ImportMode_IAll(dotStar), stack);
 		{
 			walkToken(dotStar, Edge("dotStar", stack));
 		};
 	}
-	function walkClassField(node:ClassField, stack:WalkStack) switch node {
-		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon, stack);
-		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon, stack);
-		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr, stack);
-	};
-	function walkExpr_ESwitch_cases(elems:Array<Case>, stack:WalkStack) {
-		walkArray(elems, stack, walkCase);
-	}
-	function walkExpr_EUnaryPrefix(op:Token, expr:Expr, stack:WalkStack) {
-		stack = Node(Expr_EUnaryPrefix(op, expr), stack);
+	function walkNDotIdent_PDotIdent(name:Token, stack:WalkStack) {
+		stack = Node(NDotIdent_PDotIdent(name), stack);
 		{
-			walkToken(op, Edge("op", stack));
-			walkExpr(expr, Edge("expr", stack));
+			walkToken(name, Edge("name", stack));
 		};
 	}
-	function walkObjectFieldName_NIdent(ident:Token, stack:WalkStack) {
-		stack = Node(ObjectFieldName_NIdent(ident), stack);
+	function walkMetadata_WithArgs_args(elems:CommaSeparated<Expr>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkExpr);
+	}
+	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkTypePathParameter);
+	}
+	function walkFieldModifier_Private(keyword:Token, stack:WalkStack) {
+		stack = Node(FieldModifier_Private(keyword), stack);
 		{
-			walkToken(ident, Edge("ident", stack));
+			walkToken(keyword, Edge("keyword", stack));
 		};
 	}
-	function walkComplexType_Optional(questionMark:Token, type:ComplexType, stack:WalkStack) {
-		stack = Node(ComplexType_Optional(questionMark, type), stack);
+	function walkExpr_ENew(newKeyword:Token, path:TypePath, args:CallArgs, stack:WalkStack) {
+		stack = Node(Expr_ENew(newKeyword, path, args), stack);
 		{
-			walkToken(questionMark, Edge("questionMark", stack));
+			walkToken(newKeyword, Edge("newKeyword", stack));
+			walkTypePath(path, Edge("path", stack));
+			walkCallArgs(args, Edge("args", stack));
+		};
+	}
+	function walkExprElse(node:ExprElse, stack:WalkStack) {
+		stack = Node(ExprElse(node), stack);
+		{
+			walkToken(node.elseKeyword, Edge("elseKeyword", stack));
+			walkExpr(node.expr, Edge("expr", stack));
+		};
+	}
+	function walkAbstractRelation_To(toKeyword:Token, type:ComplexType, stack:WalkStack) {
+		stack = Node(AbstractRelation_To(toKeyword, type), stack);
+		{
+			walkToken(toKeyword, Edge("toKeyword", stack));
 			walkComplexType(type, Edge("type", stack));
 		};
 	}
-	function walkFunction_args(elems:CommaSeparated<FunctionArgument>, stack:WalkStack) {
-		walkCommaSeparated(elems, stack, walkFunctionArgument);
+	function walkTypePathParameter(node:TypePathParameter, stack:WalkStack) switch node {
+		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose, stack);
+		case Literal(literal):walkTypePathParameter_Literal(literal, stack);
+		case Type(type):walkTypePathParameter_Type(type, stack);
+	};
+	function walkEnumDecl_fields(elems:Array<NEnumField>, stack:WalkStack) {
+		walkArray(elems, stack, walkNEnumField);
+	}
+	function walkStringToken_SingleQuote(token:Token, stack:WalkStack) {
+		stack = Node(StringToken_SingleQuote(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkLiteral_PLiteralInt(token:Token, stack:WalkStack) {
+		stack = Node(Literal_PLiteralInt(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkLiteral_PLiteralString(s:StringToken, stack:WalkStack) {
+		stack = Node(Literal_PLiteralString(s), stack);
+		{
+			walkStringToken(s, Edge("s", stack));
+		};
+	}
+	function walkAnonymousStructureFields_ShortNotation_fields(elems:CommaSeparatedAllowTrailing<AnonymousStructureField>, stack:WalkStack) {
+		walkCommaSeparatedTrailing(elems, stack, walkAnonymousStructureField);
+	}
+	function walkExpr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token, stack:WalkStack) {
+		stack = Node(Expr_ECheckType(parenOpen, expr, colon, type, parenClose), stack);
+		{
+			walkToken(parenOpen, Edge("parenOpen", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(colon, Edge("colon", stack));
+			walkComplexType(type, Edge("type", stack));
+			walkToken(parenClose, Edge("parenClose", stack));
+		};
+	}
+	function walkAbstractDecl_flags(elems:Array<NCommonFlag>, stack:WalkStack) {
+		walkArray(elems, stack, walkNCommonFlag);
+	}
+	function walkExpr(node:Expr, stack:WalkStack) switch node {
+		case EMacro(macroKeyword, expr):walkExpr_EMacro(macroKeyword, expr, stack);
+		case ECall(expr, args):walkExpr_ECall(expr, args, stack);
+		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr, stack);
+		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose, stack);
+		case ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose, stack);
+		case ENew(newKeyword, path, args):walkExpr_ENew(newKeyword, path, args, stack);
+		case EIntDot(int, dot):walkExpr_EIntDot(int, dot, stack);
+		case EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse, stack);
+		case ETry(tryKeyword, expr, catches):walkExpr_ETry(tryKeyword, expr, catches, stack);
+		case EUntyped(untypedKeyword, expr):walkExpr_EUntyped(untypedKeyword, expr, stack);
+		case EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody, stack);
+		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose, stack);
+		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose, stack);
+		case EBinop(exprLeft, op, exprRight):walkExpr_EBinop(exprLeft, op, exprRight, stack);
+		case EBreak(breakKeyword):walkExpr_EBreak(breakKeyword, stack);
+		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse, stack);
+		case EField(expr, ident):walkExpr_EField(expr, ident, stack);
+		case EUnsafeCast(castKeyword, expr):walkExpr_EUnsafeCast(castKeyword, expr, stack);
+		case ESwitch(switchKeyword, expr, braceOpen, cases, braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose, stack);
+		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op, stack);
+		case EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody, stack);
+		case EReturnExpr(returnKeyword, expr):walkExpr_EReturnExpr(returnKeyword, expr, stack);
+		case ECheckType(parenOpen, expr, colon, type, parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose, stack);
+		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose, stack);
+		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword, stack);
+		case EObjectDecl(braceOpen, fields, braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose, stack);
+		case EParenthesis(parenOpen, expr, parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose, stack);
+		case EIn(exprLeft, inKeyword, exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight, stack);
+		case EVar(varKeyword, decl):walkExpr_EVar(varKeyword, decl, stack);
+		case EDollarIdent(ident):walkExpr_EDollarIdent(ident, stack);
+		case EFunction(functionKeyword, fun):walkExpr_EFunction(functionKeyword, fun, stack);
+		case EArrayDecl(bracketOpen, elems, bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose, stack);
+		case EBlock(braceOpen, elems, braceClose):walkExpr_EBlock(braceOpen, elems, braceClose, stack);
+		case EThrow(throwKeyword, expr):walkExpr_EThrow(throwKeyword, expr, stack);
+		case EConst(const):walkExpr_EConst(const, stack);
+		case EReturn(returnKeyword):walkExpr_EReturn(returnKeyword, stack);
+		case EUnaryPrefix(op, expr):walkExpr_EUnaryPrefix(op, expr, stack);
+	};
+	function walkLiteral_PLiteralFloat(token:Token, stack:WalkStack) {
+		stack = Node(Literal_PLiteralFloat(token), stack);
+		{
+			walkToken(token, Edge("token", stack));
+		};
+	}
+	function walkBlockElement_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token, stack:WalkStack) {
+		stack = Node(BlockElement_Var(varKeyword, decls, semicolon), stack);
+		{
+			walkToken(varKeyword, Edge("varKeyword", stack));
+			walkBlockElement_Var_decls(decls, Edge("decls", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkExpr_EContinue(continueKeyword:Token, stack:WalkStack) {
+		stack = Node(Expr_EContinue(continueKeyword), stack);
+		{
+			walkToken(continueKeyword, Edge("continueKeyword", stack));
+		};
+	}
+	function walkNEnumFieldArg(node:NEnumFieldArg, stack:WalkStack) {
+		stack = Node(NEnumFieldArg(node), stack);
+		{
+			if (node.questionMark != null) walkToken(node.questionMark, Edge("questionMark", stack));
+			walkToken(node.name, Edge("name", stack));
+			walkTypeHint(node.typeHint, Edge("typeHint", stack));
+		};
+	}
+	function walkMetadata(node:Metadata, stack:WalkStack) switch node {
+		case WithArgs(name, args, parenClose):walkMetadata_WithArgs(name, args, parenClose, stack);
+		case Simple(name):walkMetadata_Simple(name, stack);
+	};
+	function walkClassDecl_fields(elems:Array<ClassField>, stack:WalkStack) {
+		walkArray(elems, stack, walkClassField);
+	}
+	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token, stack:WalkStack) {
+		stack = Node(Expr_EMacroEscape(ident, braceOpen, expr, braceClose), stack);
+		{
+			walkToken(ident, Edge("ident", stack));
+			walkToken(braceOpen, Edge("braceOpen", stack));
+			walkExpr(expr, Edge("expr", stack));
+			walkToken(braceClose, Edge("braceClose", stack));
+		};
+	}
+	function walkBlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token, stack:WalkStack) {
+		stack = Node(BlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon), stack);
+		{
+			walkToken(inlineKeyword, Edge("inlineKeyword", stack));
+			walkToken(functionKeyword, Edge("functionKeyword", stack));
+			walkFunction(fun, Edge("fun", stack));
+			walkToken(semicolon, Edge("semicolon", stack));
+		};
+	}
+	function walkBlockElement_Var_decls(elems:CommaSeparated<VarDecl>, stack:WalkStack) {
+		walkCommaSeparated(elems, stack, walkVarDecl);
+	}
+	function walkAbstractDecl_relations(elems:Array<AbstractRelation>, stack:WalkStack) {
+		walkArray(elems, stack, walkAbstractRelation);
+	}
+	function walkNAnnotations(node:NAnnotations, stack:WalkStack) {
+		stack = Node(NAnnotations(node), stack);
+		{
+			if (node.doc != null) walkToken(node.doc, Edge("doc", stack));
+			walkNAnnotations_metadata(node.metadata, Edge("metadata", stack));
+		};
+	}
+	function walkEnumDecl(node:EnumDecl, stack:WalkStack) {
+		stack = Node(EnumDecl(node), stack);
+		{
+			walkNAnnotations(node.annotations, Edge("annotations", stack));
+			walkEnumDecl_flags(node.flags, Edge("flags", stack));
+			walkToken(node.enumKeyword, Edge("enumKeyword", stack));
+			walkToken(node.name, Edge("name", stack));
+			if (node.params != null) walkTypeDeclParameters(node.params, Edge("params", stack));
+			walkToken(node.braceOpen, Edge("braceOpen", stack));
+			walkEnumDecl_fields(node.fields, Edge("fields", stack));
+			walkToken(node.braceClose, Edge("braceClose", stack));
+		};
 	}
 }

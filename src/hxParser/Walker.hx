@@ -25,604 +25,6 @@ import hxParser.ParseTree;
 		};
 		if (elems.comma != null) walkToken(elems.comma);
 	}
-	function walkClassRelation_Extends(extendsKeyword:Token, path:TypePath) {
-		walkToken(extendsKeyword);
-		walkTypePath(path);
-	}
-	function walkAbstractDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
-	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>) {
-		walkCommaSeparated(elems, walkTypePathParameter);
-	}
-	function walkComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token) {
-		walkToken(parenOpen);
-		walkComplexType(type);
-		walkToken(parenClose);
-	}
-	function walkCatch(node:Catch) {
-		walkToken(node.catchKeyword);
-		walkToken(node.parenOpen);
-		walkToken(node.ident);
-		walkTypeHint(node.typeHint);
-		walkToken(node.parenClose);
-		walkExpr(node.expr);
-	}
-	function walkDecl_ClassDecl(decl:ClassDecl2) {
-		walkClassDecl2(decl);
-	}
-	function walkNDotIdent_PDotIdent(name:Token) {
-		walkToken(name);
-	}
-	function walkComplexType(node:ComplexType) switch node {
-		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose);
-		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose);
-		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose);
-		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type);
-		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight);
-		case TypePath(path):walkComplexType_TypePath(path);
-	};
-	function walkMacroExpr(node:MacroExpr) switch node {
-		case Class(classDecl):walkMacroExpr_Class(classDecl);
-		case TypeHint(typeHint):walkMacroExpr_TypeHint(typeHint);
-		case Expr(expr):walkMacroExpr_Expr(expr);
-		case Var(varKeyword, decls):walkMacroExpr_Var(varKeyword, decls);
-	};
-	function walkFunctionArgument(node:FunctionArgument) {
-		walkNAnnotations(node.annotations);
-		if (node.questionMark != null) walkToken(node.questionMark);
-		walkToken(node.name);
-		if (node.typeHint != null) walkTypeHint(node.typeHint);
-		if (node.assignment != null) walkAssignment(node.assignment);
-	}
-	function walkExpr_EDollarIdent(ident:Token) {
-		walkToken(ident);
-	}
-	function walkObjectFieldName_NString(string:StringToken) {
-		walkStringToken(string);
-	}
-	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token) {
-		walkToken(colon);
-		walkToken(parenOpen);
-		walkConstraints_Multiple_types(types);
-		walkToken(parenClose);
-	}
-	function walkExprElse(node:ExprElse) {
-		walkToken(node.elseKeyword);
-		walkExpr(node.expr);
-	}
-	function walkExpr_EReturn(returnKeyword:Token) {
-		walkToken(returnKeyword);
-	}
-	function walkEnumDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
-	function walkNEnumFieldArgs(node:NEnumFieldArgs) {
-		walkToken(node.parenOpen);
-		if (node.args != null) walkNEnumFieldArgs_args(node.args);
-		walkToken(node.parenClose);
-	}
-	function walkNPath_idents(elems:Array<NDotIdent>) {
-		walkArray(elems, walkNDotIdent);
-	}
-	function walkAnonymousStructureFields_ShortNotation_fields(elems:CommaSeparatedAllowTrailing<AnonymousStructureField>) {
-		walkCommaSeparatedTrailing(elems, walkAnonymousStructureField);
-	}
-	function walkComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token) {
-		walkToken(braceOpen);
-		walkAnonymousStructureFields(fields);
-		walkToken(braceClose);
-	}
-	function walkExpr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token) {
-		walkToken(parenOpen);
-		walkExpr(expr);
-		walkToken(colon);
-		walkComplexType(type);
-		walkToken(parenClose);
-	}
-	function walkImportDecl(node:ImportDecl) {
-		walkToken(node.importKeyword);
-		walkNPath(node.path);
-		walkImportMode(node.mode);
-		walkToken(node.semicolon);
-	}
-	function walkCase_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>) {
-		walkToken(defaultKeyword);
-		walkToken(colon);
-		walkCase_Default_body(body);
-	}
-	function walkClassDecl(node:ClassDecl) {
-		walkToken(node.kind);
-		walkToken(node.name);
-		if (node.params != null) walkTypeDeclParameters(node.params);
-		walkClassDecl_relations(node.relations);
-		walkToken(node.braceOpen);
-		walkClassDecl_fields(node.fields);
-		walkToken(node.braceClose);
-	}
-	function walkNConst_PConstLiteral(literal:Literal) {
-		walkLiteral(literal);
-	}
-	function walkImportMode(node:ImportMode) switch node {
-		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident);
-		case INormal:{ };
-		case IAll(dotStar):walkImportMode_IAll(dotStar);
-		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident);
-	};
-	function walkFile(node:File) {
-		if (node.pack != null) walkPackage(node.pack);
-		walkFile_decls(node.decls);
-		walkToken(node.eof);
-	}
-	function walkFieldModifier_Static(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkMetadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token) {
-		walkToken(name);
-		walkMetadata_WithArgs_args(args);
-		walkToken(parenClose);
-	}
-	function walkDecl_ImportDecl(decl:ImportDecl) {
-		walkImportDecl(decl);
-	}
-	function walkNDotIdent_PDot(dot:Token) {
-		walkToken(dot);
-	}
-	function walkMethodExpr(node:MethodExpr) switch node {
-		case None(semicolon):walkMethodExpr_None(semicolon);
-		case Expr(expr, semicolon):walkMethodExpr_Expr(expr, semicolon);
-		case Block(expr):walkMethodExpr_Block(expr);
-	};
-	function walkExpr_EMetadata(metadata:Metadata, expr:Expr) {
-		walkMetadata(metadata);
-		walkExpr(expr);
-	}
-	function walkExpr_EThrow(throwKeyword:Token, expr:Expr) {
-		walkToken(throwKeyword);
-		walkExpr(expr);
-	}
-	function walkCase_Case_patterns(elems:CommaSeparated<Expr>) {
-		walkCommaSeparated(elems, walkExpr);
-	}
-	function walkAbstractRelation_From(fromKeyword:Token, type:ComplexType) {
-		walkToken(fromKeyword);
-		walkComplexType(type);
-	}
-	function walkClassField_Function_modifiers(elems:Array<FieldModifier>) {
-		walkArray(elems, walkFieldModifier);
-	}
-	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>) {
-		walkCommaSeparated(elems, walkTypeDeclParameter);
-	}
-	function walkExpr_EVar(varKeyword:Token, decl:VarDecl) {
-		walkToken(varKeyword);
-		walkVarDecl(decl);
-	}
-	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>) {
-		walkCommaSeparated(elems, walkNEnumFieldArg);
-	}
-	function walkDecl_AbstractDecl(decl:AbstractDecl) {
-		walkAbstractDecl(decl);
-	}
-	function walkPackage(node:Package) {
-		walkToken(node.packageKeyword);
-		if (node.path != null) walkNPath(node.path);
-		walkToken(node.semicolon);
-	}
-	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr) {
-		walkNAnnotations(annotations);
-		walkClassField_Function_modifiers(modifiers);
-		walkToken(functionKeyword);
-		walkToken(name);
-		if (params != null) walkTypeDeclParameters(params);
-		walkToken(parenOpen);
-		if (args != null) walkClassField_Function_args(args);
-		walkToken(parenClose);
-		if (typeHint != null) walkTypeHint(typeHint);
-		walkMethodExpr(expr);
-	}
-	function walkStringToken_DoubleQuote(token:Token) {
-		walkToken(token);
-	}
-	function walkFunction(node:Function) {
-		if (node.name != null) walkToken(node.name);
-		if (node.params != null) walkTypeDeclParameters(node.params);
-		walkToken(node.parenOpen);
-		if (node.args != null) walkFunction_args(node.args);
-		walkToken(node.parenClose);
-		if (node.typeHint != null) walkTypeHint(node.typeHint);
-		walkExpr(node.expr);
-	}
-	function walkTypePath(node:TypePath) {
-		walkNPath(node.path);
-		if (node.params != null) walkTypePathParameters(node.params);
-	}
-	function walkBlockElement_Expr(expr:Expr, semicolon:Token) {
-		walkExpr(expr);
-		walkToken(semicolon);
-	}
-	function walkAnonymousStructureFields_ClassNotation_fields(elems:Array<ClassField>) {
-		walkArray(elems, walkClassField);
-	}
-	function walkFieldModifier_Override(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkMetadata(node:Metadata) switch node {
-		case WithArgs(name, args, parenClose):walkMetadata_WithArgs(name, args, parenClose);
-		case Simple(name):walkMetadata_Simple(name);
-	};
-	function walkStringToken_SingleQuote(token:Token) {
-		walkToken(token);
-	}
-	function walkExpr_EIntDot(int:Token, dot:Token) {
-		walkToken(int);
-		walkToken(dot);
-	}
-	function walkClassField_Property_modifiers(elems:Array<FieldModifier>) {
-		walkArray(elems, walkFieldModifier);
-	}
-	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr) {
-		walkExpr(exprCond);
-		walkToken(questionMark);
-		walkExpr(exprThen);
-		walkToken(colon);
-		walkExpr(exprElse);
-	}
-	function walkFieldModifier_Public(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkMacroExpr_Var_decls(elems:CommaSeparated<VarDecl>) {
-		walkCommaSeparated(elems, walkVarDecl);
-	}
-	function walkExpr_ENew(newKeyword:Token, path:TypePath, args:CallArgs) {
-		walkToken(newKeyword);
-		walkTypePath(path);
-		walkCallArgs(args);
-	}
-	function walkMethodExpr_Block(expr:Expr) {
-		walkExpr(expr);
-	}
-	function walkCase_Case_body(elems:Array<BlockElement>) {
-		walkArray(elems, walkBlockElement);
-	}
-	function walkMacroExpr_Expr(expr:Expr) {
-		walkExpr(expr);
-	}
-	function walkClassDecl2_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
-	function walkMacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>) {
-		walkToken(varKeyword);
-		walkMacroExpr_Var_decls(decls);
-	}
-	function walkFieldModifier_Inline(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkTypeDeclParameter(node:TypeDeclParameter) {
-		walkNAnnotations(node.annotations);
-		walkToken(node.name);
-		walkConstraints(node.constraints);
-	}
-	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token) {
-		walkToken(braceOpen);
-		walkComplexType_StructuralExtension_types(types);
-		walkAnonymousStructureFields(fields);
-		walkToken(braceClose);
-	}
-	function walkLiteral(node:Literal) switch node {
-		case PLiteralString(s):walkLiteral_PLiteralString(s);
-		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token);
-		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token);
-		case PLiteralInt(token):walkLiteral_PLiteralInt(token);
-	};
-	function walkBlockElement_Var_decls(elems:CommaSeparated<VarDecl>) {
-		walkCommaSeparated(elems, walkVarDecl);
-	}
-	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token) {
-		walkToken(doKeyword);
-		walkExpr(exprBody);
-		walkToken(whileKeyword);
-		walkToken(parenOpen);
-		walkExpr(exprCond);
-		walkToken(parenClose);
-	}
-	function walkAnonymousStructureFields_ClassNotation(fields:Array<ClassField>) {
-		walkAnonymousStructureFields_ClassNotation_fields(fields);
-	}
-	function walkImportMode_IAs(asKeyword:Token, ident:Token) {
-		walkToken(asKeyword);
-		walkToken(ident);
-	}
-	function walkExpr_EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr) {
-		walkToken(forKeyword);
-		walkToken(parenOpen);
-		walkExpr(exprIter);
-		walkToken(parenClose);
-		walkExpr(exprBody);
-	}
-	function walkNCommonFlag(node:NCommonFlag) switch node {
-		case PExtern(token):walkNCommonFlag_PExtern(token);
-		case PPrivate(token):walkNCommonFlag_PPrivate(token);
-	};
-	function walkAnonymousStructureField(node:AnonymousStructureField) {
-		if (node.questionMark != null) walkToken(node.questionMark);
-		walkToken(node.name);
-		walkTypeHint(node.typeHint);
-	}
-	function walkExpr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr) {
-		walkExpr(exprLeft);
-		walkToken(op);
-		walkExpr(exprRight);
-	}
-	function walkFieldModifier_Dynamic(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkClassDecl_relations(elems:Array<ClassRelation>) {
-		walkArray(elems, walkClassRelation);
-	}
-	function walkNPath(node:NPath) {
-		walkToken(node.ident);
-		walkNPath_idents(node.idents);
-	}
-	function walkCase_Default_body(elems:Array<BlockElement>) {
-		walkArray(elems, walkBlockElement);
-	}
-	function walkMetadata_WithArgs_args(elems:CommaSeparated<Expr>) {
-		walkCommaSeparated(elems, walkExpr);
-	}
-	function walkClassRelation(node:ClassRelation) switch node {
-		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path);
-		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path);
-	};
-	function walkVarDecl(node:VarDecl) {
-		walkToken(node.name);
-		if (node.typeHint != null) walkTypeHint(node.typeHint);
-		if (node.assignment != null) walkAssignment(node.assignment);
-	}
-	function walkExpr_EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token) {
-		walkToken(braceOpen);
-		walkExpr_EBlock_elems(elems);
-		walkToken(braceClose);
-	}
-	function walkExpr_EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token) {
-		walkToken(parenOpen);
-		walkExpr(expr);
-		walkToken(parenClose);
-	}
-	function walkExpr(node:Expr) switch node {
-		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose);
-		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr);
-		case EField(expr, ident):walkExpr_EField(expr, ident);
-		case EMacro(macroKeyword, expr):walkExpr_EMacro(macroKeyword, expr);
-		case ESwitch(switchKeyword, expr, braceOpen, cases, braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose);
-		case EReturnExpr(returnKeyword, expr):walkExpr_EReturnExpr(returnKeyword, expr);
-		case EUnsafeCast(castKeyword, expr):walkExpr_EUnsafeCast(castKeyword, expr);
-		case EIn(exprLeft, inKeyword, exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight);
-		case EParenthesis(parenOpen, expr, parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose);
-		case ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose);
-		case EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse);
-		case EBlock(braceOpen, elems, braceClose):walkExpr_EBlock(braceOpen, elems, braceClose);
-		case EUnaryPrefix(op, expr):walkExpr_EUnaryPrefix(op, expr);
-		case EBinop(exprLeft, op, exprRight):walkExpr_EBinop(exprLeft, op, exprRight);
-		case ETry(tryKeyword, expr, catches):walkExpr_ETry(tryKeyword, expr, catches);
-		case EObjectDecl(braceOpen, fields, braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose);
-		case EVar(varKeyword, decl):walkExpr_EVar(varKeyword, decl);
-		case EBreak(breakKeyword):walkExpr_EBreak(breakKeyword);
-		case EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody);
-		case ENew(newKeyword, path, args):walkExpr_ENew(newKeyword, path, args);
-		case ECall(expr, args):walkExpr_ECall(expr, args);
-		case ECheckType(parenOpen, expr, colon, type, parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose);
-		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword);
-		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op);
-		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose);
-		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse);
-		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose);
-		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose);
-		case EConst(const):walkExpr_EConst(const);
-		case EDollarIdent(ident):walkExpr_EDollarIdent(ident);
-		case EFunction(functionKeyword, fun):walkExpr_EFunction(functionKeyword, fun);
-		case EReturn(returnKeyword):walkExpr_EReturn(returnKeyword);
-		case EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody);
-		case EArrayDecl(bracketOpen, elems, bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose);
-		case EIntDot(int, dot):walkExpr_EIntDot(int, dot);
-		case EThrow(throwKeyword, expr):walkExpr_EThrow(throwKeyword, expr);
-		case EUntyped(untypedKeyword, expr):walkExpr_EUntyped(untypedKeyword, expr);
-	};
-	function walkExpr_ECall(expr:Expr, args:CallArgs) {
-		walkExpr(expr);
-		walkCallArgs(args);
-	}
-	function walkExpr_EObjectDecl_fields(elems:CommaSeparatedAllowTrailing<ObjectField>) {
-		walkCommaSeparatedTrailing(elems, walkObjectField);
-	}
-	function walkTypeDeclParameters(node:TypeDeclParameters) {
-		walkToken(node.lt);
-		walkTypeDeclParameters_params(node.params);
-		walkToken(node.gt);
-	}
-	function walkMetadata_Simple(name:Token) {
-		walkToken(name);
-	}
-	function walkTypePathParameter(node:TypePathParameter) switch node {
-		case Type(type):walkTypePathParameter_Type(type);
-		case Literal(literal):walkTypePathParameter_Literal(literal);
-		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose);
-	};
-	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath) {
-		walkToken(implementsKeyword);
-		walkTypePath(path);
-	}
-	function walkGuard(node:Guard) {
-		walkToken(node.ifKeyword);
-		walkToken(node.parenOpen);
-		walkExpr(node.expr);
-		walkToken(node.parenClose);
-	}
-	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>) {
-		if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields);
-	}
-	function walkAbstractDecl_fields(elems:Array<ClassField>) {
-		walkArray(elems, walkClassField);
-	}
-	function walkFieldModifier_Macro(keyword:Token) {
-		walkToken(keyword);
-	}
-	function walkMacroExpr_TypeHint(typeHint:TypeHint) {
-		walkTypeHint(typeHint);
-	}
-	function walkExpr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr) {
-		walkToken(whileKeyword);
-		walkToken(parenOpen);
-		walkExpr(exprCond);
-		walkToken(parenClose);
-		walkExpr(exprBody);
-	}
-	function walkAbstractRelation(node:AbstractRelation) switch node {
-		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type);
-		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type);
-	};
-	function walkTypePathParameter_ArrayExpr_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
-		walkCommaSeparatedTrailing(elems, walkExpr);
-	}
-	function walkExpr_EBreak(breakKeyword:Token) {
-		walkToken(breakKeyword);
-	}
-	function walkExpr_EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, exprElse:Null<ExprElse>) {
-		walkToken(ifKeyword);
-		walkToken(parenOpen);
-		walkExpr(exprCond);
-		walkToken(parenClose);
-		walkExpr(exprThen);
-		if (exprElse != null) walkExprElse(exprElse);
-	}
-	function walkNConst(node:NConst) switch node {
-		case PConstLiteral(literal):walkNConst_PConstLiteral(literal);
-		case PConstIdent(ident):walkNConst_PConstIdent(ident);
-	};
-	function walkNCommonFlag_PExtern(token:Token) {
-		walkToken(token);
-	}
-	function walkDecl_UsingDecl(decl:UsingDecl) {
-		walkUsingDecl(decl);
-	}
-	function walkAbstractRelation_To(toKeyword:Token, type:ComplexType) {
-		walkToken(toKeyword);
-		walkComplexType(type);
-	}
-	function walkMethodExpr_Expr(expr:Expr, semicolon:Token) {
-		walkExpr(expr);
-		walkToken(semicolon);
-	}
-	function walkExpr_EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token) {
-		walkToken(braceOpen);
-		walkExpr_EObjectDecl_fields(fields);
-		walkToken(braceClose);
-	}
-	function walkExpr_EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token) {
-		walkToken(parenOpen);
-		walkExpr(expr);
-		walkToken(isKeyword);
-		walkTypePath(path);
-		walkToken(parenClose);
-	}
-	function walkClassDecl_fields(elems:Array<ClassField>) {
-		walkArray(elems, walkClassField);
-	}
-	function walkCase_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>) {
-		walkToken(caseKeyword);
-		walkCase_Case_patterns(patterns);
-		if (guard != null) walkGuard(guard);
-		walkToken(colon);
-		walkCase_Case_body(body);
-	}
-	function walkTypedefDecl_flags(elems:Array<NCommonFlag>) {
-		walkArray(elems, walkNCommonFlag);
-	}
-	function walkExpr_EField(expr:Expr, ident:NDotIdent) {
-		walkExpr(expr);
-		walkNDotIdent(ident);
-	}
-	function walkExpr_EIn(exprLeft:Expr, inKeyword:Token, exprRight:Expr) {
-		walkExpr(exprLeft);
-		walkToken(inKeyword);
-		walkExpr(exprRight);
-	}
-	function walkExpr_EUntyped(untypedKeyword:Token, expr:Expr) {
-		walkToken(untypedKeyword);
-		walkExpr(expr);
-	}
-	function walkNConst_PConstIdent(ident:Token) {
-		walkToken(ident);
-	}
-	function walkTypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
-		walkToken(bracketOpen);
-		if (elems != null) walkTypePathParameter_ArrayExpr_elems(elems);
-		walkToken(bracketClose);
-	}
-	function walkBlockElement_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token) {
-		walkToken(varKeyword);
-		walkBlockElement_Var_decls(decls);
-		walkToken(semicolon);
-	}
-	function walkExpr_EBlock_elems(elems:Array<BlockElement>) {
-		walkArray(elems, walkBlockElement);
-	}
-	function walkTypedefDecl(node:TypedefDecl) {
-		walkNAnnotations(node.annotations);
-		walkTypedefDecl_flags(node.flags);
-		walkToken(node.typedefKeyword);
-		walkToken(node.name);
-		if (node.params != null) walkTypeDeclParameters(node.params);
-		walkToken(node.assign);
-		walkComplexType(node.type);
-		if (node.semicolon != null) walkToken(node.semicolon);
-	}
-	function walkNAnnotations_metadata(elems:Array<Metadata>) {
-		walkArray(elems, walkMetadata);
-	}
-	function walkStringToken(node:StringToken) switch node {
-		case SingleQuote(token):walkStringToken_SingleQuote(token);
-		case DoubleQuote(token):walkStringToken_DoubleQuote(token);
-	};
-	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr) {
-		walkToken(castKeyword);
-		walkExpr(expr);
-	}
-	function walkExpr_EFunction(functionKeyword:Token, fun:Function) {
-		walkToken(functionKeyword);
-		walkFunction(fun);
-	}
-	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
-		walkToken(bracketOpen);
-		if (elems != null) walkExpr_EArrayDecl_elems(elems);
-		walkToken(bracketClose);
-	}
-	function walkEnumDecl_fields(elems:Array<NEnumField>) {
-		walkArray(elems, walkNEnumField);
-	}
-	function walkNAnnotations(node:NAnnotations) {
-		if (node.doc != null) walkToken(node.doc);
-		walkNAnnotations_metadata(node.metadata);
-	}
-	function walkExpr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>) {
-		walkToken(tryKeyword);
-		walkExpr(expr);
-		walkExpr_ETry_catches(catches);
-	}
-	function walkEnumDecl(node:EnumDecl) {
-		walkNAnnotations(node.annotations);
-		walkEnumDecl_flags(node.flags);
-		walkToken(node.enumKeyword);
-		walkToken(node.name);
-		if (node.params != null) walkTypeDeclParameters(node.params);
-		walkToken(node.braceOpen);
-		walkEnumDecl_fields(node.fields);
-		walkToken(node.braceClose);
-	}
-	function walkNDotIdent(node:NDotIdent) switch node {
-		case PDotIdent(name):walkNDotIdent_PDotIdent(name);
-		case PDot(dot):walkNDotIdent_PDot(dot);
-	};
 	function walkClassField_Property(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, parenOpen:Token, read:Token, comma:Token, write:Token, parenClose:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token) {
 		walkNAnnotations(annotations);
 		walkClassField_Property_modifiers(modifiers);
@@ -637,29 +39,222 @@ import hxParser.ParseTree;
 		if (assignment != null) walkAssignment(assignment);
 		walkToken(semicolon);
 	}
-	function walkConstraints_Single(colon:Token, type:ComplexType) {
+	function walkExpr_EObjectDecl_fields(elems:CommaSeparatedAllowTrailing<ObjectField>) {
+		walkCommaSeparatedTrailing(elems, walkObjectField);
+	}
+	function walkStringToken(node:StringToken) switch node {
+		case DoubleQuote(token):walkStringToken_DoubleQuote(token);
+		case SingleQuote(token):walkStringToken_SingleQuote(token);
+	};
+	function walkCase_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>) {
+		walkToken(caseKeyword);
+		walkCase_Case_patterns(patterns);
+		if (guard != null) walkGuard(guard);
 		walkToken(colon);
-		walkComplexType(type);
+		walkCase_Case_body(body);
 	}
-	function walkExpr_ETry_catches(elems:Array<Catch>) {
-		walkArray(elems, walkCatch);
+	function walkDecl(node:Decl) switch node {
+		case AbstractDecl(decl):walkDecl_AbstractDecl(decl);
+		case ImportDecl(decl):walkDecl_ImportDecl(decl);
+		case TypedefDecl(decl):walkDecl_TypedefDecl(decl);
+		case UsingDecl(decl):walkDecl_UsingDecl(decl);
+		case ClassDecl(decl):walkDecl_ClassDecl(decl);
+		case EnumDecl(decl):walkDecl_EnumDecl(decl);
+	};
+	function walkFieldModifier(node:FieldModifier) switch node {
+		case Macro(keyword):walkFieldModifier_Macro(keyword);
+		case Public(keyword):walkFieldModifier_Public(keyword);
+		case Private(keyword):walkFieldModifier_Private(keyword);
+		case Static(keyword):walkFieldModifier_Static(keyword);
+		case Inline(keyword):walkFieldModifier_Inline(keyword);
+		case Override(keyword):walkFieldModifier_Override(keyword);
+		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword);
+	};
+	function walkExpr_EBlock_elems(elems:Array<BlockElement>) {
+		walkArray(elems, walkBlockElement);
 	}
-	function walkUsingDecl(node:UsingDecl) {
-		walkToken(node.usingKeyword);
-		walkNPath(node.path);
-		walkToken(node.semicolon);
+	function walkFunctionArgument(node:FunctionArgument) {
+		walkNAnnotations(node.annotations);
+		if (node.questionMark != null) walkToken(node.questionMark);
+		walkToken(node.name);
+		if (node.typeHint != null) walkTypeHint(node.typeHint);
+		if (node.assignment != null) walkAssignment(node.assignment);
 	}
-	function walkFieldModifier_Private(keyword:Token) {
+	function walkExpr_EBinop(exprLeft:Expr, op:Token, exprRight:Expr) {
+		walkExpr(exprLeft);
+		walkToken(op);
+		walkExpr(exprRight);
+	}
+	function walkFieldModifier_Macro(keyword:Token) {
 		walkToken(keyword);
 	}
-	function walkClassField_Function_args(elems:CommaSeparated<FunctionArgument>) {
+	function walkExpr_ETry(tryKeyword:Token, expr:Expr, catches:Array<Catch>) {
+		walkToken(tryKeyword);
+		walkExpr(expr);
+		walkExpr_ETry_catches(catches);
+	}
+	function walkBlockElement_Expr(expr:Expr, semicolon:Token) {
+		walkExpr(expr);
+		walkToken(semicolon);
+	}
+	function walkObjectFieldName_NString(string:StringToken) {
+		walkStringToken(string);
+	}
+	function walkComplexType_StructuralExtension(braceOpen:Token, types:Array<StructuralExtension>, fields:AnonymousStructureFields, braceClose:Token) {
+		walkToken(braceOpen);
+		walkComplexType_StructuralExtension_types(types);
+		walkAnonymousStructureFields(fields);
+		walkToken(braceClose);
+	}
+	function walkExpr_EUntyped(untypedKeyword:Token, expr:Expr) {
+		walkToken(untypedKeyword);
+		walkExpr(expr);
+	}
+	function walkMacroExpr_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>) {
+		walkToken(varKeyword);
+		walkMacroExpr_Var_decls(decls);
+	}
+	function walkClassField_Function_modifiers(elems:Array<FieldModifier>) {
+		walkArray(elems, walkFieldModifier);
+	}
+	function walkFunction_args(elems:CommaSeparated<FunctionArgument>) {
 		walkCommaSeparated(elems, walkFunctionArgument);
 	}
-	function walkExpr_EConst(const:NConst) {
-		walkNConst(const);
+	function walkAnonymousStructureFields(node:AnonymousStructureFields) switch node {
+		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields);
+		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields);
+	};
+	function walkComplexType(node:ComplexType) switch node {
+		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose);
+		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose);
+		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose);
+		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight);
+		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type);
+		case TypePath(path):walkComplexType_TypePath(path);
+	};
+	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token) {
+		walkToken(doKeyword);
+		walkExpr(exprBody);
+		walkToken(whileKeyword);
+		walkToken(parenOpen);
+		walkExpr(exprCond);
+		walkToken(parenClose);
 	}
-	function walkDecl_TypedefDecl(decl:TypedefDecl) {
-		walkTypedefDecl(decl);
+	function walkImportDecl(node:ImportDecl) {
+		walkToken(node.importKeyword);
+		walkNPath(node.path);
+		walkImportMode(node.mode);
+		walkToken(node.semicolon);
+	}
+	function walkMacroExpr_Var_decls(elems:CommaSeparated<VarDecl>) {
+		walkCommaSeparated(elems, walkVarDecl);
+	}
+	function walkGuard(node:Guard) {
+		walkToken(node.ifKeyword);
+		walkToken(node.parenOpen);
+		walkExpr(node.expr);
+		walkToken(node.parenClose);
+	}
+	function walkExpr_EIn(exprLeft:Expr, inKeyword:Token, exprRight:Expr) {
+		walkExpr(exprLeft);
+		walkToken(inKeyword);
+		walkExpr(exprRight);
+	}
+	function walkEnumDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
+	function walkStructuralExtension(node:StructuralExtension) {
+		walkToken(node.gt);
+		walkTypePath(node.path);
+		walkToken(node.comma);
+	}
+	function walkExpr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token) {
+		walkToken(castKeyword);
+		walkToken(parenOpen);
+		walkExpr(expr);
+		walkToken(comma);
+		walkComplexType(type);
+		walkToken(parenClose);
+	}
+	function walkImportMode_IAs(asKeyword:Token, ident:Token) {
+		walkToken(asKeyword);
+		walkToken(ident);
+	}
+	function walkFieldModifier_Public(keyword:Token) {
+		walkToken(keyword);
+	}
+	function walkLiteral(node:Literal) switch node {
+		case PLiteralString(s):walkLiteral_PLiteralString(s);
+		case PLiteralInt(token):walkLiteral_PLiteralInt(token);
+		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token);
+		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token);
+	};
+	function walkConstraints(node:Constraints) switch node {
+		case None:{ };
+		case Single(colon, type):walkConstraints_Single(colon, type);
+		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose);
+	};
+	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr) {
+		walkNAnnotations(annotations);
+		walkClassField_Function_modifiers(modifiers);
+		walkToken(functionKeyword);
+		walkToken(name);
+		if (params != null) walkTypeDeclParameters(params);
+		walkToken(parenOpen);
+		if (args != null) walkClassField_Function_args(args);
+		walkToken(parenClose);
+		if (typeHint != null) walkTypeHint(typeHint);
+		walkMethodExpr(expr);
+	}
+	function walkExpr_EArrayDecl_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
+		walkCommaSeparatedTrailing(elems, walkExpr);
+	}
+	function walkFunction(node:Function) {
+		if (node.name != null) walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkToken(node.parenOpen);
+		if (node.args != null) walkFunction_args(node.args);
+		walkToken(node.parenClose);
+		if (node.typeHint != null) walkTypeHint(node.typeHint);
+		walkExpr(node.expr);
+	}
+	function walkExpr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token) {
+		walkToken(switchKeyword);
+		walkExpr(expr);
+		walkToken(braceOpen);
+		walkExpr_ESwitch_cases(cases);
+		walkToken(braceClose);
+	}
+	function walkTypedefDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
+	function walkFile_decls(elems:Array<Decl>) {
+		walkArray(elems, walkDecl);
+	}
+	function walkTypePath(node:TypePath) {
+		walkNPath(node.path);
+		if (node.params != null) walkTypePathParameters(node.params);
+	}
+	function walkTypeDeclParameters_params(elems:CommaSeparated<TypeDeclParameter>) {
+		walkCommaSeparated(elems, walkTypeDeclParameter);
+	}
+	function walkExpr_EParenthesis(parenOpen:Token, expr:Expr, parenClose:Token) {
+		walkToken(parenOpen);
+		walkExpr(expr);
+		walkToken(parenClose);
+	}
+	function walkClassDecl2(node:ClassDecl2) {
+		walkNAnnotations(node.annotations);
+		walkClassDecl2_flags(node.flags);
+		walkClassDecl(node.decl);
+	}
+	function walkPackage(node:Package) {
+		walkToken(node.packageKeyword);
+		if (node.path != null) walkNPath(node.path);
+		walkToken(node.semicolon);
+	}
+	function walkNAnnotations_metadata(elems:Array<Metadata>) {
+		walkArray(elems, walkMetadata);
 	}
 	function walkAbstractDecl(node:AbstractDecl) {
 		walkNAnnotations(node.annotations);
@@ -673,140 +268,184 @@ import hxParser.ParseTree;
 		walkAbstractDecl_fields(node.fields);
 		walkToken(node.braceClose);
 	}
-	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token) {
-		walkNAnnotations(annotations);
-		walkClassField_Variable_modifiers(modifiers);
-		walkToken(varKeyword);
-		walkToken(name);
-		if (typeHint != null) walkTypeHint(typeHint);
-		if (assignment != null) walkAssignment(assignment);
-		walkToken(semicolon);
+	function walkClassField(node:ClassField) switch node {
+		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
+		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon);
+		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr);
+	};
+	function walkFieldModifier_Inline(keyword:Token) {
+		walkToken(keyword);
 	}
-	function walkLiteral_PLiteralFloat(token:Token) {
+	function walkExpr_EReturn(returnKeyword:Token) {
+		walkToken(returnKeyword);
+	}
+	function walkNEnumFieldArgs(node:NEnumFieldArgs) {
+		walkToken(node.parenOpen);
+		if (node.args != null) walkNEnumFieldArgs_args(node.args);
+		walkToken(node.parenClose);
+	}
+	function walkExpr_EIntDot(int:Token, dot:Token) {
+		walkToken(int);
+		walkToken(dot);
+	}
+	function walkLiteral_PLiteralRegex(token:Token) {
 		walkToken(token);
+	}
+	function walkExpr_EBlock(braceOpen:Token, elems:Array<BlockElement>, braceClose:Token) {
+		walkToken(braceOpen);
+		walkExpr_EBlock_elems(elems);
+		walkToken(braceClose);
+	}
+	function walkExpr_ECall(expr:Expr, args:CallArgs) {
+		walkExpr(expr);
+		walkCallArgs(args);
+	}
+	function walkCase_Default(defaultKeyword:Token, colon:Token, body:Array<BlockElement>) {
+		walkToken(defaultKeyword);
+		walkToken(colon);
+		walkCase_Default_body(body);
 	}
 	function walkExpr_EUnaryPostfix(expr:Expr, op:Token) {
 		walkExpr(expr);
 		walkToken(op);
 	}
-	function walkComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType) {
-		walkComplexType(typeLeft);
-		walkToken(arrow);
-		walkComplexType(typeRight);
-	}
-	function walkBlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token) {
-		walkToken(inlineKeyword);
-		walkToken(functionKeyword);
-		walkFunction(fun);
-		walkToken(semicolon);
-	}
-	function walkLiteral_PLiteralInt(token:Token) {
-		walkToken(token);
+	function walkMethodExpr_Block(expr:Expr) {
+		walkExpr(expr);
 	}
 	function walkCallArgs(node:CallArgs) {
 		walkToken(node.parenOpen);
 		if (node.args != null) walkCallArgs_args(node.args);
 		walkToken(node.parenClose);
 	}
-	function walkExpr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token) {
+	function walkExpr_EMetadata(metadata:Metadata, expr:Expr) {
+		walkMetadata(metadata);
 		walkExpr(expr);
-		walkToken(bracketOpen);
-		walkExpr(exprKey);
-		walkToken(bracketClose);
 	}
-	function walkImportMode_IIn(inKeyword:Token, ident:Token) {
-		walkToken(inKeyword);
-		walkToken(ident);
+	function walkClassDecl(node:ClassDecl) {
+		walkToken(node.kind);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkClassDecl_relations(node.relations);
+		walkToken(node.braceOpen);
+		walkClassDecl_fields(node.fields);
+		walkToken(node.braceClose);
 	}
-	function walkAnonymousStructureFields(node:AnonymousStructureFields) switch node {
-		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields);
-		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields);
+	function walkMetadata_Simple(name:Token) {
+		walkToken(name);
+	}
+	function walkCase_Case_body(elems:Array<BlockElement>) {
+		walkArray(elems, walkBlockElement);
+	}
+	function walkImportMode(node:ImportMode) switch node {
+		case IAll(dotStar):walkImportMode_IAll(dotStar);
+		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident);
+		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident);
+		case INormal:{ };
 	};
-	function walkFieldModifier(node:FieldModifier) switch node {
-		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword);
-		case Inline(keyword):walkFieldModifier_Inline(keyword);
-		case Macro(keyword):walkFieldModifier_Macro(keyword);
-		case Override(keyword):walkFieldModifier_Override(keyword);
-		case Private(keyword):walkFieldModifier_Private(keyword);
-		case Public(keyword):walkFieldModifier_Public(keyword);
-		case Static(keyword):walkFieldModifier_Static(keyword);
+	function walkMethodExpr(node:MethodExpr) switch node {
+		case Block(expr):walkMethodExpr_Block(expr);
+		case None(semicolon):walkMethodExpr_None(semicolon);
+		case Expr(expr, semicolon):walkMethodExpr_Expr(expr, semicolon);
 	};
-	function walkBlockElement(node:BlockElement) switch node {
-		case Expr(expr, semicolon):walkBlockElement_Expr(expr, semicolon);
-		case InlineFunction(inlineKeyword, functionKeyword, fun, semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon);
-		case Var(varKeyword, decls, semicolon):walkBlockElement_Var(varKeyword, decls, semicolon);
-	};
-	function walkExpr_EContinue(continueKeyword:Token) {
-		walkToken(continueKeyword);
-	}
-	function walkTypePathParameter_Type(type:ComplexType) {
-		walkComplexType(type);
-	}
-	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token) {
-		walkToken(ident);
-		walkToken(braceOpen);
+	function walkExpr_EThrow(throwKeyword:Token, expr:Expr) {
+		walkToken(throwKeyword);
 		walkExpr(expr);
-		walkToken(braceClose);
-	}
-	function walkExpr_EArrayDecl_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
-		walkCommaSeparatedTrailing(elems, walkExpr);
-	}
-	function walkTypeHint(node:TypeHint) {
-		walkToken(node.colon);
-		walkComplexType(node.type);
-	}
-	function walkAbstractDecl_relations(elems:Array<AbstractRelation>) {
-		walkArray(elems, walkAbstractRelation);
 	}
 	function walkAssignment(node:Assignment) {
 		walkToken(node.assign);
 		walkExpr(node.expr);
 	}
+	function walkMethodExpr_Expr(expr:Expr, semicolon:Token) {
+		walkExpr(expr);
+		walkToken(semicolon);
+	}
+	function walkMacroExpr_Class(classDecl:ClassDecl) {
+		walkClassDecl(classDecl);
+	}
+	function walkCase_Case_patterns(elems:CommaSeparated<Expr>) {
+		walkCommaSeparated(elems, walkExpr);
+	}
+	function walkNPath_idents(elems:Array<NDotIdent>) {
+		walkArray(elems, walkNDotIdent);
+	}
+	function walkNCommonFlag(node:NCommonFlag) switch node {
+		case PPrivate(token):walkNCommonFlag_PPrivate(token);
+		case PExtern(token):walkNCommonFlag_PExtern(token);
+	};
 	function walkClassField_Variable_modifiers(elems:Array<FieldModifier>) {
 		walkArray(elems, walkFieldModifier);
 	}
-	function walkConstraints(node:Constraints) switch node {
-		case None:{ };
-		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose);
-		case Single(colon, type):walkConstraints_Single(colon, type);
-	};
-	function walkObjectField(node:ObjectField) {
-		walkObjectFieldName(node.name);
+	function walkTypeHint(node:TypeHint) {
 		walkToken(node.colon);
-		walkExpr(node.expr);
+		walkComplexType(node.type);
 	}
-	function walkTypePathParameters(node:TypePathParameters) {
-		walkToken(node.lt);
-		walkTypePathParameters_params(node.params);
-		walkToken(node.gt);
+	function walkExpr_EArrayDecl(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
+		walkToken(bracketOpen);
+		if (elems != null) walkExpr_EArrayDecl_elems(elems);
+		walkToken(bracketClose);
 	}
-	function walkLiteral_PLiteralString(s:StringToken) {
-		walkStringToken(s);
+	function walkAnonymousStructureFields_ShortNotation(fields:Null<CommaSeparatedAllowTrailing<AnonymousStructureField>>) {
+		if (fields != null) walkAnonymousStructureFields_ShortNotation_fields(fields);
 	}
-	function walkExpr_ESafeCast(castKeyword:Token, parenOpen:Token, expr:Expr, comma:Token, type:ComplexType, parenClose:Token) {
-		walkToken(castKeyword);
+	function walkExpr_EIs(parenOpen:Token, expr:Expr, isKeyword:Token, path:TypePath, parenClose:Token) {
 		walkToken(parenOpen);
 		walkExpr(expr);
-		walkToken(comma);
-		walkComplexType(type);
+		walkToken(isKeyword);
+		walkTypePath(path);
 		walkToken(parenClose);
 	}
-	function walkFile_decls(elems:Array<Decl>) {
-		walkArray(elems, walkDecl);
+	function walkExpr_EObjectDecl(braceOpen:Token, fields:CommaSeparatedAllowTrailing<ObjectField>, braceClose:Token) {
+		walkToken(braceOpen);
+		walkExpr_EObjectDecl_fields(fields);
+		walkToken(braceClose);
 	}
-	function walkDecl(node:Decl) switch node {
-		case ClassDecl(decl):walkDecl_ClassDecl(decl);
-		case TypedefDecl(decl):walkDecl_TypedefDecl(decl);
-		case EnumDecl(decl):walkDecl_EnumDecl(decl);
-		case UsingDecl(decl):walkDecl_UsingDecl(decl);
-		case AbstractDecl(decl):walkDecl_AbstractDecl(decl);
-		case ImportDecl(decl):walkDecl_ImportDecl(decl);
-	};
-	function walkCallArgs_args(elems:CommaSeparated<Expr>) {
-		walkCommaSeparated(elems, walkExpr);
+	function walkUsingDecl(node:UsingDecl) {
+		walkToken(node.usingKeyword);
+		walkNPath(node.path);
+		walkToken(node.semicolon);
 	}
-	function walkConstraints_Multiple_types(elems:CommaSeparated<ComplexType>) {
-		walkCommaSeparated(elems, walkComplexType);
+	function walkClassDecl_relations(elems:Array<ClassRelation>) {
+		walkArray(elems, walkClassRelation);
+	}
+	function walkExpr_EField(expr:Expr, ident:NDotIdent) {
+		walkExpr(expr);
+		walkNDotIdent(ident);
+	}
+	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>) {
+		walkArray(elems, walkStructuralExtension);
+	}
+	function walkTypePathParameter_ArrayExpr(bracketOpen:Token, elems:Null<CommaSeparatedAllowTrailing<Expr>>, bracketClose:Token) {
+		walkToken(bracketOpen);
+		if (elems != null) walkTypePathParameter_ArrayExpr_elems(elems);
+		walkToken(bracketClose);
+	}
+	function walkComplexType_Optional(questionMark:Token, type:ComplexType) {
+		walkToken(questionMark);
+		walkComplexType(type);
+	}
+	function walkExpr_EIf(ifKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprThen:Expr, exprElse:Null<ExprElse>) {
+		walkToken(ifKeyword);
+		walkToken(parenOpen);
+		walkExpr(exprCond);
+		walkToken(parenClose);
+		walkExpr(exprThen);
+		if (exprElse != null) walkExprElse(exprElse);
+	}
+	function walkComplexType_AnonymousStructure(braceOpen:Token, fields:AnonymousStructureFields, braceClose:Token) {
+		walkToken(braceOpen);
+		walkAnonymousStructureFields(fields);
+		walkToken(braceClose);
+	}
+	function walkVarDecl(node:VarDecl) {
+		walkToken(node.name);
+		if (node.typeHint != null) walkTypeHint(node.typeHint);
+		if (node.assignment != null) walkAssignment(node.assignment);
+	}
+	function walkNCommonFlag_PExtern(token:Token) {
+		walkToken(token);
+	}
+	function walkTypePathParameter_ArrayExpr_elems(elems:CommaSeparatedAllowTrailing<Expr>) {
+		walkCommaSeparatedTrailing(elems, walkExpr);
 	}
 	function walkNEnumField(node:NEnumField) {
 		walkNAnnotations(node.annotations);
@@ -816,96 +455,457 @@ import hxParser.ParseTree;
 		if (node.typeHint != null) walkTypeHint(node.typeHint);
 		walkToken(node.semicolon);
 	}
-	function walkComplexType_StructuralExtension_types(elems:Array<StructuralExtension>) {
-		walkArray(elems, walkStructuralExtension);
-	}
-	function walkDecl_EnumDecl(decl:EnumDecl) {
-		walkEnumDecl(decl);
-	}
-	function walkExpr_EMacro(macroKeyword:Token, expr:MacroExpr) {
-		walkToken(macroKeyword);
-		walkMacroExpr(expr);
-	}
-	function walkNEnumFieldArg(node:NEnumFieldArg) {
-		if (node.questionMark != null) walkToken(node.questionMark);
-		walkToken(node.name);
-		walkTypeHint(node.typeHint);
-	}
-	function walkLiteral_PLiteralRegex(token:Token) {
-		walkToken(token);
+	function walkNConst_PConstLiteral(literal:Literal) {
+		walkLiteral(literal);
 	}
 	function walkMethodExpr_None(semicolon:Token) {
 		walkToken(semicolon);
 	}
-	function walkComplexType_TypePath(path:TypePath) {
-		walkTypePath(path);
+	function walkAbstractRelation_From(fromKeyword:Token, type:ComplexType) {
+		walkToken(fromKeyword);
+		walkComplexType(type);
 	}
+	function walkClassField_Variable(annotations:NAnnotations, modifiers:Array<FieldModifier>, varKeyword:Token, name:Token, typeHint:Null<TypeHint>, assignment:Null<Assignment>, semicolon:Token) {
+		walkNAnnotations(annotations);
+		walkClassField_Variable_modifiers(modifiers);
+		walkToken(varKeyword);
+		walkToken(name);
+		if (typeHint != null) walkTypeHint(typeHint);
+		if (assignment != null) walkAssignment(assignment);
+		walkToken(semicolon);
+	}
+	function walkTypeDeclParameter(node:TypeDeclParameter) {
+		walkNAnnotations(node.annotations);
+		walkToken(node.name);
+		walkConstraints(node.constraints);
+	}
+	function walkComplexType_Parenthesis(parenOpen:Token, type:ComplexType, parenClose:Token) {
+		walkToken(parenOpen);
+		walkComplexType(type);
+		walkToken(parenClose);
+	}
+	function walkNDotIdent(node:NDotIdent) switch node {
+		case PDotIdent(name):walkNDotIdent_PDotIdent(name);
+		case PDot(dot):walkNDotIdent_PDot(dot);
+	};
+	function walkExpr_EUnaryPrefix(op:Token, expr:Expr) {
+		walkToken(op);
+		walkExpr(expr);
+	}
+	function walkAnonymousStructureField(node:AnonymousStructureField) {
+		if (node.questionMark != null) walkToken(node.questionMark);
+		walkToken(node.name);
+		walkTypeHint(node.typeHint);
+	}
+	function walkFieldModifier_Dynamic(keyword:Token) {
+		walkToken(keyword);
+	}
+	function walkExpr_EConst(const:NConst) {
+		walkNConst(const);
+	}
+	function walkClassField_Function_args(elems:CommaSeparated<FunctionArgument>) {
+		walkCommaSeparated(elems, walkFunctionArgument);
+	}
+	function walkClassRelation(node:ClassRelation) switch node {
+		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path);
+		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path);
+	};
+	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr) {
+		walkExpr(exprCond);
+		walkToken(questionMark);
+		walkExpr(exprThen);
+		walkToken(colon);
+		walkExpr(exprElse);
+	}
+	function walkCase_Default_body(elems:Array<BlockElement>) {
+		walkArray(elems, walkBlockElement);
+	}
+	function walkExpr_EFor(forKeyword:Token, parenOpen:Token, exprIter:Expr, parenClose:Token, exprBody:Expr) {
+		walkToken(forKeyword);
+		walkToken(parenOpen);
+		walkExpr(exprIter);
+		walkToken(parenClose);
+		walkExpr(exprBody);
+	}
+	function walkDecl_EnumDecl(decl:EnumDecl) {
+		walkEnumDecl(decl);
+	}
+	function walkMacroExpr_Expr(expr:Expr) {
+		walkExpr(expr);
+	}
+	function walkDecl_ClassDecl(decl:ClassDecl2) {
+		walkClassDecl2(decl);
+	}
+	function walkBlockElement(node:BlockElement) switch node {
+		case InlineFunction(inlineKeyword, functionKeyword, fun, semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon);
+		case Var(varKeyword, decls, semicolon):walkBlockElement_Var(varKeyword, decls, semicolon);
+		case Expr(expr, semicolon):walkBlockElement_Expr(expr, semicolon);
+	};
 	function walkTypePathParameter_Literal(literal:Literal) {
 		walkLiteral(literal);
 	}
-	function walkMacroExpr_Class(classDecl:ClassDecl) {
-		walkClassDecl(classDecl);
+	function walkAnonymousStructureFields_ClassNotation_fields(elems:Array<ClassField>) {
+		walkArray(elems, walkClassField);
 	}
-	function walkStructuralExtension(node:StructuralExtension) {
-		walkToken(node.gt);
-		walkTypePath(node.path);
-		walkToken(node.comma);
+	function walkFieldModifier_Static(keyword:Token) {
+		walkToken(keyword);
+	}
+	function walkCatch(node:Catch) {
+		walkToken(node.catchKeyword);
+		walkToken(node.parenOpen);
+		walkToken(node.ident);
+		walkTypeHint(node.typeHint);
+		walkToken(node.parenClose);
+		walkExpr(node.expr);
+	}
+	function walkAbstractDecl_fields(elems:Array<ClassField>) {
+		walkArray(elems, walkClassField);
+	}
+	function walkNEnumFieldArgs_args(elems:CommaSeparated<NEnumFieldArg>) {
+		walkCommaSeparated(elems, walkNEnumFieldArg);
+	}
+	function walkFile(node:File) {
+		if (node.pack != null) walkPackage(node.pack);
+		walkFile_decls(node.decls);
+		walkToken(node.eof);
+	}
+	function walkCallArgs_args(elems:CommaSeparated<Expr>) {
+		walkCommaSeparated(elems, walkExpr);
+	}
+	function walkExpr_EBreak(breakKeyword:Token) {
+		walkToken(breakKeyword);
+	}
+	function walkExpr_ESwitch_cases(elems:Array<Case>) {
+		walkArray(elems, walkCase);
+	}
+	function walkExpr_EDollarIdent(ident:Token) {
+		walkToken(ident);
+	}
+	function walkObjectField(node:ObjectField) {
+		walkObjectFieldName(node.name);
+		walkToken(node.colon);
+		walkExpr(node.expr);
+	}
+	function walkImportMode_IIn(inKeyword:Token, ident:Token) {
+		walkToken(inKeyword);
+		walkToken(ident);
+	}
+	function walkExpr_EUnsafeCast(castKeyword:Token, expr:Expr) {
+		walkToken(castKeyword);
+		walkExpr(expr);
+	}
+	function walkTypedefDecl(node:TypedefDecl) {
+		walkNAnnotations(node.annotations);
+		walkTypedefDecl_flags(node.flags);
+		walkToken(node.typedefKeyword);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkToken(node.assign);
+		walkComplexType(node.type);
+		if (node.semicolon != null) walkToken(node.semicolon);
+	}
+	function walkMacroExpr(node:MacroExpr) switch node {
+		case TypeHint(typeHint):walkMacroExpr_TypeHint(typeHint);
+		case Var(varKeyword, decls):walkMacroExpr_Var(varKeyword, decls);
+		case Class(classDecl):walkMacroExpr_Class(classDecl);
+		case Expr(expr):walkMacroExpr_Expr(expr);
+	};
+	function walkMetadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token) {
+		walkToken(name);
+		walkMetadata_WithArgs_args(args);
+		walkToken(parenClose);
+	}
+	function walkDecl_AbstractDecl(decl:AbstractDecl) {
+		walkAbstractDecl(decl);
+	}
+	function walkAbstractRelation(node:AbstractRelation) switch node {
+		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type);
+		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type);
+	};
+	function walkNDotIdent_PDot(dot:Token) {
+		walkToken(dot);
+	}
+	function walkConstraints_Multiple(colon:Token, parenOpen:Token, types:CommaSeparated<ComplexType>, parenClose:Token) {
+		walkToken(colon);
+		walkToken(parenOpen);
+		walkConstraints_Multiple_types(types);
+		walkToken(parenClose);
 	}
 	function walkExpr_EReturnExpr(returnKeyword:Token, expr:Expr) {
 		walkToken(returnKeyword);
 		walkExpr(expr);
 	}
-	function walkClassDecl2(node:ClassDecl2) {
-		walkNAnnotations(node.annotations);
-		walkClassDecl2_flags(node.flags);
-		walkClassDecl(node.decl);
+	function walkNConst_PConstIdent(ident:Token) {
+		walkToken(ident);
+	}
+	function walkClassField_Property_modifiers(elems:Array<FieldModifier>) {
+		walkArray(elems, walkFieldModifier);
+	}
+	function walkConstraints_Single(colon:Token, type:ComplexType) {
+		walkToken(colon);
+		walkComplexType(type);
+	}
+	function walkExpr_ETry_catches(elems:Array<Catch>) {
+		walkArray(elems, walkCatch);
+	}
+	function walkExpr_EArrayAccess(expr:Expr, bracketOpen:Token, exprKey:Expr, bracketClose:Token) {
+		walkExpr(expr);
+		walkToken(bracketOpen);
+		walkExpr(exprKey);
+		walkToken(bracketClose);
+	}
+	function walkCase(node:Case) switch node {
+		case Default(defaultKeyword, colon, body):walkCase_Default(defaultKeyword, colon, body);
+		case Case(caseKeyword, patterns, guard, colon, body):walkCase_Case(caseKeyword, patterns, guard, colon, body);
+	};
+	function walkObjectFieldName_NIdent(ident:Token) {
+		walkToken(ident);
+	}
+	function walkTypeDeclParameters(node:TypeDeclParameters) {
+		walkToken(node.lt);
+		walkTypeDeclParameters_params(node.params);
+		walkToken(node.gt);
+	}
+	function walkExpr_EWhile(whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token, exprBody:Expr) {
+		walkToken(whileKeyword);
+		walkToken(parenOpen);
+		walkExpr(exprCond);
+		walkToken(parenClose);
+		walkExpr(exprBody);
+	}
+	function walkClassRelation_Implements(implementsKeyword:Token, path:TypePath) {
+		walkToken(implementsKeyword);
+		walkTypePath(path);
+	}
+	function walkNPath(node:NPath) {
+		walkToken(node.ident);
+		walkNPath_idents(node.idents);
+	}
+	function walkNConst(node:NConst) switch node {
+		case PConstIdent(ident):walkNConst_PConstIdent(ident);
+		case PConstLiteral(literal):walkNConst_PConstLiteral(literal);
+	};
+	function walkNCommonFlag_PPrivate(token:Token) {
+		walkToken(token);
+	}
+	function walkDecl_UsingDecl(decl:UsingDecl) {
+		walkUsingDecl(decl);
+	}
+	function walkTypePathParameters(node:TypePathParameters) {
+		walkToken(node.lt);
+		walkTypePathParameters_params(node.params);
+		walkToken(node.gt);
+	}
+	function walkConstraints_Multiple_types(elems:CommaSeparated<ComplexType>) {
+		walkCommaSeparated(elems, walkComplexType);
+	}
+	function walkClassRelation_Extends(extendsKeyword:Token, path:TypePath) {
+		walkToken(extendsKeyword);
+		walkTypePath(path);
+	}
+	function walkExpr_EVar(varKeyword:Token, decl:VarDecl) {
+		walkToken(varKeyword);
+		walkVarDecl(decl);
 	}
 	function walkUnderlyingType(node:UnderlyingType) {
 		walkToken(node.parenOpen);
 		walkComplexType(node.type);
 		walkToken(node.parenClose);
 	}
-	function walkExpr_ESwitch(switchKeyword:Token, expr:Expr, braceOpen:Token, cases:Array<Case>, braceClose:Token) {
-		walkToken(switchKeyword);
-		walkExpr(expr);
-		walkToken(braceOpen);
-		walkExpr_ESwitch_cases(cases);
-		walkToken(braceClose);
+	function walkAnonymousStructureFields_ClassNotation(fields:Array<ClassField>) {
+		walkAnonymousStructureFields_ClassNotation_fields(fields);
 	}
-	function walkNCommonFlag_PPrivate(token:Token) {
+	function walkMacroExpr_TypeHint(typeHint:TypeHint) {
+		walkTypeHint(typeHint);
+	}
+	function walkComplexType_TypePath(path:TypePath) {
+		walkTypePath(path);
+	}
+	function walkDecl_TypedefDecl(decl:TypedefDecl) {
+		walkTypedefDecl(decl);
+	}
+	function walkStringToken_DoubleQuote(token:Token) {
 		walkToken(token);
 	}
-	function walkCase(node:Case) switch node {
-		case Default(defaultKeyword, colon, body):walkCase_Default(defaultKeyword, colon, body);
-		case Case(caseKeyword, patterns, guard, colon, body):walkCase_Case(caseKeyword, patterns, guard, colon, body);
-	};
+	function walkDecl_ImportDecl(decl:ImportDecl) {
+		walkImportDecl(decl);
+	}
 	function walkObjectFieldName(node:ObjectFieldName) switch node {
-		case NString(string):walkObjectFieldName_NString(string);
 		case NIdent(ident):walkObjectFieldName_NIdent(ident);
+		case NString(string):walkObjectFieldName_NString(string);
 	};
+	function walkExpr_EFunction(functionKeyword:Token, fun:Function) {
+		walkToken(functionKeyword);
+		walkFunction(fun);
+	}
+	function walkTypePathParameter_Type(type:ComplexType) {
+		walkComplexType(type);
+	}
+	function walkClassDecl2_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
+	function walkFieldModifier_Override(keyword:Token) {
+		walkToken(keyword);
+	}
+	function walkExpr_EMacro(macroKeyword:Token, expr:MacroExpr) {
+		walkToken(macroKeyword);
+		walkMacroExpr(expr);
+	}
+	function walkComplexType_Function(typeLeft:ComplexType, arrow:Token, typeRight:ComplexType) {
+		walkComplexType(typeLeft);
+		walkToken(arrow);
+		walkComplexType(typeRight);
+	}
 	function walkImportMode_IAll(dotStar:Token) {
 		walkToken(dotStar);
 	}
-	function walkClassField(node:ClassField) switch node {
-		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
-		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon);
-		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr);
-	};
-	function walkExpr_ESwitch_cases(elems:Array<Case>) {
-		walkArray(elems, walkCase);
+	function walkNDotIdent_PDotIdent(name:Token) {
+		walkToken(name);
 	}
-	function walkExpr_EUnaryPrefix(op:Token, expr:Expr) {
-		walkToken(op);
-		walkExpr(expr);
+	function walkMetadata_WithArgs_args(elems:CommaSeparated<Expr>) {
+		walkCommaSeparated(elems, walkExpr);
 	}
-	function walkObjectFieldName_NIdent(ident:Token) {
-		walkToken(ident);
+	function walkTypePathParameters_params(elems:CommaSeparated<TypePathParameter>) {
+		walkCommaSeparated(elems, walkTypePathParameter);
 	}
-	function walkComplexType_Optional(questionMark:Token, type:ComplexType) {
-		walkToken(questionMark);
+	function walkFieldModifier_Private(keyword:Token) {
+		walkToken(keyword);
+	}
+	function walkExpr_ENew(newKeyword:Token, path:TypePath, args:CallArgs) {
+		walkToken(newKeyword);
+		walkTypePath(path);
+		walkCallArgs(args);
+	}
+	function walkExprElse(node:ExprElse) {
+		walkToken(node.elseKeyword);
+		walkExpr(node.expr);
+	}
+	function walkAbstractRelation_To(toKeyword:Token, type:ComplexType) {
+		walkToken(toKeyword);
 		walkComplexType(type);
 	}
-	function walkFunction_args(elems:CommaSeparated<FunctionArgument>) {
-		walkCommaSeparated(elems, walkFunctionArgument);
+	function walkTypePathParameter(node:TypePathParameter) switch node {
+		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose);
+		case Literal(literal):walkTypePathParameter_Literal(literal);
+		case Type(type):walkTypePathParameter_Type(type);
+	};
+	function walkEnumDecl_fields(elems:Array<NEnumField>) {
+		walkArray(elems, walkNEnumField);
+	}
+	function walkStringToken_SingleQuote(token:Token) {
+		walkToken(token);
+	}
+	function walkLiteral_PLiteralInt(token:Token) {
+		walkToken(token);
+	}
+	function walkLiteral_PLiteralString(s:StringToken) {
+		walkStringToken(s);
+	}
+	function walkAnonymousStructureFields_ShortNotation_fields(elems:CommaSeparatedAllowTrailing<AnonymousStructureField>) {
+		walkCommaSeparatedTrailing(elems, walkAnonymousStructureField);
+	}
+	function walkExpr_ECheckType(parenOpen:Token, expr:Expr, colon:Token, type:ComplexType, parenClose:Token) {
+		walkToken(parenOpen);
+		walkExpr(expr);
+		walkToken(colon);
+		walkComplexType(type);
+		walkToken(parenClose);
+	}
+	function walkAbstractDecl_flags(elems:Array<NCommonFlag>) {
+		walkArray(elems, walkNCommonFlag);
+	}
+	function walkExpr(node:Expr) switch node {
+		case EMacro(macroKeyword, expr):walkExpr_EMacro(macroKeyword, expr);
+		case ECall(expr, args):walkExpr_ECall(expr, args);
+		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr);
+		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose);
+		case ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose);
+		case ENew(newKeyword, path, args):walkExpr_ENew(newKeyword, path, args);
+		case EIntDot(int, dot):walkExpr_EIntDot(int, dot);
+		case EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse);
+		case ETry(tryKeyword, expr, catches):walkExpr_ETry(tryKeyword, expr, catches);
+		case EUntyped(untypedKeyword, expr):walkExpr_EUntyped(untypedKeyword, expr);
+		case EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody);
+		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose);
+		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose);
+		case EBinop(exprLeft, op, exprRight):walkExpr_EBinop(exprLeft, op, exprRight);
+		case EBreak(breakKeyword):walkExpr_EBreak(breakKeyword);
+		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse);
+		case EField(expr, ident):walkExpr_EField(expr, ident);
+		case EUnsafeCast(castKeyword, expr):walkExpr_EUnsafeCast(castKeyword, expr);
+		case ESwitch(switchKeyword, expr, braceOpen, cases, braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose);
+		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op);
+		case EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody);
+		case EReturnExpr(returnKeyword, expr):walkExpr_EReturnExpr(returnKeyword, expr);
+		case ECheckType(parenOpen, expr, colon, type, parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose);
+		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose);
+		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword);
+		case EObjectDecl(braceOpen, fields, braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose);
+		case EParenthesis(parenOpen, expr, parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose);
+		case EIn(exprLeft, inKeyword, exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight);
+		case EVar(varKeyword, decl):walkExpr_EVar(varKeyword, decl);
+		case EDollarIdent(ident):walkExpr_EDollarIdent(ident);
+		case EFunction(functionKeyword, fun):walkExpr_EFunction(functionKeyword, fun);
+		case EArrayDecl(bracketOpen, elems, bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose);
+		case EBlock(braceOpen, elems, braceClose):walkExpr_EBlock(braceOpen, elems, braceClose);
+		case EThrow(throwKeyword, expr):walkExpr_EThrow(throwKeyword, expr);
+		case EConst(const):walkExpr_EConst(const);
+		case EReturn(returnKeyword):walkExpr_EReturn(returnKeyword);
+		case EUnaryPrefix(op, expr):walkExpr_EUnaryPrefix(op, expr);
+	};
+	function walkLiteral_PLiteralFloat(token:Token) {
+		walkToken(token);
+	}
+	function walkBlockElement_Var(varKeyword:Token, decls:CommaSeparated<VarDecl>, semicolon:Token) {
+		walkToken(varKeyword);
+		walkBlockElement_Var_decls(decls);
+		walkToken(semicolon);
+	}
+	function walkExpr_EContinue(continueKeyword:Token) {
+		walkToken(continueKeyword);
+	}
+	function walkNEnumFieldArg(node:NEnumFieldArg) {
+		if (node.questionMark != null) walkToken(node.questionMark);
+		walkToken(node.name);
+		walkTypeHint(node.typeHint);
+	}
+	function walkMetadata(node:Metadata) switch node {
+		case WithArgs(name, args, parenClose):walkMetadata_WithArgs(name, args, parenClose);
+		case Simple(name):walkMetadata_Simple(name);
+	};
+	function walkClassDecl_fields(elems:Array<ClassField>) {
+		walkArray(elems, walkClassField);
+	}
+	function walkExpr_EMacroEscape(ident:Token, braceOpen:Token, expr:Expr, braceClose:Token) {
+		walkToken(ident);
+		walkToken(braceOpen);
+		walkExpr(expr);
+		walkToken(braceClose);
+	}
+	function walkBlockElement_InlineFunction(inlineKeyword:Token, functionKeyword:Token, fun:Function, semicolon:Token) {
+		walkToken(inlineKeyword);
+		walkToken(functionKeyword);
+		walkFunction(fun);
+		walkToken(semicolon);
+	}
+	function walkBlockElement_Var_decls(elems:CommaSeparated<VarDecl>) {
+		walkCommaSeparated(elems, walkVarDecl);
+	}
+	function walkAbstractDecl_relations(elems:Array<AbstractRelation>) {
+		walkArray(elems, walkAbstractRelation);
+	}
+	function walkNAnnotations(node:NAnnotations) {
+		if (node.doc != null) walkToken(node.doc);
+		walkNAnnotations_metadata(node.metadata);
+	}
+	function walkEnumDecl(node:EnumDecl) {
+		walkNAnnotations(node.annotations);
+		walkEnumDecl_flags(node.flags);
+		walkToken(node.enumKeyword);
+		walkToken(node.name);
+		if (node.params != null) walkTypeDeclParameters(node.params);
+		walkToken(node.braceOpen);
+		walkEnumDecl_fields(node.fields);
+		walkToken(node.braceClose);
 	}
 }

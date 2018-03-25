@@ -282,7 +282,11 @@ class GenStackAwareWalker {
 
     public static function getNullType(t:Type):haxe.ds.Option<Type> {
         return switch (t) {
+            #if (haxe_ver >= "4.0.0")
+            case TAbstract(_.get() => {pack: [], name: "Null"}, [realT]): Some(realT);
+            #else
             case TType(_.get() => {pack: [], name: "Null"}, [realT]): Some(realT);
+            #end
             default: None;
         }
     }
