@@ -154,10 +154,13 @@ class GenStackAwareWalker {
                 switch (ctor.type) {
                     case TFun(args, _):
                         var patternArgs = [];
+                        var locals = [];
                         var exprs = [];
                         for (arg in args) {
-                            var local = macro $i{arg.name};
-                            patternArgs.push(local);
+                            var name = arg.name;
+                            patternArgs.push(macro var $name);
+                            var local = macro $i{name};
+                            locals.push(local);
 
                             var newStack = macro Edge($v{arg.name}, stack);
                             var expr = switch(getNullType(arg.t)) {
@@ -189,7 +192,7 @@ class GenStackAwareWalker {
                                 args: args.concat([{name: "stack", type: macro : WalkStack}]),
                                 ret: null,
                                 expr: macro {
-                                    stack = Node($i{kindName}($a{patternArgs}), stack);
+                                    stack = Node($i{kindName}($a{locals}), stack);
                                     $b{exprs};
                                 }
                             })
@@ -197,7 +200,7 @@ class GenStackAwareWalker {
 
                         cases.push({
                             values: [macro $i{ctor.name}($a{patternArgs})],
-                            expr: macro $i{ctorHandlerName}($a{patternArgs.concat([macro stack])})
+                            expr: macro $i{ctorHandlerName}($a{locals.concat([macro stack])})
                         });
 
                     case TEnum(_):

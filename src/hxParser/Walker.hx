@@ -43,8 +43,8 @@ import hxParser.ParseTree;
 		walkCommaSeparatedTrailing(elems, walkObjectField);
 	}
 	function walkStringToken(node:StringToken) switch node {
-		case DoubleQuote(token):walkStringToken_DoubleQuote(token);
-		case SingleQuote(token):walkStringToken_SingleQuote(token);
+		case DoubleQuote(var token):walkStringToken_DoubleQuote(token);
+		case SingleQuote(var token):walkStringToken_SingleQuote(token);
 	};
 	function walkCase_Case(caseKeyword:Token, patterns:CommaSeparated<Expr>, guard:Null<Guard>, colon:Token, body:Array<BlockElement>) {
 		walkToken(caseKeyword);
@@ -54,21 +54,21 @@ import hxParser.ParseTree;
 		walkCase_Case_body(body);
 	}
 	function walkDecl(node:Decl) switch node {
-		case AbstractDecl(decl):walkDecl_AbstractDecl(decl);
-		case ImportDecl(decl):walkDecl_ImportDecl(decl);
-		case TypedefDecl(decl):walkDecl_TypedefDecl(decl);
-		case UsingDecl(decl):walkDecl_UsingDecl(decl);
-		case ClassDecl(decl):walkDecl_ClassDecl(decl);
-		case EnumDecl(decl):walkDecl_EnumDecl(decl);
+		case AbstractDecl(var decl):walkDecl_AbstractDecl(decl);
+		case ImportDecl(var decl):walkDecl_ImportDecl(decl);
+		case TypedefDecl(var decl):walkDecl_TypedefDecl(decl);
+		case UsingDecl(var decl):walkDecl_UsingDecl(decl);
+		case ClassDecl(var decl):walkDecl_ClassDecl(decl);
+		case EnumDecl(var decl):walkDecl_EnumDecl(decl);
 	};
 	function walkFieldModifier(node:FieldModifier) switch node {
-		case Macro(keyword):walkFieldModifier_Macro(keyword);
-		case Public(keyword):walkFieldModifier_Public(keyword);
-		case Private(keyword):walkFieldModifier_Private(keyword);
-		case Static(keyword):walkFieldModifier_Static(keyword);
-		case Inline(keyword):walkFieldModifier_Inline(keyword);
-		case Override(keyword):walkFieldModifier_Override(keyword);
-		case Dynamic(keyword):walkFieldModifier_Dynamic(keyword);
+		case Macro(var keyword):walkFieldModifier_Macro(keyword);
+		case Public(var keyword):walkFieldModifier_Public(keyword);
+		case Private(var keyword):walkFieldModifier_Private(keyword);
+		case Static(var keyword):walkFieldModifier_Static(keyword);
+		case Inline(var keyword):walkFieldModifier_Inline(keyword);
+		case Override(var keyword):walkFieldModifier_Override(keyword);
+		case Dynamic(var keyword):walkFieldModifier_Dynamic(keyword);
 	};
 	function walkExpr_EBlock_elems(elems:Array<BlockElement>) {
 		walkArray(elems, walkBlockElement);
@@ -121,16 +121,16 @@ import hxParser.ParseTree;
 		walkCommaSeparated(elems, walkFunctionArgument);
 	}
 	function walkAnonymousStructureFields(node:AnonymousStructureFields) switch node {
-		case ShortNotation(fields):walkAnonymousStructureFields_ShortNotation(fields);
-		case ClassNotation(fields):walkAnonymousStructureFields_ClassNotation(fields);
+		case ShortNotation(var fields):walkAnonymousStructureFields_ShortNotation(fields);
+		case ClassNotation(var fields):walkAnonymousStructureFields_ClassNotation(fields);
 	};
 	function walkComplexType(node:ComplexType) switch node {
-		case StructuralExtension(braceOpen, types, fields, braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose);
-		case Parenthesis(parenOpen, type, parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose);
-		case AnonymousStructure(braceOpen, fields, braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose);
-		case Function(typeLeft, arrow, typeRight):walkComplexType_Function(typeLeft, arrow, typeRight);
-		case Optional(questionMark, type):walkComplexType_Optional(questionMark, type);
-		case TypePath(path):walkComplexType_TypePath(path);
+		case StructuralExtension(var braceOpen, var types, var fields, var braceClose):walkComplexType_StructuralExtension(braceOpen, types, fields, braceClose);
+		case Parenthesis(var parenOpen, var type, var parenClose):walkComplexType_Parenthesis(parenOpen, type, parenClose);
+		case AnonymousStructure(var braceOpen, var fields, var braceClose):walkComplexType_AnonymousStructure(braceOpen, fields, braceClose);
+		case Function(var typeLeft, var arrow, var typeRight):walkComplexType_Function(typeLeft, arrow, typeRight);
+		case Optional(var questionMark, var type):walkComplexType_Optional(questionMark, type);
+		case TypePath(var path):walkComplexType_TypePath(path);
 	};
 	function walkExpr_EDo(doKeyword:Token, exprBody:Expr, whileKeyword:Token, parenOpen:Token, exprCond:Expr, parenClose:Token) {
 		walkToken(doKeyword);
@@ -184,15 +184,15 @@ import hxParser.ParseTree;
 		walkToken(keyword);
 	}
 	function walkLiteral(node:Literal) switch node {
-		case PLiteralString(s):walkLiteral_PLiteralString(s);
-		case PLiteralInt(token):walkLiteral_PLiteralInt(token);
-		case PLiteralRegex(token):walkLiteral_PLiteralRegex(token);
-		case PLiteralFloat(token):walkLiteral_PLiteralFloat(token);
+		case PLiteralString(var s):walkLiteral_PLiteralString(s);
+		case PLiteralInt(var token):walkLiteral_PLiteralInt(token);
+		case PLiteralRegex(var token):walkLiteral_PLiteralRegex(token);
+		case PLiteralFloat(var token):walkLiteral_PLiteralFloat(token);
 	};
 	function walkConstraints(node:Constraints) switch node {
 		case None:{ };
-		case Single(colon, type):walkConstraints_Single(colon, type);
-		case Multiple(colon, parenOpen, types, parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose);
+		case Single(var colon, var type):walkConstraints_Single(colon, type);
+		case Multiple(var colon, var parenOpen, var types, var parenClose):walkConstraints_Multiple(colon, parenOpen, types, parenClose);
 	};
 	function walkClassField_Function(annotations:NAnnotations, modifiers:Array<FieldModifier>, functionKeyword:Token, name:Token, params:Null<TypeDeclParameters>, parenOpen:Token, args:Null<CommaSeparated<FunctionArgument>>, parenClose:Token, typeHint:Null<TypeHint>, expr:MethodExpr) {
 		walkNAnnotations(annotations);
@@ -269,9 +269,9 @@ import hxParser.ParseTree;
 		walkToken(node.braceClose);
 	}
 	function walkClassField(node:ClassField) switch node {
-		case Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
-		case Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon);
-		case Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr);
+		case Property(var annotations, var modifiers, var varKeyword, var name, var parenOpen, var read, var comma, var write, var parenClose, var typeHint, var assignment, var semicolon):walkClassField_Property(annotations, modifiers, varKeyword, name, parenOpen, read, comma, write, parenClose, typeHint, assignment, semicolon);
+		case Variable(var annotations, var modifiers, var varKeyword, var name, var typeHint, var assignment, var semicolon):walkClassField_Variable(annotations, modifiers, varKeyword, name, typeHint, assignment, semicolon);
+		case Function(var annotations, var modifiers, var functionKeyword, var name, var params, var parenOpen, var args, var parenClose, var typeHint, var expr):walkClassField_Function(annotations, modifiers, functionKeyword, name, params, parenOpen, args, parenClose, typeHint, expr);
 	};
 	function walkFieldModifier_Inline(keyword:Token) {
 		walkToken(keyword);
@@ -337,15 +337,15 @@ import hxParser.ParseTree;
 		walkArray(elems, walkBlockElement);
 	}
 	function walkImportMode(node:ImportMode) switch node {
-		case IAll(dotStar):walkImportMode_IAll(dotStar);
-		case IAs(asKeyword, ident):walkImportMode_IAs(asKeyword, ident);
-		case IIn(inKeyword, ident):walkImportMode_IIn(inKeyword, ident);
+		case IAll(var dotStar):walkImportMode_IAll(dotStar);
+		case IAs(var asKeyword, var ident):walkImportMode_IAs(asKeyword, ident);
+		case IIn(var inKeyword, var ident):walkImportMode_IIn(inKeyword, ident);
 		case INormal:{ };
 	};
 	function walkMethodExpr(node:MethodExpr) switch node {
-		case Block(expr):walkMethodExpr_Block(expr);
-		case None(semicolon):walkMethodExpr_None(semicolon);
-		case Expr(expr, semicolon):walkMethodExpr_Expr(expr, semicolon);
+		case Block(var expr):walkMethodExpr_Block(expr);
+		case None(var semicolon):walkMethodExpr_None(semicolon);
+		case Expr(var expr, var semicolon):walkMethodExpr_Expr(expr, semicolon);
 	};
 	function walkExpr_EThrow(throwKeyword:Token, expr:Expr) {
 		walkToken(throwKeyword);
@@ -369,8 +369,8 @@ import hxParser.ParseTree;
 		walkArray(elems, walkNDotIdent);
 	}
 	function walkNCommonFlag(node:NCommonFlag) switch node {
-		case PPrivate(token):walkNCommonFlag_PPrivate(token);
-		case PExtern(token):walkNCommonFlag_PExtern(token);
+		case PPrivate(var token):walkNCommonFlag_PPrivate(token);
+		case PExtern(var token):walkNCommonFlag_PExtern(token);
 	};
 	function walkClassField_Variable_modifiers(elems:Array<FieldModifier>) {
 		walkArray(elems, walkFieldModifier);
@@ -485,8 +485,8 @@ import hxParser.ParseTree;
 		walkToken(parenClose);
 	}
 	function walkNDotIdent(node:NDotIdent) switch node {
-		case PDotIdent(name):walkNDotIdent_PDotIdent(name);
-		case PDot(dot):walkNDotIdent_PDot(dot);
+		case PDotIdent(var name):walkNDotIdent_PDotIdent(name);
+		case PDot(var dot):walkNDotIdent_PDot(dot);
 	};
 	function walkExpr_EUnaryPrefix(op:Token, expr:Expr) {
 		walkToken(op);
@@ -507,8 +507,8 @@ import hxParser.ParseTree;
 		walkCommaSeparated(elems, walkFunctionArgument);
 	}
 	function walkClassRelation(node:ClassRelation) switch node {
-		case Extends(extendsKeyword, path):walkClassRelation_Extends(extendsKeyword, path);
-		case Implements(implementsKeyword, path):walkClassRelation_Implements(implementsKeyword, path);
+		case Extends(var extendsKeyword, var path):walkClassRelation_Extends(extendsKeyword, path);
+		case Implements(var implementsKeyword, var path):walkClassRelation_Implements(implementsKeyword, path);
 	};
 	function walkExpr_ETernary(exprCond:Expr, questionMark:Token, exprThen:Expr, colon:Token, exprElse:Expr) {
 		walkExpr(exprCond);
@@ -537,9 +537,9 @@ import hxParser.ParseTree;
 		walkClassDecl2(decl);
 	}
 	function walkBlockElement(node:BlockElement) switch node {
-		case InlineFunction(inlineKeyword, functionKeyword, fun, semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon);
-		case Var(varKeyword, decls, semicolon):walkBlockElement_Var(varKeyword, decls, semicolon);
-		case Expr(expr, semicolon):walkBlockElement_Expr(expr, semicolon);
+		case InlineFunction(var inlineKeyword, var functionKeyword, var fun, var semicolon):walkBlockElement_InlineFunction(inlineKeyword, functionKeyword, fun, semicolon);
+		case Var(var varKeyword, var decls, var semicolon):walkBlockElement_Var(varKeyword, decls, semicolon);
+		case Expr(var expr, var semicolon):walkBlockElement_Expr(expr, semicolon);
 	};
 	function walkTypePathParameter_Literal(literal:Literal) {
 		walkLiteral(literal);
@@ -605,10 +605,10 @@ import hxParser.ParseTree;
 		if (node.semicolon != null) walkToken(node.semicolon);
 	}
 	function walkMacroExpr(node:MacroExpr) switch node {
-		case TypeHint(typeHint):walkMacroExpr_TypeHint(typeHint);
-		case Var(varKeyword, decls):walkMacroExpr_Var(varKeyword, decls);
-		case Class(classDecl):walkMacroExpr_Class(classDecl);
-		case Expr(expr):walkMacroExpr_Expr(expr);
+		case TypeHint(var typeHint):walkMacroExpr_TypeHint(typeHint);
+		case Var(var varKeyword, var decls):walkMacroExpr_Var(varKeyword, decls);
+		case Class(var classDecl):walkMacroExpr_Class(classDecl);
+		case Expr(var expr):walkMacroExpr_Expr(expr);
 	};
 	function walkMetadata_WithArgs(name:Token, args:CommaSeparated<Expr>, parenClose:Token) {
 		walkToken(name);
@@ -619,8 +619,8 @@ import hxParser.ParseTree;
 		walkAbstractDecl(decl);
 	}
 	function walkAbstractRelation(node:AbstractRelation) switch node {
-		case To(toKeyword, type):walkAbstractRelation_To(toKeyword, type);
-		case From(fromKeyword, type):walkAbstractRelation_From(fromKeyword, type);
+		case To(var toKeyword, var type):walkAbstractRelation_To(toKeyword, type);
+		case From(var fromKeyword, var type):walkAbstractRelation_From(fromKeyword, type);
 	};
 	function walkNDotIdent_PDot(dot:Token) {
 		walkToken(dot);
@@ -655,8 +655,8 @@ import hxParser.ParseTree;
 		walkToken(bracketClose);
 	}
 	function walkCase(node:Case) switch node {
-		case Default(defaultKeyword, colon, body):walkCase_Default(defaultKeyword, colon, body);
-		case Case(caseKeyword, patterns, guard, colon, body):walkCase_Case(caseKeyword, patterns, guard, colon, body);
+		case Default(var defaultKeyword, var colon, var body):walkCase_Default(defaultKeyword, colon, body);
+		case Case(var caseKeyword, var patterns, var guard, var colon, var body):walkCase_Case(caseKeyword, patterns, guard, colon, body);
 	};
 	function walkObjectFieldName_NIdent(ident:Token) {
 		walkToken(ident);
@@ -682,8 +682,8 @@ import hxParser.ParseTree;
 		walkNPath_idents(node.idents);
 	}
 	function walkNConst(node:NConst) switch node {
-		case PConstIdent(ident):walkNConst_PConstIdent(ident);
-		case PConstLiteral(literal):walkNConst_PConstLiteral(literal);
+		case PConstIdent(var ident):walkNConst_PConstIdent(ident);
+		case PConstLiteral(var literal):walkNConst_PConstLiteral(literal);
 	};
 	function walkNCommonFlag_PPrivate(token:Token) {
 		walkToken(token);
@@ -731,8 +731,8 @@ import hxParser.ParseTree;
 		walkImportDecl(decl);
 	}
 	function walkObjectFieldName(node:ObjectFieldName) switch node {
-		case NIdent(ident):walkObjectFieldName_NIdent(ident);
-		case NString(string):walkObjectFieldName_NString(string);
+		case NIdent(var ident):walkObjectFieldName_NIdent(ident);
+		case NString(var string):walkObjectFieldName_NString(string);
 	};
 	function walkExpr_EFunction(functionKeyword:Token, fun:Function) {
 		walkToken(functionKeyword);
@@ -785,9 +785,9 @@ import hxParser.ParseTree;
 		walkComplexType(type);
 	}
 	function walkTypePathParameter(node:TypePathParameter) switch node {
-		case ArrayExpr(bracketOpen, elems, bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose);
-		case Literal(literal):walkTypePathParameter_Literal(literal);
-		case Type(type):walkTypePathParameter_Type(type);
+		case ArrayExpr(var bracketOpen, var elems, var bracketClose):walkTypePathParameter_ArrayExpr(bracketOpen, elems, bracketClose);
+		case Literal(var literal):walkTypePathParameter_Literal(literal);
+		case Type(var type):walkTypePathParameter_Type(type);
 	};
 	function walkEnumDecl_fields(elems:Array<NEnumField>) {
 		walkArray(elems, walkNEnumField);
@@ -815,43 +815,43 @@ import hxParser.ParseTree;
 		walkArray(elems, walkNCommonFlag);
 	}
 	function walkExpr(node:Expr) switch node {
-		case EMacro(macroKeyword, expr):walkExpr_EMacro(macroKeyword, expr);
-		case ECall(expr, args):walkExpr_ECall(expr, args);
-		case EMetadata(metadata, expr):walkExpr_EMetadata(metadata, expr);
-		case EMacroEscape(ident, braceOpen, expr, braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose);
-		case ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose);
-		case ENew(newKeyword, path, args):walkExpr_ENew(newKeyword, path, args);
-		case EIntDot(int, dot):walkExpr_EIntDot(int, dot);
-		case EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse);
-		case ETry(tryKeyword, expr, catches):walkExpr_ETry(tryKeyword, expr, catches);
-		case EUntyped(untypedKeyword, expr):walkExpr_EUntyped(untypedKeyword, expr);
-		case EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody);
-		case EIs(parenOpen, expr, isKeyword, path, parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose);
-		case EArrayAccess(expr, bracketOpen, exprKey, bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose);
-		case EBinop(exprLeft, op, exprRight):walkExpr_EBinop(exprLeft, op, exprRight);
-		case EBreak(breakKeyword):walkExpr_EBreak(breakKeyword);
-		case ETernary(exprCond, questionMark, exprThen, colon, exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse);
-		case EField(expr, ident):walkExpr_EField(expr, ident);
-		case EUnsafeCast(castKeyword, expr):walkExpr_EUnsafeCast(castKeyword, expr);
-		case ESwitch(switchKeyword, expr, braceOpen, cases, braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose);
-		case EUnaryPostfix(expr, op):walkExpr_EUnaryPostfix(expr, op);
-		case EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody);
-		case EReturnExpr(returnKeyword, expr):walkExpr_EReturnExpr(returnKeyword, expr);
-		case ECheckType(parenOpen, expr, colon, type, parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose);
-		case EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose);
-		case EContinue(continueKeyword):walkExpr_EContinue(continueKeyword);
-		case EObjectDecl(braceOpen, fields, braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose);
-		case EParenthesis(parenOpen, expr, parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose);
-		case EIn(exprLeft, inKeyword, exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight);
-		case EVar(varKeyword, decl):walkExpr_EVar(varKeyword, decl);
-		case EDollarIdent(ident):walkExpr_EDollarIdent(ident);
-		case EFunction(functionKeyword, fun):walkExpr_EFunction(functionKeyword, fun);
-		case EArrayDecl(bracketOpen, elems, bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose);
-		case EBlock(braceOpen, elems, braceClose):walkExpr_EBlock(braceOpen, elems, braceClose);
-		case EThrow(throwKeyword, expr):walkExpr_EThrow(throwKeyword, expr);
-		case EConst(const):walkExpr_EConst(const);
-		case EReturn(returnKeyword):walkExpr_EReturn(returnKeyword);
-		case EUnaryPrefix(op, expr):walkExpr_EUnaryPrefix(op, expr);
+		case EMacro(var macroKeyword, var expr):walkExpr_EMacro(macroKeyword, expr);
+		case ECall(var expr, var args):walkExpr_ECall(expr, args);
+		case EMetadata(var metadata, var expr):walkExpr_EMetadata(metadata, expr);
+		case EMacroEscape(var ident, var braceOpen, var expr, var braceClose):walkExpr_EMacroEscape(ident, braceOpen, expr, braceClose);
+		case ESafeCast(var castKeyword, var parenOpen, var expr, var comma, var type, var parenClose):walkExpr_ESafeCast(castKeyword, parenOpen, expr, comma, type, parenClose);
+		case ENew(var newKeyword, var path, var args):walkExpr_ENew(newKeyword, path, args);
+		case EIntDot(var int, var dot):walkExpr_EIntDot(int, dot);
+		case EIf(var ifKeyword, var parenOpen, var exprCond, var parenClose, var exprThen, var exprElse):walkExpr_EIf(ifKeyword, parenOpen, exprCond, parenClose, exprThen, exprElse);
+		case ETry(var tryKeyword, var expr, var catches):walkExpr_ETry(tryKeyword, expr, catches);
+		case EUntyped(var untypedKeyword, var expr):walkExpr_EUntyped(untypedKeyword, expr);
+		case EWhile(var whileKeyword, var parenOpen, var exprCond, var parenClose, var exprBody):walkExpr_EWhile(whileKeyword, parenOpen, exprCond, parenClose, exprBody);
+		case EIs(var parenOpen, var expr, var isKeyword, var path, var parenClose):walkExpr_EIs(parenOpen, expr, isKeyword, path, parenClose);
+		case EArrayAccess(var expr, var bracketOpen, var exprKey, var bracketClose):walkExpr_EArrayAccess(expr, bracketOpen, exprKey, bracketClose);
+		case EBinop(var exprLeft, var op, var exprRight):walkExpr_EBinop(exprLeft, op, exprRight);
+		case EBreak(var breakKeyword):walkExpr_EBreak(breakKeyword);
+		case ETernary(var exprCond, var questionMark, var exprThen, var colon, var exprElse):walkExpr_ETernary(exprCond, questionMark, exprThen, colon, exprElse);
+		case EField(var expr, var ident):walkExpr_EField(expr, ident);
+		case EUnsafeCast(var castKeyword, var expr):walkExpr_EUnsafeCast(castKeyword, expr);
+		case ESwitch(var switchKeyword, var expr, var braceOpen, var cases, var braceClose):walkExpr_ESwitch(switchKeyword, expr, braceOpen, cases, braceClose);
+		case EUnaryPostfix(var expr, var op):walkExpr_EUnaryPostfix(expr, op);
+		case EFor(var forKeyword, var parenOpen, var exprIter, var parenClose, var exprBody):walkExpr_EFor(forKeyword, parenOpen, exprIter, parenClose, exprBody);
+		case EReturnExpr(var returnKeyword, var expr):walkExpr_EReturnExpr(returnKeyword, expr);
+		case ECheckType(var parenOpen, var expr, var colon, var type, var parenClose):walkExpr_ECheckType(parenOpen, expr, colon, type, parenClose);
+		case EDo(var doKeyword, var exprBody, var whileKeyword, var parenOpen, var exprCond, var parenClose):walkExpr_EDo(doKeyword, exprBody, whileKeyword, parenOpen, exprCond, parenClose);
+		case EContinue(var continueKeyword):walkExpr_EContinue(continueKeyword);
+		case EObjectDecl(var braceOpen, var fields, var braceClose):walkExpr_EObjectDecl(braceOpen, fields, braceClose);
+		case EParenthesis(var parenOpen, var expr, var parenClose):walkExpr_EParenthesis(parenOpen, expr, parenClose);
+		case EIn(var exprLeft, var inKeyword, var exprRight):walkExpr_EIn(exprLeft, inKeyword, exprRight);
+		case EVar(var varKeyword, var decl):walkExpr_EVar(varKeyword, decl);
+		case EDollarIdent(var ident):walkExpr_EDollarIdent(ident);
+		case EFunction(var functionKeyword, var fun):walkExpr_EFunction(functionKeyword, fun);
+		case EArrayDecl(var bracketOpen, var elems, var bracketClose):walkExpr_EArrayDecl(bracketOpen, elems, bracketClose);
+		case EBlock(var braceOpen, var elems, var braceClose):walkExpr_EBlock(braceOpen, elems, braceClose);
+		case EThrow(var throwKeyword, var expr):walkExpr_EThrow(throwKeyword, expr);
+		case EConst(var const):walkExpr_EConst(const);
+		case EReturn(var returnKeyword):walkExpr_EReturn(returnKeyword);
+		case EUnaryPrefix(var op, var expr):walkExpr_EUnaryPrefix(op, expr);
 	};
 	function walkLiteral_PLiteralFloat(token:Token) {
 		walkToken(token);
@@ -870,8 +870,8 @@ import hxParser.ParseTree;
 		walkTypeHint(node.typeHint);
 	}
 	function walkMetadata(node:Metadata) switch node {
-		case WithArgs(name, args, parenClose):walkMetadata_WithArgs(name, args, parenClose);
-		case Simple(name):walkMetadata_Simple(name);
+		case WithArgs(var name, var args, var parenClose):walkMetadata_WithArgs(name, args, parenClose);
+		case Simple(var name):walkMetadata_Simple(name);
 	};
 	function walkClassDecl_fields(elems:Array<ClassField>) {
 		walkArray(elems, walkClassField);

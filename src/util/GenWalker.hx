@@ -119,10 +119,13 @@ class GenWalker {
                 switch (ctor.type) {
                     case TFun(args, _):
                         var patternArgs = [];
+                        var locals = [];
                         var exprs = [];
                         for (arg in args) {
-                            var local = macro $i{arg.name};
-                            patternArgs.push(local);
+                            var name = arg.name;
+                            patternArgs.push(macro var $name);
+                            var local = macro $i{name};
+                            locals.push(local);
 
                             var expr = switch(getNullType(arg.t)) {
                                 case None:
@@ -149,7 +152,7 @@ class GenWalker {
 
                         cases.push({
                             values: [macro $i{ctor.name}($a{patternArgs})],
-                            expr: macro $i{ctorHandlerName}($a{patternArgs})
+                            expr: macro $i{ctorHandlerName}($a{locals})
                         });
 
                     case TEnum(_):
