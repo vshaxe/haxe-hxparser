@@ -563,7 +563,8 @@ class Converter {
             case "expr_try":
                 var tryToken = nextToken();
                 var expr = convertExpr(node.sub[1]);
-                var catches = node.sub[2].asNode("catches").sub.map(function(node):Catch {
+                var catchesNode = node.sub[2];
+                var catches = if (catchesNode != null) catchesNode.asNode("catches").sub.map(function(node):Catch {
                     var node = node.asNode("catch");
                     return {
                         catchKeyword:nextToken(),
@@ -573,7 +574,7 @@ class Converter {
                         parenClose: nextToken(),
                         expr: convertExpr(node.sub[5]),
                     };
-                });
+                }) else [];
                 ETry(tryToken, expr, catches);
 
             case "expr_var":
