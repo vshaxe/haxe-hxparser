@@ -24,7 +24,7 @@ class HxParser {
     static var parser:String->String->String->JResult;
 
     static function initParser() {
-        untyped __js__("
+        js.Syntax.code("
         var module = {{exports: {{}}}};
         var embed = {0};
         embed(global);
