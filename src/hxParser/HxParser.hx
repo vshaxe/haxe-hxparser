@@ -24,12 +24,21 @@ class HxParser {
     static var parser:String->String->String->JResult;
 
     static function initParser() {
+        #if (haxe < version("4.3.2"))
         js.Syntax.code("
         var module = {{exports: {{}}}};
         var embed = {0};
         embed(global);
         {1} = module.exports.parse;
         ", haxe.macro.Compiler.includeFile("../hxparserjs.js", "inline"), parser);
+        #else
+        js.Syntax.code("
+        var module = {exports: {}};
+        var embed = {0};
+        embed(global);
+        {1} = module.exports.parse;
+        ", haxe.macro.Compiler.includeFile("../hxparserjs.js", "inline"), parser);
+        #end
     }
 
     static function __init__() {
